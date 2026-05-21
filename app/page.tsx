@@ -4,7 +4,10 @@ import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import { neighborhoods, shops } from "@/data/shops";
+import { neighborhoods } from "@/data/shops";
+import { getAllShops } from "@/lib/shop-data";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Find Tobacco Shops Near You in Amsterdam",
@@ -12,7 +15,8 @@ export const metadata: Metadata = {
     "Search for practical information about tobacco shops in Amsterdam, including addresses, opening hours, directions, accessibility notes, and contact details."
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const shops = await getAllShops();
   const featuredShops = shops.slice(0, 3);
 
   return (
@@ -102,7 +106,7 @@ export default function HomePage() {
           <div>
             <h2 className="text-2xl font-bold text-ink">Recently updated Amsterdam listings</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Demo listings show the intended layout. Replace with verified shop records before launch.
+              Listings are loaded from Supabase when configured, with local fallback records for availability.
             </p>
           </div>
           <Link className="focus-ring inline-flex items-center gap-2 rounded-lg text-sm font-bold text-teal" href="/search">

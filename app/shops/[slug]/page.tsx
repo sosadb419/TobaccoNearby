@@ -4,12 +4,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
-import {
-  formatOpeningHours,
-  getOpeningHoursSpecification,
-  getShopBySlug,
-  shops
-} from "@/data/shops";
+import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
+import { getAllShops, getShopBySlug } from "@/lib/shop-data";
+
+export const revalidate = 3600;
 
 type ShopDetailPageProps = {
   params: Promise<{
@@ -17,7 +15,9 @@ type ShopDetailPageProps = {
   }>;
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const shops = await getAllShops();
+
   return shops.map((shop) => ({
     slug: shop.slug
   }));
@@ -25,7 +25,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: ShopDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const shop = getShopBySlug(slug);
+  const shop = await getShopBySlug(slug);
 
   if (!shop) {
     return {
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
 
 export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const { slug } = await params;
-  const shop = getShopBySlug(slug);
+  const shop = await getShopBySlug(slug);
 
   if (!shop) {
     notFound();

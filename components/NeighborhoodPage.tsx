@@ -43,7 +43,8 @@ export default function NeighborhoodPage({ title, intro, shops, searchHref, mapN
         <div>
           <h2 className="text-2xl font-bold text-ink">Listings</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Demo shop records are shown for layout and data structure. Replace with verified listings before launch.
+            Listings are loaded from the directory data source, with local fallback data available if Supabase is
+            unavailable.
           </p>
         </div>
         <Link className="focus-ring rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal" href={searchHref}>
@@ -61,7 +62,7 @@ export default function NeighborhoodPage({ title, intro, shops, searchHref, mapN
           ))
         ) : (
           <div className="rounded-lg border border-line bg-white p-6">
-            <h2 className="text-xl font-bold text-ink">No demo listings yet</h2>
+            <h2 className="text-xl font-bold text-ink">No listings yet</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               This area page is ready for verified shop records as the directory expands.
             </p>

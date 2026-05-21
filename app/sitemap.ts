@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { shops } from "@/data/shops";
+import { getAllShops } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
 
@@ -21,7 +21,8 @@ const staticRoutes = [
   "/amsterdam/near-central-station"
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const shops = await getAllShops();
   const now = new Date();
   const staticEntries = staticRoutes.map((route) => ({
     url: `${siteUrl}${route}`,

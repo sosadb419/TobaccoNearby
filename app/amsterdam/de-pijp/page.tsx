@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import NeighborhoodPage from "@/components/NeighborhoodPage";
-import { getShopsByNeighborhood } from "@/data/shops";
+import { getShopsByNeighborhood } from "@/lib/shop-data";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Tobacco Shops in De Pijp",
@@ -8,12 +10,14 @@ export const metadata: Metadata = {
     "Find practical information about tobacco shops in De Pijp, including addresses, opening hours, directions, public transport notes, and contact details."
 };
 
-export default function DePijpPage() {
+export default async function DePijpPage() {
+  const shops = await getShopsByNeighborhood("De Pijp");
+
   return (
     <NeighborhoodPage
       title="Tobacco Shops in De Pijp"
       intro="Use this page to find practical information about tobacco shops in De Pijp, including addresses, opening hours, directions, and public transport notes where available."
-      shops={getShopsByNeighborhood("De Pijp")}
+      shops={shops}
       searchHref="/search?neighborhood=De%20Pijp"
     />
   );

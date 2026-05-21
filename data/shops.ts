@@ -27,8 +27,8 @@ export type Shop = {
   website?: string;
   googleMapsLink: string;
   lastUpdated: string;
-  city: "Amsterdam";
-  country: "Netherlands";
+  city: string;
+  country: string;
   wheelchairAccessible?: boolean;
   nearbyPublicTransport?: string;
 };
@@ -230,16 +230,16 @@ export const shops: Shop[] = [
   }
 ];
 
-export function getShopBySlug(slug: string) {
-  return shops.find((shop) => shop.slug === slug);
+export function getShopBySlug(slug: string, shopList: Shop[] = shops) {
+  return shopList.find((shop) => shop.slug === slug);
 }
 
-export function getShopsByNeighborhood(neighborhood: string) {
-  return shops.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhood));
+export function getShopsByNeighborhood(neighborhood: string, shopList: Shop[] = shops) {
+  return shopList.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhood));
 }
 
-export function getShopsNearCentralStation(maxKm = 1.5) {
-  return shops
+export function getShopsNearCentralStation(maxKm = 1.5, shopList: Shop[] = shops) {
+  return shopList
     .map((shop) => ({
       shop,
       distance: getDistanceKm(shop, amsterdamCentralStation)
@@ -249,14 +249,14 @@ export function getShopsNearCentralStation(maxKm = 1.5) {
     .map(({ shop }) => shop);
 }
 
-export function searchShops(query: string) {
+export function searchShops(query: string, shopList: Shop[] = shops) {
   const value = normalize(query);
 
   if (!value) {
-    return shops;
+    return shopList;
   }
 
-  return shops.filter((shop) => {
+  return shopList.filter((shop) => {
     const searchable = normalize([
       shop.name,
       shop.address,

@@ -10,12 +10,12 @@ import {
   getDistanceKm,
   isOpenNow,
   neighborhoods,
-  normalize,
-  searchShops,
-  shops
+  normalize
 } from "@/data/shops";
+import { getAllShops, searchShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Tobacco Shops Near You in Amsterdam",
@@ -42,7 +42,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const selectedNeighborhood = params.neighborhood ?? "";
   const baseOrigin = userLocation ?? amsterdamCentralStation;
 
-  let results = query ? searchShops(query) : shops;
+  let results = query ? await searchShops(query) : await getAllShops();
 
   if (selectedNeighborhood) {
     results = results.filter((shop) => normalize(shop.neighborhood) === normalize(selectedNeighborhood));
@@ -146,7 +146,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           {results.length === 0 ? (
             <div className="rounded-lg border border-line bg-white p-6">
-              <h2 className="text-xl font-bold text-ink">No matching demo listings</h2>
+              <h2 className="text-xl font-bold text-ink">No matching listings</h2>
               <p className="mt-2 text-sm leading-6 text-muted">
                 Try another Amsterdam neighborhood or remove filters. Production data should be verified before launch.
               </p>
