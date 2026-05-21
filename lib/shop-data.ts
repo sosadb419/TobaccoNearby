@@ -281,22 +281,4 @@ function readDate(row: SupabaseShopRow, keys: string[]) {
 function readRaw(row: SupabaseShopRow, keys: string[]) {
   for (const key of keys) {
     if (row[key] !== undefined && row[key] !== null) {
-      return row[key];
-    }
-  }
-
-  return undefined;
-}
-
-function slugify(value: string) {
-  return normalize(value)
-    .replace(/[^a-z0-9-]/g, "")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function normalizeTime(value: string) {
-  const [hour, minute] = value.split(":");
-
-  return `${hour.padStart(2, "0")}:${minute}`;
-}
+ 
