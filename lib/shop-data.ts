@@ -10,8 +10,6 @@ import {
   shops as localShops
 } from "@/data/shops";
 
-export const SHOP_REVALIDATE_SECONDS = 3600;
-
 type SupabaseShopRow = Record<string, unknown>;
 
 const fallbackOpeningHours: OpeningHoursSlot[] = [
@@ -35,11 +33,9 @@ export const getAllShops = cache(async (): Promise<Shop[]> => {
       return localShops;
     }
 
-    const mappedShops = (data.map(mapSupabaseShop).filter(Boolean) as Shop[])
+    return (data.map(mapSupabaseShop).filter(Boolean) as Shop[])
       .filter((shop) => normalize(shop.city) === "amsterdam")
       .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated));
-
-    return mappedShops;
   } catch {
     return localShops;
   }
@@ -48,7 +44,7 @@ export const getAllShops = cache(async (): Promise<Shop[]> => {
 export async function getShopBySlug(slug: string) {
   const shopList = await getAllShops();
 
-  return shopList.find((shop) => shop.slug === slug);
+  return shopList.find((shop) => shop.slug === slug) ?? null;
 }
 
 export async function getShopsByNeighborhood(neighborhood: string) {
@@ -79,14 +75,9 @@ export async function searchShops(query: string) {
   }
 
   return shopList.filter((shop) => {
-    const searchable = normalize([
-      shop.name,
-      shop.address,
-      shop.postalCode,
-      shop.neighborhood,
-      shop.city,
-      shop.country
-    ].join(" "));
+    const searchable = normalize(
+      [shop.name, shop.address, shop.postalCode, shop.neighborhood, shop.city, shop.country].join(" ")
+    );
 
     return searchable.includes(value);
   });
