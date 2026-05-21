@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: #f7f8f8;
+  --foreground: #1f2428;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.08), transparent 34rem),
+    linear-gradient(180deg, #ffffff 0%, var(--background) 48%, #ffffff 100%);
+  color: var(--foreground);
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+  letter-spacing: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
+}
+
+.container-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin-inline: auto;
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+.focus-ring:focus-visible {
+  outline-color: #0f766e;
+}
+
+.map-grid {
+  background-image:
+    linear-gradient(rgba(31, 36, 40, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 36, 40, 0.07) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  z-index: 50;
+  border-radius: 8px;
+  background: #1f2428;
+  color: #ffffff;
+  padding: 10px 14px;
+  transition: top 160ms ease;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
