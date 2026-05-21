@@ -5,11 +5,8 @@ import {
   DayName,
   OpeningHoursSlot,
   Shop,
-  getShopBySlug as getLocalShopBySlug,
-  getShopsByNeighborhood as getLocalShopsByNeighborhood,
-  getShopsNearCentralStation as getLocalShopsNearCentralStation,
+  getDistanceKm,
   normalize,
-  searchShops as searchLocalShops,
   shops as localShops
 } from "@/data/shops";
 
@@ -51,25 +48,48 @@ export const getAllShops = cache(async (): Promise<Shop[]> => {
 export async function getShopBySlug(slug: string) {
   const shopList = await getAllShops();
 
-  return getLocalShopBySlug(slug, shopList);
+  return shopList.find((shop) => shop.slug === slug);
 }
 
 export async function getShopsByNeighborhood(neighborhood: string) {
   const shopList = await getAllShops();
 
-  return getLocalShopsByNeighborhood(neighborhood, shopList);
+  return shopList.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhood));
 }
 
 export async function getShopsNearCentralStation(maxKm = 1.5) {
   const shopList = await getAllShops();
 
-  return getLocalShopsNearCentralStation(maxKm, shopList);
+  return shopList
+    .map((shop) => ({
+      shop,
+      distance: getDistanceKm(shop, amsterdamCentralStation)
+    }))
+    .filter(({ distance }) => distance <= maxKm)
+    .sort((a, b) => a.distance - b.distance)
+    .map(({ shop }) => shop);
 }
 
 export async function searchShops(query: string) {
   const shopList = await getAllShops();
+  const value = normalize(query);
 
-  return searchLocalShops(query, shopList);
+  if (!value) {
+    return shopList;
+  }
+
+  return shopList.filter((shop) => {
+    const searchable = normalize([
+      shop.name,
+      shop.address,
+      shop.postalCode,
+      shop.neighborhood,
+      shop.city,
+      shop.country
+    ].join(" "));
+
+    return searchable.includes(value);
+  });
 }
 
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
