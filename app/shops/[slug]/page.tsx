@@ -5,23 +5,17 @@ import { notFound } from "next/navigation";
 import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
-import { getAllShops, getShopBySlug } from "@/lib/shop-data";
+import { getShopBySlug } from "@/lib/shop-data";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+export const revalidate = 0;
 
 type ShopDetailPageProps = {
   params: Promise<{
     slug: string;
   }>;
 };
-
-export async function generateStaticParams() {
-  const shops = await getAllShops();
-
-  return shops.map((shop) => ({
-    slug: shop.slug
-  }));
-}
 
 export async function generateMetadata({ params }: ShopDetailPageProps): Promise<Metadata> {
   const { slug } = await params;

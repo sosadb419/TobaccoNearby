@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   amsterdamCentralStation,
@@ -21,25 +20,44 @@ const fallbackOpeningHours: OpeningHoursSlot[] = [
   }
 ];
 
-export const getAllShops = cache(async (): Promise<Shop[]> => {
+export async function getAllShops(): Promise<Shop[]> {
   if (!supabase) {
+    console.error(
+      "Supabase is not configured. Falling back to local shop data. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
+    );
     return localShops;
   }
 
   try {
     const { data, error } = await supabase.from("shops").select("*");
 
-    if (error || !data) {
+    if (error) {
+      console.error("Supabase shops fetch failed. Falling back to local shop data.", error);
       return localShops;
     }
 
-    return (data.map(mapSupabaseShop).filter(Boolean) as Shop[])
-      .filter((shop) => normalize(shop.city) === "amsterdam")
-      .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated));
-  } catch {
+    if (!data || data.length === 0) {
+      console.error("Supabase shops fetch returned no rows. Falling back to local shop data.");
+      return localShops;
+    }
+
+    const mappedShops = (data.map(mapSupabaseShop).filter(Boolean) as Shop[]).sort((a, b) =>
+      b.lastUpdated.localeCompare(a.lastUpdated)
+    );
+
+    if (mappedShops.length === 0) {
+      console.error(
+        "Supabase shops rows were returned, but no shops could be mapped. Falling back to local shop data."
+      );
+      return localShops;
+    }
+
+    return mappedShops;
+  } catch (error) {
+    console.error("Unexpected Supabase shops fetch failure. Falling back to local shop data.", error);
     return localShops;
   }
-});
+}
 
 export async function getShopBySlug(slug: string) {
   const shopList = await getAllShops();
@@ -119,6 +137,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),
     nearbyPublicTransport: readString(row, [
+      "public_transport_info",
       "nearby_public_transport",
       "nearby_public_transport_notes",
       "public_transport_notes",

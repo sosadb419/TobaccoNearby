@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import NeighborhoodPage from "@/components/NeighborhoodPage";
 import { getShopsByNeighborhood } from "@/lib/shop-data";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Tobacco Shops in Amsterdam Centrum",

@@ -7,7 +7,8 @@ import ShopCard from "@/components/ShopCard";
 import { neighborhoods } from "@/data/shops";
 import { getAllShops } from "@/lib/shop-data";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Find Tobacco Shops Near You in Amsterdam",

@@ -15,7 +15,7 @@ import {
 import { getAllShops, searchShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 3600;
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Tobacco Shops Near You in Amsterdam",

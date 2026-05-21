@@ -16,9 +16,7 @@ export const supabase = hasSupabaseConfig
         fetch: (input, init) =>
           fetch(input, {
             ...init,
-            next: {
-              revalidate: 3600
-            }
+            cache: "no-store"
           } as RequestInit)
       }
     })
