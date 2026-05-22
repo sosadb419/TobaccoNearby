@@ -23,8 +23,9 @@ export default function Footer() {
               about tobacco shops in Amsterdam. TobaccoNearby does not sell tobacco products and does not encourage
               tobacco use.
             </p>
-            <p className="mt-3 text-sm font-medium text-amber">
-              Shop data may change. Please verify opening hours and product availability before visiting.
+            <p className="mt-3 text-sm leading-6 text-muted">
+              TobaccoNearby is an informational directory for adults aged 18+. Shop details may change. Please verify
+              information before visiting.
             </p>
           </div>
           <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-2 text-sm">

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
+import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import {
@@ -139,6 +140,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px] lg:items-start">
         <div className="grid gap-5">
+          <DisclaimerNotice />
+
           <p className="text-sm text-muted">
             Showing <strong className="text-ink">{results.length}</strong> {results.length === 1 ? "listing" : "listings"}
             {query ? ` for "${query}"` : ""}.
@@ -176,9 +179,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 </Link>
               ))}
             </div>
-          </div>
-          <div className="rounded-lg border border-line bg-white p-5 text-sm leading-6 text-muted">
-            Please verify opening hours, accessibility details, and product availability before visiting.
           </div>
         </aside>
       </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
+import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { neighborhoods } from "@/data/shops";
@@ -39,6 +40,7 @@ export default async function HomePage() {
             <div className="mt-7">
               <SearchBar />
             </div>
+            <DisclaimerNotice className="mt-5 bg-white" />
           </div>
 
           <div className="map-grid relative min-h-[360px] overflow-hidden rounded-lg border border-line bg-paper p-5 shadow-soft">

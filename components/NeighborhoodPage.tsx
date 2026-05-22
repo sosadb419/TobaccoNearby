@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
+import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { Shop } from "@/data/shops";
@@ -52,6 +53,8 @@ export default function NeighborhoodPage({ title, intro, shops, searchHref, mapN
         </Link>
       </div>
 
+      <DisclaimerNotice className="mt-5" />
+
       <div className="mt-6 grid gap-5">
         {shops.length > 0 ? (
           shops.map((shop, index) => (
@@ -73,8 +76,8 @@ export default function NeighborhoodPage({ title, intro, shops, searchHref, mapN
       <div className="mt-8 rounded-lg border border-line bg-white p-5">
         <h2 className="text-lg font-bold text-ink">Before visiting</h2>
         <p className="mt-2 text-sm leading-6 text-muted">
-          Please verify opening hours, contact details, accessibility information, and product availability before
-          visiting. TobaccoNearby does not sell tobacco products and does not encourage tobacco use.
+          TobaccoNearby does not sell tobacco products and does not encourage tobacco use. Use listings as practical
+          directory information and confirm details with the shop before travelling.
         </p>
       </div>
     </section>

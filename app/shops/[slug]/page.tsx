@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
+import DisclaimerNotice from "@/components/DisclaimerNotice";
 import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
 import { getShopBySlug } from "@/lib/shop-data";
 
@@ -126,6 +127,8 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
             </InfoBlock>
           </div>
 
+          <DisclaimerNotice className="mt-6" />
+
           <div className="mt-8 overflow-hidden rounded-lg border border-line bg-paper">
             <iframe
               className="h-[320px] w-full border-0"
@@ -134,14 +137,6 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               referrerPolicy="no-referrer-when-downgrade"
               title={`Map location for ${shop.name}`}
             />
-          </div>
-
-          <div className="mt-8 rounded-lg border border-amber/30 bg-amber/10 p-5">
-            <h2 className="text-lg font-bold text-ink">Please verify before visiting</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Please verify opening hours and product availability before visiting. Shop information may change without
-              notice, including temporary closures, holiday hours, and contact details.
-            </p>
           </div>
 
           <p className="mt-5 text-sm text-muted">Last updated: {shop.lastUpdated}</p>
