@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
 import { getShopBySlug } from "@/lib/shop-data";
 
@@ -167,12 +168,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                   Website
                 </a>
               ) : null}
-              <Link
-                className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
-                href={`/add-or-update-a-shop?shop=${shop.slug}`}
-              >
-                Suggest an update
-              </Link>
+              <ReportIncorrectInfo shopName={shop.name} shopSlug={shop.slug} />
             </div>
           </div>
         </aside>
