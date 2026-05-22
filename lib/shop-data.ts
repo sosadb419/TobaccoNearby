@@ -20,6 +20,34 @@ const fallbackOpeningHours: OpeningHoursSlot[] = [
   }
 ];
 
+const searchAliases: Record<string, string> = {
+  bijlmer: "Zuidoost",
+  "amsterdam-bijlmer": "Zuidoost",
+  zuidoost: "Zuidoost",
+  "central-station": "Centrum",
+  "amsterdam-centraal": "Centrum",
+  "centraal-station": "Centrum",
+  dam: "Centrum",
+  wallen: "Centrum",
+  "de-wallen": "Centrum",
+  "red-light-district": "Centrum",
+  "redlight-district": "Centrum",
+  oudezijds: "Centrum",
+  "oudezijds-voorburgwal": "Centrum",
+  "oudezijds-achterburgwal": "Centrum",
+  "de-pijp": "De Pijp",
+  jordaan: "Jordaan",
+  "de-jordaan": "Jordaan",
+  westerstraat: "Jordaan",
+  noordermarkt: "Jordaan",
+  rozengracht: "Jordaan",
+  west: "West",
+  kinkerstraat: "West",
+  oost: "Oost",
+  noord: "Noord",
+  zuid: "Zuid"
+};
+
 export async function getAllShops(): Promise<Shop[]> {
   if (!supabase) {
     console.error(
@@ -86,19 +114,44 @@ export async function getShopsNearCentralStation(maxKm = 1.5) {
 
 export async function searchShops(query: string) {
   const shopList = await getAllShops();
-  const value = normalize(query);
+  const value = normalizeSearchValue(query);
 
   if (!value) {
     return shopList;
   }
 
+  const aliasTargets = getSearchAliasTargets(value);
+
   return shopList.filter((shop) => {
     const searchable = normalize(
-      [shop.name, shop.address, shop.postalCode, shop.neighborhood, shop.city, shop.country].join(" ")
+      [shop.name, shop.address, shop.postalCode, shop.neighborhood, shop.city].join(" ")
     );
 
-    return searchable.includes(value);
+    if (searchable.includes(value)) {
+      return true;
+    }
+
+    return aliasTargets.some((target) => normalize(shop.neighborhood) === normalize(target));
   });
+}
+
+function normalizeSearchValue(query: string) {
+  return normalize(query.trim());
+}
+
+function getSearchAliasTargets(value: string) {
+  const exactTarget = searchAliases[value];
+  const targets = exactTarget ? [exactTarget] : [];
+
+  Object.entries(searchAliases).forEach(([alias, target]) => {
+    const shouldMatchInsideQuery = alias.length >= 6 || alias.includes("-");
+
+    if (shouldMatchInsideQuery && value.includes(alias) && !targets.includes(target)) {
+      targets.push(target);
+    }
+  });
+
+  return targets;
 }
 
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {

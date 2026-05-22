@@ -59,7 +59,7 @@ export default function SearchBar({ initialQuery = "", compact = false }: Search
     <div className={compact ? "w-full" : "w-full rounded-lg border border-line bg-white p-3 shadow-soft"}>
       <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit} role="search">
         <label className="sr-only" htmlFor="shop-search">
-          Search by area, postal code, or neighborhood
+          Search by area, postal code, street, or neighborhood
         </label>
         <div className="relative flex-1">
           <Search
@@ -70,7 +70,7 @@ export default function SearchBar({ initialQuery = "", compact = false }: Search
           <input
             id="shop-search"
             className="focus-ring min-h-12 w-full rounded-lg border border-line bg-white py-3 pl-10 pr-4 text-base text-ink placeholder:text-muted"
-            placeholder="Area, postal code, or neighborhood"
+            placeholder="Search by area, postal code, street, or neighborhood"
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -91,6 +91,7 @@ export default function SearchBar({ initialQuery = "", compact = false }: Search
           Use my current location
         </button>
       </form>
+      <p className="mt-3 text-sm text-muted">Examples: De Pijp, Bijlmer, 1012, Amsterdam Centraal</p>
       {locationStatus ? (
         <p className="mt-3 text-sm text-muted" aria-live="polite">
           {locationStatus}

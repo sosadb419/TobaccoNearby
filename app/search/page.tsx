@@ -18,6 +18,17 @@ import { getAllShops, searchShops } from "@/lib/shop-data";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const quickSearches = [
+  "Centrum",
+  "De Pijp",
+  "West",
+  "Oost",
+  "Noord",
+  "Zuid",
+  "Zuidoost",
+  "Amsterdam Centraal"
+];
+
 export const metadata: Metadata = {
   title: "Tobacco Shops Near You in Amsterdam",
   description:
@@ -38,7 +49,7 @@ type SearchPageProps = {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
-  const query = params.q ?? "";
+  const query = (params.q ?? "").trim();
   const userLocation = getUserLocation(params.lat, params.lng);
   const selectedNeighborhood = params.neighborhood ?? "";
   const baseOrigin = userLocation ?? amsterdamCentralStation;
@@ -86,6 +97,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <div className="mt-6 rounded-lg border border-line bg-white p-4 shadow-sm">
         <SearchBar initialQuery={query} compact />
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-sm font-bold text-ink">Quick searches</span>
+          {quickSearches.map((item) => {
+            const isActive = normalize(query) === normalize(item);
+
+            return (
+              <Link
+                key={item}
+                className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                  isActive
+                    ? "border-teal bg-teal text-white"
+                    : "border-line bg-white text-muted hover:border-teal hover:text-teal"
+                }`}
+                href={`/search?q=${encodeURIComponent(item)}`}
+              >
+                {item}
+              </Link>
+            );
+          })}
+        </div>
         <div className="mt-5 border-t border-line pt-4">
           <div className="mb-3 flex items-center gap-2 text-sm font-bold text-ink">
             <SlidersHorizontal aria-hidden="true" size={17} />
@@ -142,6 +173,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="grid gap-5">
           <DisclaimerNotice />
 
+          {query ? (
+            <div className="rounded-lg border border-line bg-paper px-4 py-3 text-sm leading-6 text-muted">
+              Active search: <strong className="text-ink">{query}</strong>
+            </div>
+          ) : null}
+
           <p className="text-sm text-muted">
             Showing <strong className="text-ink">{results.length}</strong> {results.length === 1 ? "listing" : "listings"}
             {query ? ` for "${query}"` : ""}.
@@ -151,7 +188,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <div className="rounded-lg border border-line bg-white p-6">
               <h2 className="text-xl font-bold text-ink">No matching listings</h2>
               <p className="mt-2 text-sm leading-6 text-muted">
-                Try another Amsterdam neighborhood or remove filters. Production data should be verified before launch.
+                No shops found for this search. Try another neighborhood, postal code, or nearby area.
               </p>
             </div>
           ) : null}
