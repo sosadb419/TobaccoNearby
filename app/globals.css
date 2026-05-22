@@ -82,3 +82,49 @@ textarea {
 .skip-link:focus {
   top: 12px;
 }
+
+.tn-map-marker {
+  align-items: center;
+  background: #ffffff;
+  border: 2px solid #0f766e;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(31, 36, 40, 0.18);
+  display: flex;
+  justify-content: center;
+}
+
+.tn-map-marker span {
+  background: #0f766e;
+  border-radius: 999px;
+  display: block;
+  height: 10px;
+  width: 10px;
+}
+
+.tn-map-popup {
+  color: #1f2428;
+  display: grid;
+  font-family: Arial, Helvetica, sans-serif;
+  gap: 6px;
+  min-width: 190px;
+}
+
+.tn-map-popup p {
+  margin: 0;
+}
+
+.tn-map-popup-title {
+  font-weight: 700;
+}
+
+.tn-map-popup-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.tn-map-popup-links a {
+  color: #0f766e;
+  font-weight: 700;
+}

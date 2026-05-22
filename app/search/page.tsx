@@ -5,6 +5,7 @@ import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
+import ShopMap from "@/components/ShopMap";
 import {
   amsterdamCentralStation,
   Coordinates,
@@ -208,7 +209,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_300px] lg:items-start">
+      <div className="mt-6 lg:hidden">
+        <ShopMap shops={results} userLocation={userLocation} collapsibleOnMobile />
+      </div>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
         <div className="grid gap-5">
           <DisclaimerNotice />
 
@@ -238,7 +243,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           ))}
         </div>
 
-        <aside className="grid gap-5">
+        <aside className="hidden gap-5 lg:grid">
+          <div className="sticky top-6">
+            <ShopMap shops={results} userLocation={userLocation} />
+          </div>
           <AdSlot placement="sidebar" />
           <div className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
