@@ -11,15 +11,6 @@ import {
 
 type SupabaseShopRow = Record<string, unknown>;
 
-const fallbackOpeningHours: OpeningHoursSlot[] = [
-  {
-    days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    opens: "09:00",
-    closes: "18:00",
-    note: "verify before visiting"
-  }
-];
-
 const searchAliases: Record<string, string> = {
   bijlmer: "Zuidoost",
   "amsterdam-bijlmer": "Zuidoost",
@@ -203,19 +194,19 @@ function readOpeningHours(row: SupabaseShopRow): OpeningHoursSlot[] {
   const raw = readRaw(row, ["opening_hours", "openingHours", "hours"]);
 
   if (!raw) {
-    return fallbackOpeningHours;
+    return [];
   }
 
   if (Array.isArray(raw)) {
     const slots = raw.map(parseOpeningHoursSlot).filter(Boolean) as OpeningHoursSlot[];
 
-    return slots.length > 0 ? slots : fallbackOpeningHours;
+    return slots;
   }
 
   if (typeof raw === "object") {
     const slots = Object.entries(raw).flatMap(([day, value]) => parseDayEntry(day, value));
 
-    return slots.length > 0 ? slots : fallbackOpeningHours;
+    return slots;
   }
 
   if (typeof raw === "string") {
@@ -224,18 +215,11 @@ function readOpeningHours(row: SupabaseShopRow): OpeningHoursSlot[] {
 
       return readOpeningHours({ opening_hours: parsed });
     } catch {
-      return [
-        {
-          days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-          opens: "00:00",
-          closes: "00:00",
-          note: raw
-        }
-      ];
+      return [];
     }
   }
 
-  return fallbackOpeningHours;
+  return [];
 }
 
 function parseOpeningHoursSlot(value: unknown): OpeningHoursSlot | null {

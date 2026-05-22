@@ -299,10 +299,18 @@ export function formatDistance(distanceKm: number) {
 }
 
 export function formatOpeningHours(slots: OpeningHoursSlot[]) {
+  if (slots.length === 0) {
+    return ["Opening hours not available"];
+  }
+
   return slots.map((slot) => `${formatDays(slot.days)}: ${slot.opens}-${slot.closes}${slot.note ? ` (${slot.note})` : ""}`);
 }
 
 export function getTodayOpeningHours(shop: Shop, date = new Date()) {
+  if (shop.openingHours.length === 0) {
+    return "Opening hours not available";
+  }
+
   const today = getAmsterdamDayAndMinutes(date).day;
   const slot = shop.openingHours.find((item) => item.days.includes(today));
 
@@ -323,6 +331,14 @@ export function isOpenNow(shop: Shop, date = new Date()) {
 
   const openMinutes = parseTime(slot.opens);
   const closeMinutes = parseTime(slot.closes);
+
+  if (openMinutes === null || closeMinutes === null || openMinutes === closeMinutes) {
+    return false;
+  }
+
+  if (closeMinutes < openMinutes) {
+    return minutes >= openMinutes || minutes < closeMinutes;
+  }
 
   return minutes >= openMinutes && minutes < closeMinutes;
 }
@@ -357,6 +373,10 @@ function getAmsterdamDayAndMinutes(date: Date) {
 
 function parseTime(value: string) {
   const [hour, minute] = value.split(":").map(Number);
+
+  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
+    return null;
+  }
 
   return hour * 60 + minute;
 }
