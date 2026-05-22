@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AgeGate from "@/components/AgeGate";
 
 const siteUrl = "https://tobacconearby.com";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <AgeGate />
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>
