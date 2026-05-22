@@ -91,11 +91,7 @@ export default async function HomePage() {
               <Link
                 key={neighborhood.slug}
                 className="focus-ring rounded-lg border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-                href={
-                  neighborhood.slug === "jordaan" || neighborhood.slug === "zuidoost"
-                    ? `/search?neighborhood=${encodeURIComponent(neighborhood.name)}`
-                    : `/amsterdam/${neighborhood.slug}`
-                }
+                href={`/amsterdam/${neighborhood.slug}`}
               >
                 {neighborhood.name}
               </Link>

@@ -14,10 +14,13 @@ const staticRoutes = [
   "/add-or-update-a-shop",
   "/amsterdam/centrum",
   "/amsterdam/de-pijp",
+  "/amsterdam/jordaan",
+  "/amsterdam/de-wallen",
   "/amsterdam/west",
   "/amsterdam/oost",
   "/amsterdam/noord",
   "/amsterdam/zuid",
+  "/amsterdam/zuidoost",
   "/amsterdam/near-central-station"
 ];
 

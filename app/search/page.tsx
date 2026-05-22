@@ -255,7 +255,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 <Link
                   key={neighborhood.slug}
                   className="focus-ring rounded-md py-1 text-muted hover:text-teal"
-                  href={neighborhood.slug === "jordaan" || neighborhood.slug === "zuidoost" ? `/search?neighborhood=${encodeURIComponent(neighborhood.name)}` : `/amsterdam/${neighborhood.slug}`}
+                  href={`/amsterdam/${neighborhood.slug}`}
                 >
                   {neighborhood.name}
                 </Link>

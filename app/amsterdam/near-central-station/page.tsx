@@ -6,9 +6,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Tobacco Shops Near Amsterdam Central Station",
+  title: {
+    absolute: "Tobacco Shops near Amsterdam Central Station | TobaccoNearby"
+  },
   description:
-    "Find practical information about tobacco shops near Amsterdam Central Station, including approximate distance, opening hours, directions, and contact details."
+    "Search tobacco shops near Amsterdam Central Station with address details, opening hours, directions, and practical travel information.",
+  alternates: {
+    canonical: "/amsterdam/near-central-station"
+  }
 };
 
 export default async function NearCentralStationPage() {
@@ -17,9 +22,10 @@ export default async function NearCentralStationPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops Near Amsterdam Central Station"
-      intro="Find location-based information for tobacco shops near Amsterdam Central Station, including approximate walking distance where available, opening hours, and directions."
+      intro="This page provides neutral, practical information about listed tobacco shops near Amsterdam Central Station. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
+      areaContext="Amsterdam Central Station is a major transport hub for trains, metro, trams, buses and ferries. Distances on this page use the station area as a practical reference point."
       shops={shops}
-      searchHref="/search?sort=nearest"
+      searchHref="/search?q=Amsterdam%20Centraal"
       mapNote="Distances are approximate and use Amsterdam Central Station as the reference point."
     />
   );

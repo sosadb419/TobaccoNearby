@@ -6,9 +6,14 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Tobacco Shops in Amsterdam West",
+  title: {
+    absolute: "Tobacco Shops in Amsterdam West | TobaccoNearby"
+  },
   description:
-    "Find practical information about tobacco shops in Amsterdam West, including addresses, opening hours, directions, and accessibility notes where available."
+    "Search listed tobacco shops in Amsterdam West by location, opening hours, directions, and available contact information.",
+  alternates: {
+    canonical: "/amsterdam/west"
+  }
 };
 
 export default async function WestPage() {
@@ -17,7 +22,8 @@ export default async function WestPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops in Amsterdam West"
-      intro="Use this page to find practical information about tobacco shops in Amsterdam West, including addresses, opening hours, directions, and accessibility notes where available."
+      intro="This page provides neutral, practical information about listed tobacco shops in Amsterdam West. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
+      areaContext="Amsterdam West includes areas such as Oud-West, De Baarsjes and Bos en Lommer. Use this page to review nearby shop locations, public transport context and practical contact details."
       shops={shops}
       searchHref="/search?neighborhood=West"
     />
