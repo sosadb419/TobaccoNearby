@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Accessibility, ExternalLink, MapPin, Phone, Route, ShieldCheck } from "lucide-react";
+import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
 import {
   amsterdamCentralStation,
   Coordinates,
@@ -34,9 +34,14 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
             <p className="mb-2 text-xs font-bold uppercase text-teal">{priorityLabel}</p>
           ) : null}
           <h2 className="text-xl font-bold text-ink">
-            <Link className="focus-ring rounded-md hover:text-teal" href={`/shops/${shop.slug}`}>
+            <TrackedShopDetailsLink
+              className="focus-ring rounded-md hover:text-teal"
+              href={`/shops/${shop.slug}`}
+              shopSlug={shop.slug}
+              neighborhood={shop.neighborhood}
+            >
               {shop.name}
-            </Link>
+            </TrackedShopDetailsLink>
           </h2>
           <p className="mt-2 flex items-start gap-2 text-sm leading-6 text-muted">
             <MapPin aria-hidden="true" className="mt-1 shrink-0" size={16} />
@@ -84,22 +89,26 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
       </dl>
 
       <div className="mt-5 flex flex-wrap gap-3">
-        <Link
+        <TrackedShopDetailsLink
           className="focus-ring inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
           href={`/shops/${shop.slug}`}
+          shopSlug={shop.slug}
+          neighborhood={shop.neighborhood}
         >
           <ShieldCheck aria-hidden="true" size={16} />
           View details
-        </Link>
-        <a
+        </TrackedShopDetailsLink>
+        <TrackedDirectionsLink
           className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
           href={shop.googleMapsLink}
+          shopSlug={shop.slug}
+          neighborhood={shop.neighborhood}
           target="_blank"
           rel="noreferrer"
         >
           <Route aria-hidden="true" size={16} />
           Directions
-        </a>
+        </TrackedDirectionsLink>
         {shop.website ? (
           <a
             className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"

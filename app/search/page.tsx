@@ -6,6 +6,7 @@ import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import ShopMap from "@/components/ShopMap";
+import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import {
   amsterdamCentralStation,
   Coordinates,
@@ -126,7 +127,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             const isActive = normalize(query) === normalize(item);
 
             return (
-              <Link
+              <TrackedNeighborhoodLink
                 key={item}
                 className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                   isActive
@@ -134,9 +135,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                     : "border-line bg-white text-muted hover:border-teal hover:text-teal"
                 }`}
                 href={`/search?q=${encodeURIComponent(item)}`}
+                neighborhood={item}
               >
                 {item}
-              </Link>
+              </TrackedNeighborhoodLink>
             );
           })}
         </div>
@@ -252,13 +254,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
             <div className="mt-4 grid gap-2 text-sm">
               {neighborhoods.map((neighborhood) => (
-                <Link
+                <TrackedNeighborhoodLink
                   key={neighborhood.slug}
                   className="focus-ring rounded-md py-1 text-muted hover:text-teal"
                   href={`/amsterdam/${neighborhood.slug}`}
+                  neighborhood={neighborhood.name}
                 >
                   {neighborhood.name}
-                </Link>
+                </TrackedNeighborhoodLink>
               ))}
             </div>
           </div>

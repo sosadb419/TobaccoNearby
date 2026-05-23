@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { trackShopSubmissionSubmitted } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 
 const submissionOptions = [
@@ -103,6 +104,7 @@ export default function ShopSubmissionForm() {
       return;
     }
 
+    trackShopSubmissionSubmitted(trimmedSubmissionType);
     setSubmitState("success");
     setSubmissionType("");
     setShopName("");

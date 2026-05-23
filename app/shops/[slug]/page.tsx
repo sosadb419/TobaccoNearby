@@ -6,6 +6,7 @@ import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train 
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
+import { TrackedDirectionsLink } from "@/components/TrackedLinks";
 import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
 import { getShopBySlug } from "@/lib/shop-data";
 
@@ -122,9 +123,16 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               {shop.nearbyPublicTransport ?? "Not available"}
             </InfoBlock>
             <InfoBlock icon={<Route aria-hidden="true" size={18} />} title="Directions">
-              <a className="font-semibold text-teal hover:text-ink" href={shop.googleMapsLink} target="_blank" rel="noreferrer">
+              <TrackedDirectionsLink
+                className="font-semibold text-teal hover:text-ink"
+                href={shop.googleMapsLink}
+                shopSlug={shop.slug}
+                neighborhood={shop.neighborhood}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Open directions on Google Maps
-              </a>
+              </TrackedDirectionsLink>
             </InfoBlock>
           </div>
 
@@ -148,15 +156,17 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
           <div className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-bold text-ink">Shop actions</h2>
             <div className="mt-4 grid gap-3">
-              <a
+              <TrackedDirectionsLink
                 className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white hover:bg-teal"
                 href={shop.googleMapsLink}
+                shopSlug={shop.slug}
+                neighborhood={shop.neighborhood}
                 target="_blank"
                 rel="noreferrer"
               >
                 <Route aria-hidden="true" size={16} />
                 Directions
-              </a>
+              </TrackedDirectionsLink>
               {shop.website ? (
                 <a
                   className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
@@ -168,7 +178,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                   Website
                 </a>
               ) : null}
-              <ReportIncorrectInfo shopName={shop.name} shopSlug={shop.slug} />
+              <ReportIncorrectInfo shopName={shop.name} shopSlug={shop.slug} neighborhood={shop.neighborhood} />
             </div>
           </div>
         </aside>

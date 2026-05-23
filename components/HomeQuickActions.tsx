@@ -4,12 +4,16 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Clock, LocateFixed, MapPin, Train } from "lucide-react";
+import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
+import { trackUseLocationClicked } from "@/lib/analytics";
 
 export default function HomeQuickActions() {
   const [locationStatus, setLocationStatus] = useState("");
   const router = useRouter();
 
   function handleLocationSearch() {
+    trackUseLocationClicked();
+
     if (!navigator.geolocation) {
       setLocationStatus("Location access was not allowed. You can still search by area, postal code, or neighborhood.");
       return;
@@ -69,14 +73,15 @@ export default function HomeQuickActions() {
           <MapPin aria-hidden="true" className="text-teal" size={18} />
           Search by neighborhood
         </button>
-        <Link
+        <TrackedNeighborhoodLink
           href="/amsterdam/near-central-station"
+          neighborhood="Amsterdam Central Station"
           aria-label="View shop listings near Amsterdam Central Station"
           className="focus-ring flex min-h-20 flex-col justify-center gap-2 rounded-lg border border-line bg-white px-3 py-3 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
         >
           <Train aria-hidden="true" className="text-teal" size={18} />
           Near Amsterdam Central Station
-        </Link>
+        </TrackedNeighborhoodLink>
         <Link
           href="/search?openNow=true"
           aria-label="View listings marked open now"

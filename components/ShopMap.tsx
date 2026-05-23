@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
+import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
 type ShopMapProps = {
   shops: Shop[];
@@ -223,6 +224,7 @@ function createShopPopup(shop: Shop) {
   const detailsLink = document.createElement("a");
   detailsLink.href = `/shops/${shop.slug}`;
   detailsLink.textContent = "View details";
+  detailsLink.addEventListener("click", () => trackShopDetailsClicked(shop.slug, shop.neighborhood));
   links.append(detailsLink);
 
   const directionsLink = document.createElement("a");
@@ -230,6 +232,7 @@ function createShopPopup(shop: Shop) {
   directionsLink.rel = "noreferrer";
   directionsLink.target = "_blank";
   directionsLink.textContent = "Directions";
+  directionsLink.addEventListener("click", () => trackDirectionsClicked(shop.slug, shop.neighborhood));
   links.append(directionsLink);
 
   container.append(links);

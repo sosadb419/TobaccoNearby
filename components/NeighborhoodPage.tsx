@@ -4,6 +4,7 @@ import DisclaimerNotice from "@/components/DisclaimerNotice";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import ShopMap from "@/components/ShopMap";
+import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { Shop } from "@/data/shops";
 
 const areaLinks = [
@@ -110,13 +111,14 @@ export default function NeighborhoodPage({ title, intro, areaContext, shops, sea
         <h2 className="text-lg font-bold text-ink">Other Amsterdam areas</h2>
         <div className="mt-4 flex flex-wrap gap-2">
           {areaLinks.map((link) => (
-            <Link
+            <TrackedNeighborhoodLink
               key={link.href}
               className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
               href={link.href}
+              neighborhood={link.label}
             >
               {link.label}
-            </Link>
+            </TrackedNeighborhoodLink>
           ))}
         </div>
       </section>

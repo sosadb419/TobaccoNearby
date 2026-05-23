@@ -6,6 +6,7 @@ import DisclaimerNotice from "@/components/DisclaimerNotice";
 import HomeQuickActions from "@/components/HomeQuickActions";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
+import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { getAllShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
@@ -103,13 +104,14 @@ export default async function HomePage() {
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {homepageNeighborhoods.map((neighborhood) => (
-              <Link
+              <TrackedNeighborhoodLink
                 key={neighborhood.href}
                 className="focus-ring rounded-lg border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
                 href={neighborhood.href}
+                neighborhood={neighborhood.name}
               >
                 {neighborhood.name}
-              </Link>
+              </TrackedNeighborhoodLink>
             ))}
           </div>
         </div>

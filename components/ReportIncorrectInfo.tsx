@@ -2,16 +2,18 @@
 
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { trackReportInfoClicked } from "@/lib/analytics";
 import { supabase } from "@/lib/supabase";
 
 type ReportIncorrectInfoProps = {
   shopName?: string;
   shopSlug?: string;
+  neighborhood?: string;
 };
 
 type SubmitState = "idle" | "submitting" | "success" | "error";
 
-export default function ReportIncorrectInfo({ shopName = "", shopSlug }: ReportIncorrectInfoProps) {
+export default function ReportIncorrectInfo({ shopName = "", shopSlug = "unknown", neighborhood = "" }: ReportIncorrectInfoProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [shopNameValue, setShopNameValue] = useState(shopName);
   const [incorrectInfo, setIncorrectInfo] = useState("");
@@ -19,7 +21,7 @@ export default function ReportIncorrectInfo({ shopName = "", shopSlug }: ReportI
   const [email, setEmail] = useState("");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const formId = shopSlug ? `report-${shopSlug}` : "report-incorrect-info";
+  const formId = shopSlug !== "unknown" ? `report-${shopSlug}` : "report-incorrect-info";
   const isSubmitting = submitState === "submitting";
   const hasReadOnlyShopName = Boolean(shopName);
 
@@ -48,7 +50,7 @@ export default function ReportIncorrectInfo({ shopName = "", shopSlug }: ReportI
 
     const { error } = await supabase.from("shop_reports").insert({
       shop_name: trimmedShopName,
-      shop_slug: shopSlug ?? null,
+      shop_slug: shopSlug !== "unknown" ? shopSlug : null,
       incorrect_information: trimmedIncorrectInfo,
       correct_information: trimmedCorrectInfo,
       reporter_email: trimmedEmail || null,
@@ -74,7 +76,12 @@ export default function ReportIncorrectInfo({ shopName = "", shopSlug }: ReportI
         type="button"
         aria-controls={formId}
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => {
+          if (!isOpen) {
+            trackReportInfoClicked(shopSlug, neighborhood);
+          }
+          setIsOpen((current) => !current);
+        }}
         className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
       >
         Report incorrect information

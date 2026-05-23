@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LocateFixed, Search } from "lucide-react";
+import { classifySearchType, trackSearchSubmitted, trackUseLocationClicked } from "@/lib/analytics";
 
 type SearchBarProps = {
   initialQuery?: string;
@@ -25,10 +26,13 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
       params.set("q", trimmed);
     }
 
+    trackSearchSubmitted(classifySearchType(trimmed));
     router.push(`/search${params.toString() ? `?${params.toString()}` : ""}`);
   }
 
   function handleCurrentLocation() {
+    trackUseLocationClicked();
+
     if (!navigator.geolocation) {
       setLocationStatus("Location is not available in this browser.");
       return;

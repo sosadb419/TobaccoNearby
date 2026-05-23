@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { trackAgeGateAccepted, trackAgeGateDeclined } from "@/lib/analytics";
 
 const ageGateStorageKey = "tobacconearby_age_verified";
 
@@ -62,6 +63,8 @@ export default function AgeGate() {
   }, [isVisible]);
 
   const confirmAge = () => {
+    trackAgeGateAccepted();
+
     try {
       window.localStorage.setItem(ageGateStorageKey, "true");
     } catch {
@@ -72,6 +75,7 @@ export default function AgeGate() {
   };
 
   const leaveWebsite = () => {
+    trackAgeGateDeclined();
     window.location.assign("https://www.google.com");
   };
 
