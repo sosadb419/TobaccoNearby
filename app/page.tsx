@@ -3,9 +3,9 @@ import Link from "next/link";
 import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import HomeQuickActions from "@/components/HomeQuickActions";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import { neighborhoods } from "@/data/shops";
 import { getAllShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +16,18 @@ export const metadata: Metadata = {
   description:
     "Search for practical information about tobacco shops in Amsterdam, including addresses, opening hours, directions, accessibility notes, and contact details."
 };
+
+const homepageNeighborhoods = [
+  { href: "/amsterdam/centrum", name: "Centrum" },
+  { href: "/amsterdam/de-pijp", name: "De Pijp" },
+  { href: "/amsterdam/jordaan", name: "Jordaan" },
+  { href: "/amsterdam/de-wallen", name: "De Wallen" },
+  { href: "/amsterdam/west", name: "West" },
+  { href: "/amsterdam/oost", name: "Oost" },
+  { href: "/amsterdam/noord", name: "Noord" },
+  { href: "/amsterdam/zuid", name: "Zuid" },
+  { href: "/amsterdam/zuidoost", name: "Zuidoost" }
+];
 
 export default async function HomePage() {
   const shops = await getAllShops();
@@ -38,8 +50,9 @@ export default async function HomePage() {
               This website is intended for adults aged 18+.
             </p>
             <div className="mt-7">
-              <SearchBar />
+              <SearchBar showLocationButton={false} />
             </div>
+            <HomeQuickActions />
             <DisclaimerNotice className="mt-5 bg-white" />
           </div>
 
@@ -78,20 +91,22 @@ export default async function HomePage() {
         <AdSlot placement="header" />
       </section>
 
-      <section className="container-shell py-8">
+      <section id="amsterdam-neighborhoods" className="container-shell scroll-mt-6 py-8" aria-labelledby="amsterdam-neighborhoods-heading">
         <div className="grid gap-6 md:grid-cols-[0.9fr_1.1fr] md:items-start">
           <div>
-            <h2 className="text-2xl font-bold text-ink">Browse Amsterdam neighborhoods</h2>
+            <h2 id="amsterdam-neighborhoods-heading" tabIndex={-1} className="focus-ring rounded-md text-2xl font-bold text-ink">
+              Browse Amsterdam neighborhoods
+            </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               Use neighborhood pages to narrow results before checking shop details and directions.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {neighborhoods.map((neighborhood) => (
+            {homepageNeighborhoods.map((neighborhood) => (
               <Link
-                key={neighborhood.slug}
+                key={neighborhood.href}
                 className="focus-ring rounded-lg border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-                href={`/amsterdam/${neighborhood.slug}`}
+                href={neighborhood.href}
               >
                 {neighborhood.name}
               </Link>

@@ -7,9 +7,10 @@ import { LocateFixed, Search } from "lucide-react";
 type SearchBarProps = {
   initialQuery?: string;
   compact?: boolean;
+  showLocationButton?: boolean;
 };
 
-export default function SearchBar({ initialQuery = "", compact = false }: SearchBarProps) {
+export default function SearchBar({ initialQuery = "", compact = false, showLocationButton = true }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const [locationStatus, setLocationStatus] = useState("");
   const router = useRouter();
@@ -82,17 +83,19 @@ export default function SearchBar({ initialQuery = "", compact = false }: Search
         >
           Search
         </button>
-        <button
-          className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line bg-white px-5 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-          type="button"
-          onClick={handleCurrentLocation}
-        >
-          <LocateFixed aria-hidden="true" size={18} />
-          Use my current location
-        </button>
+        {showLocationButton ? (
+          <button
+            className="focus-ring inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-line bg-white px-5 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+            type="button"
+            onClick={handleCurrentLocation}
+          >
+            <LocateFixed aria-hidden="true" size={18} />
+            Use my current location
+          </button>
+        ) : null}
       </form>
       <p className="mt-3 text-sm text-muted">Examples: De Pijp, Bijlmer, 1012, Amsterdam Centraal</p>
-      {locationStatus ? (
+      {showLocationButton && locationStatus ? (
         <p className="mt-3 text-sm text-muted" aria-live="polite">
           {locationStatus}
         </p>
