@@ -117,7 +117,8 @@ export default async function HomePage() {
           <div>
             <h2 className="text-2xl font-bold text-ink">Recently updated Amsterdam listings</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Listings are loaded from Supabase when configured, with local fallback records for availability.
+              Published listings are loaded from Supabase, with local fallback records used only if the service is
+              unavailable.
             </p>
           </div>
           <Link className="focus-ring inline-flex items-center gap-2 rounded-lg text-sm font-bold text-teal" href="/search">
@@ -126,9 +127,16 @@ export default async function HomePage() {
           </Link>
         </div>
         <div className="grid gap-5">
-          {featuredShops.map((shop, index) => (
-            <ShopCard key={shop.slug} shop={shop} priorityLabel={index === 0 ? "Closest demo listing" : undefined} />
-          ))}
+          {featuredShops.length > 0 ? (
+            featuredShops.map((shop) => <ShopCard key={shop.slug} shop={shop} />)
+          ) : (
+            <div className="rounded-lg border border-line bg-white p-6">
+              <h3 className="text-lg font-bold text-ink">No published listings available</h3>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Published shop information will appear here when records are available.
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

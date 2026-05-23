@@ -8,7 +8,6 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import {
-  amsterdamCentralStation,
   Coordinates,
   Shop,
   getDistanceKm,
@@ -71,7 +70,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const selectedNeighborhood = params.neighborhood ?? "";
   const wantsNearest = params.sort === "nearest";
   const nearestNeedsLocation = wantsNearest && !userLocation;
-  const baseOrigin = userLocation ?? amsterdamCentralStation;
 
   const baseResults = query ? await searchShops(query) : await getAllShops();
   const filters: ShopFilters = {
@@ -257,7 +255,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
           {results.map((shop, index) => (
             <div key={shop.slug} className="grid gap-5">
-              <ShopCard shop={shop} origin={baseOrigin} showLiveStatus />
+              <ShopCard shop={shop} origin={userLocation} showLiveStatus />
               {index === 2 ? <AdSlot placement="in-content" /> : null}
             </div>
           ))}

@@ -68,8 +68,8 @@ export default function NeighborhoodPage({ title, intro, areaContext, shops, sea
         <div>
           <h2 className="text-2xl font-bold text-ink">Listed shop locations</h2>
           <p className="mt-2 text-sm leading-6 text-muted">
-            Listings are loaded from Supabase when available, with local fallback records used only if Supabase is
-            unavailable or returns no usable shop data.
+            Published listings are loaded from Supabase, with local fallback records used only if the service cannot
+            be reached.
           </p>
         </div>
         <Link className="focus-ring rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal" href={searchHref}>

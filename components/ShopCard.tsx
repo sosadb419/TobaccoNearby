@@ -33,6 +33,11 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
           {priorityLabel ? (
             <p className="mb-2 text-xs font-bold uppercase text-teal">{priorityLabel}</p>
           ) : null}
+          {shop.verified ? (
+            <p className="mb-2 inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-teal">
+              Verified listing
+            </p>
+          ) : null}
           <h2 className="text-xl font-bold text-ink">
             <TrackedShopDetailsLink
               className="focus-ring rounded-md hover:text-teal"
@@ -131,7 +136,10 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
         ) : null}
       </div>
 
-      <p className="mt-5 border-t border-line pt-4 text-xs text-muted">Last updated: {shop.lastUpdated}</p>
+      <div className="mt-5 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-4 text-xs text-muted">
+        <p>Last updated: {shop.lastUpdated}</p>
+        {shop.last_checked_at ? <p>Last checked: {shop.last_checked_at}</p> : null}
+      </div>
     </article>
   );
 }

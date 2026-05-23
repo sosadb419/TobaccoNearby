@@ -13,7 +13,7 @@ import {
 type SupabaseShopRow = Record<string, unknown>;
 
 const shopSelectColumns =
-  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at";
+  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at";
 
 const searchAliases: Record<string, string> = {
   bijlmer: "Zuidoost",
@@ -53,7 +53,7 @@ const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
   }
 
   try {
-    const { data, error } = await supabase.from("shops").select(shopSelectColumns);
+    const { data, error } = await supabase.from("shops").select(shopSelectColumns).eq("status", "published");
 
     if (error) {
       console.error("Supabase shops fetch failed. Falling back to local shop data.", error);
@@ -61,8 +61,7 @@ const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
     }
 
     if (!data || data.length === 0) {
-      console.error("Supabase shops fetch returned no rows. Falling back to local shop data.");
-      return localShops;
+      return [];
     }
 
     const mappedShops = (data.map(mapSupabaseShop).filter(Boolean) as Shop[]).sort((a, b) =>
@@ -70,10 +69,8 @@ const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
     );
 
     if (mappedShops.length === 0) {
-      console.error(
-        "Supabase shops rows were returned, but no shops could be mapped. Falling back to local shop data."
-      );
-      return localShops;
+      console.error("Supabase returned published shop rows, but no public listings could be mapped.");
+      return [];
     }
 
     return mappedShops;
@@ -155,9 +152,10 @@ function getSearchAliasTargets(value: string) {
 }
 
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
+  const status = readString(row, ["status"]);
   const name = readString(row, ["name", "shop_name", "title"]);
 
-  if (!name) {
+  if (status !== "published" || !name) {
     return null;
   }
 
@@ -186,6 +184,9 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     googleMapsLink,
     lastUpdated:
       readDate(row, ["last_updated", "last_updated_at", "updated_at"]) ?? new Date().toISOString().slice(0, 10),
+    status,
+    verified: readBoolean(row, ["verified"]),
+    last_checked_at: readDate(row, ["last_checked_at"]),
     city,
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),

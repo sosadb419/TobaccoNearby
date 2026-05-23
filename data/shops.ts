@@ -27,6 +27,11 @@ export type Shop = {
   website?: string;
   googleMapsLink: string;
   lastUpdated: string;
+  status?: string;
+  verified?: boolean;
+  last_checked_at?: string;
+  source_url?: string;
+  internal_notes?: string;
   city: string;
   country: string;
   wheelchairAccessible?: boolean;
@@ -83,6 +88,7 @@ export const shops: Shop[] = [
     website: "https://example.com/centrum-tobacco-point",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.375763,4.897967",
     lastUpdated: "2026-05-12",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -103,6 +109,7 @@ export const shops: Shop[] = [
     phone: "+31 20 000 1002",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.380432,4.881354",
     lastUpdated: "2026-05-10",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: false,
@@ -125,6 +132,7 @@ export const shops: Shop[] = [
     website: "https://example.com/de-pijp-tobacco-service",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.354782,4.891611",
     lastUpdated: "2026-05-11",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -144,6 +152,7 @@ export const shops: Shop[] = [
     ],
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.360155,4.925732",
     lastUpdated: "2026-05-09",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -164,6 +173,7 @@ export const shops: Shop[] = [
     phone: "+31 20 000 1005",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.370811,4.855126",
     lastUpdated: "2026-05-08",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: undefined,
@@ -184,6 +194,7 @@ export const shops: Shop[] = [
     website: "https://example.com/noord-tobacco-information-point",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.389031,4.913202",
     lastUpdated: "2026-05-07",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -204,6 +215,7 @@ export const shops: Shop[] = [
     phone: "+31 20 000 1007",
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.348854,4.878623",
     lastUpdated: "2026-05-05",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -223,6 +235,7 @@ export const shops: Shop[] = [
     ],
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.313591,4.946872",
     lastUpdated: "2026-05-03",
+    status: "published",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
