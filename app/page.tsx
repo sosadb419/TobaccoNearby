@@ -36,27 +36,27 @@ export default async function HomePage() {
   return (
     <>
       <section className="border-b border-line bg-white">
-        <div className="container-shell grid gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
+        <div className="container-shell grid gap-8 py-7 sm:gap-10 sm:py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
           <div>
             <p className="text-sm font-bold uppercase text-teal">TobaccoNearby</p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-bold leading-tight text-ink sm:text-5xl">
+            <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-ink sm:mt-4 sm:text-5xl">
               Find Tobacco Shops Near You in Amsterdam
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-muted sm:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
               Search by area, postal code, or neighborhood to find practical information such as shop locations,
               opening hours, directions, accessibility notes, and contact details.
             </p>
-            <p className="mt-4 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">
+            <p className="mt-3 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink sm:mt-4">
               This website is intended for adults aged 18+.
             </p>
-            <div className="mt-7">
+            <div className="mt-5 sm:mt-7">
               <SearchBar showLocationButton={false} />
             </div>
             <HomeQuickActions />
             <DisclaimerNotice className="mt-5 bg-white" />
           </div>
 
-          <div className="map-grid relative min-h-[360px] overflow-hidden rounded-lg border border-line bg-paper p-5 shadow-soft">
+          <div className="map-grid relative min-h-[280px] overflow-hidden rounded-lg border border-line bg-paper p-5 shadow-soft sm:min-h-[360px]">
             <div className="absolute left-8 top-8 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-bold text-ink">
                 <Map aria-hidden="true" size={18} />

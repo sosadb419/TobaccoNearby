@@ -7,7 +7,6 @@ import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics
 type ShopMapProps = {
   shops: Shop[];
   userLocation?: Coordinates;
-  collapsibleOnMobile?: boolean;
 };
 
 type LeafletMap = {
@@ -50,8 +49,7 @@ const amsterdamCenter: [number, number] = [52.3676, 4.9041];
 const leafletCssUrl = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 const leafletScriptUrl = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 
-export default function ShopMap({ shops, userLocation, collapsibleOnMobile = false }: ShopMapProps) {
-  const [isMapVisible, setIsMapVisible] = useState(!collapsibleOnMobile);
+export default function ShopMap({ shops, userLocation }: ShopMapProps) {
   const [leaflet, setLeaflet] = useState<LeafletLike | null>(null);
   const [loadError, setLoadError] = useState(false);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
@@ -60,10 +58,6 @@ export default function ShopMap({ shops, userLocation, collapsibleOnMobile = fal
   const visibleShops = useMemo(() => shops.filter(hasValidCoordinates), [shops]);
 
   useEffect(() => {
-    if (!isMapVisible) {
-      return;
-    }
-
     let isMounted = true;
 
     loadLeaflet()
@@ -82,10 +76,10 @@ export default function ShopMap({ shops, userLocation, collapsibleOnMobile = fal
     return () => {
       isMounted = false;
     };
-  }, [isMapVisible]);
+  }, []);
 
   useEffect(() => {
-    if (!leaflet || !mapElementRef.current || mapRef.current || !isMapVisible) {
+    if (!leaflet || !mapElementRef.current || mapRef.current) {
       return;
     }
 
@@ -108,10 +102,10 @@ export default function ShopMap({ shops, userLocation, collapsibleOnMobile = fal
       mapRef.current = null;
       markersRef.current = null;
     };
-  }, [leaflet, isMapVisible]);
+  }, [leaflet]);
 
   useEffect(() => {
-    if (!leaflet || !mapRef.current || !markersRef.current || !isMapVisible) {
+    if (!leaflet || !mapRef.current || !markersRef.current) {
       return;
     }
 
@@ -154,41 +148,24 @@ export default function ShopMap({ shops, userLocation, collapsibleOnMobile = fal
     } else {
       map.setView(amsterdamCenter, 12);
     }
-  }, [leaflet, visibleShops, userLocation, isMapVisible]);
+  }, [leaflet, visibleShops, userLocation]);
 
   return (
     <section className="rounded-lg border border-line bg-white p-3 shadow-sm" aria-label="Map of shop locations">
-      {collapsibleOnMobile ? (
-        <button
-          type="button"
-          aria-controls="mobile-shop-map"
-          aria-expanded={isMapVisible}
-          aria-label={isMapVisible ? "View list of shop results" : "View map of shop results"}
-          onClick={() => setIsMapVisible((current) => !current)}
-          className="focus-ring w-full rounded-lg bg-ink px-4 py-3 text-sm font-bold text-white transition hover:bg-teal"
-        >
-          {isMapVisible ? "View list" : "View map"}
-        </button>
-      ) : null}
-
-      {isMapVisible ? (
-        <div className={collapsibleOnMobile ? "mt-3" : ""} id={collapsibleOnMobile ? "mobile-shop-map" : undefined}>
-          {loadError ? (
-            <div className="flex min-h-[320px] items-center justify-center rounded-lg border border-line bg-paper p-5 text-center text-sm leading-6 text-muted">
-              The map could not be loaded right now. The shop list remains available below.
-            </div>
-          ) : (
-            <div
-              ref={mapElementRef}
-              className="h-[360px] overflow-hidden rounded-lg bg-paper lg:h-[520px]"
-              aria-label="Map of visible TobaccoNearby shop listings"
-            />
-          )}
-          <p className="mt-3 text-xs leading-5 text-muted">
-            Map locations are approximate. Please verify details before visiting.
-          </p>
+      {loadError ? (
+        <div className="flex h-[360px] items-center justify-center rounded-lg border border-line bg-paper p-5 text-center text-sm leading-6 text-muted lg:h-[520px]">
+          The map could not be loaded right now. The shop list remains available below.
         </div>
-      ) : null}
+      ) : (
+        <div
+          ref={mapElementRef}
+          className="h-[360px] overflow-hidden rounded-lg bg-paper lg:h-[520px]"
+          aria-label="Map of visible TobaccoNearby shop listings"
+        />
+      )}
+      <p className="mt-3 text-xs leading-5 text-muted">
+        Map locations are approximate. Please verify details before visiting.
+      </p>
     </section>
   );
 }

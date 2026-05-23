@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   amsterdamCentralStation,
@@ -10,6 +11,9 @@ import {
 } from "@/data/shops";
 
 type SupabaseShopRow = Record<string, unknown>;
+
+const shopSelectColumns =
+  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at";
 
 const searchAliases: Record<string, string> = {
   bijlmer: "Zuidoost",
@@ -39,7 +43,8 @@ const searchAliases: Record<string, string> = {
   zuid: "Zuid"
 };
 
-export async function getAllShops(): Promise<Shop[]> {
+// This deduplicates reads during one server render only. Supabase requests remain no-store.
+const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
   if (!supabase) {
     console.error(
       "Supabase is not configured. Falling back to local shop data. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY."
@@ -48,7 +53,7 @@ export async function getAllShops(): Promise<Shop[]> {
   }
 
   try {
-    const { data, error } = await supabase.from("shops").select("*");
+    const { data, error } = await supabase.from("shops").select(shopSelectColumns);
 
     if (error) {
       console.error("Supabase shops fetch failed. Falling back to local shop data.", error);
@@ -76,6 +81,10 @@ export async function getAllShops(): Promise<Shop[]> {
     console.error("Unexpected Supabase shops fetch failure. Falling back to local shop data.", error);
     return localShops;
   }
+});
+
+export async function getAllShops(): Promise<Shop[]> {
+  return fetchAllShopsForRequest();
 }
 
 export async function getShopBySlug(slug: string) {

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import ShopMap from "@/components/ShopMap";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { Shop } from "@/data/shops";
 
@@ -60,7 +60,7 @@ export default function NeighborhoodPage({ title, intro, areaContext, shops, sea
 
       {shops.length > 0 ? (
         <div className="mt-6">
-          <ShopMap shops={shops} />
+          <LazyShopMap shops={shops} />
         </div>
       ) : null}
 

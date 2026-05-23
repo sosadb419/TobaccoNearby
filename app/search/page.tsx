@@ -3,9 +3,9 @@ import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import ShopMap from "@/components/ShopMap";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import {
   amsterdamCentralStation,
@@ -209,12 +209,32 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      <div className="mt-6 lg:hidden">
-        <ShopMap shops={results} userLocation={userLocation} collapsibleOnMobile />
-      </div>
+      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+        <aside className="grid gap-5 lg:col-start-2 lg:row-start-1">
+          <div className="lg:sticky lg:top-6">
+            <LazyShopMap shops={results} userLocation={userLocation} />
+          </div>
+          <div className="hidden gap-5 lg:grid">
+            <AdSlot placement="sidebar" />
+            <div className="rounded-lg border border-line bg-white p-5">
+              <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
+              <div className="mt-4 grid gap-2 text-sm">
+                {neighborhoods.map((neighborhood) => (
+                  <TrackedNeighborhoodLink
+                    key={neighborhood.slug}
+                    className="focus-ring rounded-md py-1 text-muted hover:text-teal"
+                    href={`/amsterdam/${neighborhood.slug}`}
+                    neighborhood={neighborhood.name}
+                  >
+                    {neighborhood.name}
+                  </TrackedNeighborhoodLink>
+                ))}
+              </div>
+            </div>
+          </div>
+        </aside>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-        <div className="grid gap-5">
+        <div className="grid gap-5 lg:col-start-1 lg:row-start-1">
           <DisclaimerNotice />
 
           {query ? (
@@ -242,28 +262,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           ))}
         </div>
-
-        <aside className="hidden gap-5 lg:grid">
-          <div className="sticky top-6">
-            <ShopMap shops={results} userLocation={userLocation} />
-          </div>
-          <AdSlot placement="sidebar" />
-          <div className="rounded-lg border border-line bg-white p-5">
-            <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
-            <div className="mt-4 grid gap-2 text-sm">
-              {neighborhoods.map((neighborhood) => (
-                <TrackedNeighborhoodLink
-                  key={neighborhood.slug}
-                  className="focus-ring rounded-md py-1 text-muted hover:text-teal"
-                  href={`/amsterdam/${neighborhood.slug}`}
-                  neighborhood={neighborhood.name}
-                >
-                  {neighborhood.name}
-                </TrackedNeighborhoodLink>
-              ))}
-            </div>
-          </div>
-        </aside>
       </div>
     </section>
   );
