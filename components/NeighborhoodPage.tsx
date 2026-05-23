@@ -56,10 +56,6 @@ export default function NeighborhoodPage({ title, intro, areaContext, shops, sea
         </aside>
       </div>
 
-      <div className="mt-8">
-        <AdSlot placement="header" />
-      </div>
-
       <DisclaimerNotice className="mt-8" />
 
       {shops.length > 0 ? (
@@ -83,10 +79,9 @@ export default function NeighborhoodPage({ title, intro, areaContext, shops, sea
 
       <div className="mt-6 grid gap-5">
         {shops.length > 0 ? (
-          shops.map((shop, index) => (
-            <div key={shop.slug} className="grid gap-5">
+          shops.map((shop) => (
+            <div key={shop.slug}>
               <ShopCard shop={shop} />
-              {index === 1 ? <AdSlot placement="in-content" /> : null}
             </div>
           ))
         ) : (

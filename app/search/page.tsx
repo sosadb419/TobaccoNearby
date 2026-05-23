@@ -117,8 +117,6 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </p>
       </div>
 
-      <AdSlot placement="header" />
-
       <div className="mt-6 rounded-lg border border-line bg-white p-4 shadow-sm">
         <SearchBar initialQuery={query} compact />
         <div className="mt-4 flex flex-wrap items-center gap-2">

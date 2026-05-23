@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, Search } from "lucide-react";
+import AdSlot from "@/components/AdSlot";
 
 const navItems = [
   { href: "/search", label: "Search" },
@@ -43,6 +44,9 @@ export default function Header() {
             Find shops
           </Link>
         </nav>
+      </div>
+      <div className="container-shell pb-4">
+        <AdSlot placement="header" />
       </div>
     </header>
   );

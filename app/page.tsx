@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
-import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import HomeQuickActions from "@/components/HomeQuickActions";
 import SearchBar from "@/components/SearchBar";
@@ -86,10 +85,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </section>
-
-      <section className="container-shell py-8">
-        <AdSlot placement="header" />
       </section>
 
       <section id="amsterdam-neighborhoods" className="container-shell scroll-mt-6 py-8" aria-labelledby="amsterdam-neighborhoods-heading">
