@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const centralStationFaqs = [
+  {
+    question: "How can I find tobacco shops near Amsterdam Central Station?",
+    answer:
+      "Use this page to review Central Station-area listings, or search by Amsterdam Centraal, Centrum, street name or postal code."
+  },
+  {
+    question: "Can I search near Amsterdam Centraal?",
+    answer:
+      "Yes. Amsterdam Centraal and Central Station are treated as station-area search terms where matching listings are available."
+  },
+  {
+    question: "Are shops near Central Station always open late?",
+    answer:
+      "No. Opening hours vary by shop and may change. Verify hours directly before visiting."
+  },
+  {
+    question: "Can I get walking directions?",
+    answer:
+      "Directions links may open Google Maps, where you can choose walking or another route option."
+  },
+  {
+    question: "Why should I verify opening hours before visiting?",
+    answer:
+      "Station-area shops can change hours because of holidays, events or temporary closures. Check details before travelling."
+  }
+];
+
 export default async function NearCentralStationPage() {
   const shops = await getShopsForCentralStationArea();
 
@@ -33,6 +61,7 @@ export default async function NearCentralStationPage() {
       shops={shops}
       searchHref="/search?q=Amsterdam%20Centraal"
       mapNote="Distances are approximate and use Amsterdam Central Station as the reference point."
+      faqs={centralStationFaqs}
     />
   );
 }

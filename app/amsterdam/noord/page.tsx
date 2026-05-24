@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const noordFaqs = [
+  {
+    question: "How can I find tobacco shops in Amsterdam Noord?",
+    answer:
+      "Use this page to review Amsterdam Noord listings, or search by area, street, postal code, ferry stop or metro context."
+  },
+  {
+    question: "Can I search near metro or ferry connections?",
+    answer:
+      "Yes. Listings may include public transport notes, and the search page can match relevant area or station terms where available."
+  },
+  {
+    question: "Can I get directions from the listings?",
+    answer:
+      "Yes. If a listing includes a maps link, the directions button opens route information in Google Maps."
+  },
+  {
+    question: "Are opening hours guaranteed?",
+    answer:
+      "No. Opening hours can change. Verify hours and contact details directly before visiting."
+  },
+  {
+    question: "Can users directly edit shop listings?",
+    answer:
+      "No. Visitors can only submit correction suggestions. Updates are reviewed before published listings are changed."
+  }
+];
+
 export default async function NoordPage() {
   const shops = await getShopsByNeighborhood("Noord");
 
@@ -32,6 +60,7 @@ export default async function NoordPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=Noord"
+      faqs={noordFaqs}
     />
   );
 }

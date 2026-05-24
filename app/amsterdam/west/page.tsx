@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const westFaqs = [
+  {
+    question: "How can I find tobacco shops in Amsterdam West?",
+    answer:
+      "Use this page to review Amsterdam West listings or search by street, neighborhood, postal code or nearby area."
+  },
+  {
+    question: "Can I search near Oud-West, De Baarsjes, or Bos en Lommer?",
+    answer:
+      "Yes. Use the search bar for those area names or nearby streets when looking for relevant Amsterdam West listings."
+  },
+  {
+    question: "Can I filter listings by opening hours?",
+    answer:
+      "Yes. The search page includes an open now filter when opening-hours data is available and valid."
+  },
+  {
+    question: "Can I report outdated information?",
+    answer:
+      "Yes. Use the report or update options to suggest corrections. Submissions are reviewed before any listing changes."
+  },
+  {
+    question: "Are all listings verified?",
+    answer:
+      "Some listings may show a verified badge. Even verified listings should be checked before visiting because details can change."
+  }
+];
+
 export default async function WestPage() {
   const shops = await getShopsByNeighborhood("West");
 
@@ -32,6 +60,7 @@ export default async function WestPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=West"
+      faqs={westFaqs}
     />
   );
 }

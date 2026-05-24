@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const zuidoostFaqs = [
+  {
+    question: "Can I find tobacco shops near Bijlmer ArenA?",
+    answer:
+      "Use this Zuidoost page or search for Bijlmer to find relevant listings where shop data is available."
+  },
+  {
+    question: "How can I search in Amsterdam Zuidoost?",
+    answer:
+      "Search by Zuidoost, Bijlmer, street name, postal code or nearby transport area to narrow the results."
+  },
+  {
+    question: "Can I search by \"Bijlmer\"?",
+    answer:
+      "Yes. Bijlmer is treated as a Zuidoost-related search term where matching listings are available."
+  },
+  {
+    question: "Can I use directions from the listing?",
+    answer:
+      "Yes. Listings may include a directions link to open route information in Google Maps."
+  },
+  {
+    question: "How can I suggest a correction?",
+    answer:
+      "Use the report or update option on the website. Submitted suggestions are reviewed before changes are made."
+  }
+];
+
 export default async function ZuidoostPage() {
   const shops = await getShopsForZuidoostArea();
 
@@ -32,6 +60,7 @@ export default async function ZuidoostPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=Zuidoost"
+      faqs={zuidoostFaqs}
     />
   );
 }

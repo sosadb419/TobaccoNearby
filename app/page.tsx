@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import FAQSection from "@/components/FAQSection";
 import HomeQuickActions from "@/components/HomeQuickActions";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
@@ -34,6 +35,34 @@ const homepageNeighborhoods = [
   { href: "/amsterdam/noord", name: "Noord" },
   { href: "/amsterdam/zuid", name: "Zuid" },
   { href: "/amsterdam/zuidoost", name: "Zuidoost" }
+];
+
+const homepageFaqs = [
+  {
+    question: "What is TobaccoNearby?",
+    answer:
+      "TobaccoNearby is a neutral English-language directory that provides practical location information for listed tobacco shops in Amsterdam."
+  },
+  {
+    question: "Is this website intended for adults aged 18+?",
+    answer:
+      "Yes. TobaccoNearby is intended for adults aged 18+ and provides neutral, practical location information only."
+  },
+  {
+    question: "Does TobaccoNearby sell tobacco products?",
+    answer:
+      "No. TobaccoNearby does not sell tobacco products, process orders or promote smoking. The website only provides practical shop location information."
+  },
+  {
+    question: "How can I search for tobacco shops in Amsterdam?",
+    answer:
+      "Use the search bar to search by area, postal code, street or neighborhood, then review addresses, opening hours and directions where available."
+  },
+  {
+    question: "Can I use my current location?",
+    answer:
+      "Yes. If you allow browser location access, the search page can sort listings by distance. Exact coordinates are not sent to analytics."
+  }
 ];
 
 export default async function HomePage() {
@@ -173,6 +202,14 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+
+      <div className="container-shell py-8">
+        <FAQSection
+          id="homepage-faq"
+          items={homepageFaqs}
+          intro="General answers about using TobaccoNearby as a practical Amsterdam directory."
+        />
+      </div>
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
     </>

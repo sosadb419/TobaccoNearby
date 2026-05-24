@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const zuidFaqs = [
+  {
+    question: "How can I find tobacco shops in Amsterdam Zuid?",
+    answer:
+      "Use this page to review Amsterdam Zuid listings or search by neighborhood, postal code, street or nearby station area."
+  },
+  {
+    question: "Can I search near Museumkwartier, Rivierenbuurt, or Buitenveldert?",
+    answer:
+      "Yes. Use those area names or nearby streets in the search bar when looking for Amsterdam Zuid listings."
+  },
+  {
+    question: "Can I search by postal code?",
+    answer:
+      "Yes. The search page can match postal codes when that data is available for listed shops."
+  },
+  {
+    question: "Can I check accessibility information?",
+    answer:
+      "Yes. Listings may show wheelchair accessibility information where available. Unknown details should be verified before visiting."
+  },
+  {
+    question: "Does TobaccoNearby promote smoking?",
+    answer:
+      "No. TobaccoNearby is a neutral directory for adults aged 18+ and does not encourage tobacco use."
+  }
+];
+
 export default async function ZuidPage() {
   const shops = await getShopsByNeighborhood("Zuid");
 
@@ -32,6 +60,7 @@ export default async function ZuidPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=Zuid"
+      faqs={zuidFaqs}
     />
   );
 }

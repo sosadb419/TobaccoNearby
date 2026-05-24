@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const jordaanFaqs = [
+  {
+    question: "How can I find tobacco shops in the Jordaan?",
+    answer:
+      "Use this page to review listed Jordaan shop locations or search by nearby streets, postal code or neighborhood name."
+  },
+  {
+    question: "Can I search near Westerstraat or Rozengracht?",
+    answer:
+      "Yes. The search page can match street and area terms such as Westerstraat, Rozengracht and Noordermarkt where listing data is available."
+  },
+  {
+    question: "Are opening hours always accurate?",
+    answer:
+      "Opening hours may change without notice. Verify hours and contact details directly before visiting."
+  },
+  {
+    question: "Can I report incorrect information for a Jordaan listing?",
+    answer:
+      "Yes. Use the report option on the shop detail page to submit a correction suggestion for review."
+  },
+  {
+    question: "Does TobaccoNearby sell tobacco products?",
+    answer:
+      "No. TobaccoNearby does not sell products or process orders. It only provides practical directory information."
+  }
+];
+
 export default async function JordaanPage() {
   const shops = await getShopsByNeighborhood("Jordaan");
 
@@ -32,6 +60,7 @@ export default async function JordaanPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=Jordaan"
+      faqs={jordaanFaqs}
     />
   );
 }

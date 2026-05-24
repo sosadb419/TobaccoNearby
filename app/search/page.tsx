@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import FAQSection from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
@@ -41,6 +42,39 @@ const neighborhoodFilterOptions = [
   "Noord",
   "Zuid",
   "Zuidoost"
+];
+
+const searchFaqs = [
+  {
+    question: "How can I search for tobacco shops in Amsterdam?",
+    answer:
+      "Enter an area, postal code, street, station name or neighborhood. Search results show practical listing details where available."
+  },
+  {
+    question: "Can I search by neighborhood or postal code?",
+    answer:
+      "Yes. The search page supports neighborhood names such as De Pijp or Noord, area aliases such as Bijlmer, and postal codes such as 1012."
+  },
+  {
+    question: "Can I filter by open now?",
+    answer:
+      "Yes. The open now filter uses available opening-hours data. If hours are missing or unclear, the listing is not counted as open."
+  },
+  {
+    question: "Can I sort by nearest shop?",
+    answer:
+      "Yes, if you allow browser location access. You can still search normally without sharing your location."
+  },
+  {
+    question: "Why should I verify opening hours before visiting?",
+    answer:
+      "Shop data may change because of holidays, temporary closures or local conditions. Verify opening hours and contact details directly before visiting."
+  },
+  {
+    question: "Can I report incorrect shop information?",
+    answer:
+      "Yes. Use the report or update option to suggest corrections. Submitted updates are reviewed before any changes are made."
+  }
 ];
 
 export const metadata: Metadata = {
@@ -266,6 +300,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           ))}
         </div>
       </div>
+
+      <FAQSection
+        className="mt-8"
+        id="search-faq"
+        items={searchFaqs}
+        intro="Practical answers about search, filters, distance sorting and listing verification."
+      />
     </section>
   );
 }

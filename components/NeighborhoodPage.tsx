@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import FAQSection, { FAQItem } from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
@@ -29,12 +30,7 @@ type NeighborhoodPageProps = {
   shops: Shop[];
   searchHref: string;
   mapNote?: string;
-  faqs?: NeighborhoodFaq[];
-};
-
-export type NeighborhoodFaq = {
-  question: string;
-  answer: string;
+  faqs?: FAQItem[];
 };
 
 export default function NeighborhoodPage({
@@ -50,18 +46,6 @@ export default function NeighborhoodPage({
 }: NeighborhoodPageProps) {
   const pageFaqs = faqs ?? getDefaultFaqs(areaName);
   const areaId = slugifyId(areaName);
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: pageFaqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: faq.answer
-      }
-    }))
-  };
 
   return (
     <section className="container-shell py-8">
@@ -181,26 +165,17 @@ export default function NeighborhoodPage({
         </div>
       </section>
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5" aria-labelledby={`${areaId}-faq-heading`}>
-        <h2 id={`${areaId}-faq-heading`} className="text-lg font-bold text-ink">
-          FAQ
-        </h2>
-        <div className="mt-4 grid gap-4">
-          {pageFaqs.map((faq) => (
-            <section key={faq.question} className="border-t border-line pt-4">
-              <h3 className="text-base font-bold text-ink">{faq.question}</h3>
-              <p className="mt-2 text-sm leading-6 text-muted">{faq.answer}</p>
-            </section>
-          ))}
-        </div>
-      </section>
-
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      <FAQSection
+        className="mt-8"
+        id={`${areaId}-faq`}
+        items={pageFaqs}
+        intro="These answers are general and practical. Shop details may change, so verify important information before visiting."
+      />
     </section>
   );
 }
 
-function getDefaultFaqs(areaName: string): NeighborhoodFaq[] {
+function getDefaultFaqs(areaName: string): FAQItem[] {
   return [
     {
       question: `How can I find tobacco shops in ${areaName}?`,

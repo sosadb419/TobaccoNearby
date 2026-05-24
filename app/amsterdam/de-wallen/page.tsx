@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const deWallenFaqs = [
+  {
+    question: "How can I find tobacco shops near De Wallen?",
+    answer:
+      "Use this page to review listings near De Wallen. If exact area data is unavailable, relevant Centrum listings may be shown."
+  },
+  {
+    question: "Are listings near De Wallen part of Amsterdam Centrum?",
+    answer:
+      "De Wallen is a central Amsterdam area, so Centrum listings may be relevant when exact De Wallen records are not available."
+  },
+  {
+    question: "Can I get directions to shops near De Wallen?",
+    answer:
+      "Yes. Listings may include a Google Maps directions link where map data is available."
+  },
+  {
+    question: "Why should I verify shop details before visiting?",
+    answer:
+      "Opening hours, contact details and accessibility information may change. Verify important details directly with the shop."
+  },
+  {
+    question: "Is TobaccoNearby a promotional website?",
+    answer:
+      "No. TobaccoNearby is a neutral informational directory for adults aged 18+ and does not promote smoking."
+  }
+];
+
 export default async function DeWallenPage() {
   const shops = await getShopsForDeWallen();
 
@@ -33,6 +61,7 @@ export default async function DeWallenPage() {
       shops={shops}
       searchHref="/search?neighborhood=De%20Wallen"
       mapNote="De Wallen is handled as a central Amsterdam area. Please verify exact shop details before visiting."
+      faqs={deWallenFaqs}
     />
   );
 }

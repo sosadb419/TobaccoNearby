@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const oostFaqs = [
+  {
+    question: "How can I find tobacco shops in Amsterdam Oost?",
+    answer:
+      "Use this page for Amsterdam Oost listings or search by neighborhood, street, postal code or nearby public transport area."
+  },
+  {
+    question: "Can I search near Oosterpark, Indische Buurt, or Watergraafsmeer?",
+    answer:
+      "Yes. Search by those area names or nearby streets to find matching listings where data is available."
+  },
+  {
+    question: "Can I use the map to view listed shop locations?",
+    answer:
+      "Yes. When listings have valid coordinates, the map shows approximate shop locations for practical reference."
+  },
+  {
+    question: "Can I check contact details before visiting?",
+    answer:
+      "Yes. Listings may include phone numbers and websites where available. Verify details directly before travelling."
+  },
+  {
+    question: "How often is shop data reviewed?",
+    answer:
+      "Listings may include update or verification dates when available. Shop data can still change between reviews."
+  }
+];
+
 export default async function OostPage() {
   const shops = await getShopsByNeighborhood("Oost");
 
@@ -32,6 +60,7 @@ export default async function OostPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=Oost"
+      faqs={oostFaqs}
     />
   );
 }

@@ -16,6 +16,34 @@ export const metadata: Metadata = {
   }
 };
 
+const dePijpFaqs = [
+  {
+    question: "Where can I find tobacco shops in De Pijp?",
+    answer:
+      "Use this page to review listed shop locations in De Pijp, including available addresses, opening hours and directions."
+  },
+  {
+    question: "Can I search by postal code in De Pijp?",
+    answer:
+      "Yes. Use the site search to enter a De Pijp postal code, street name or neighborhood query."
+  },
+  {
+    question: "Are listings in De Pijp updated automatically?",
+    answer:
+      "Listings are loaded from Supabase when available, but shop data can still change. Verify details before visiting."
+  },
+  {
+    question: "Can I get directions to shops in De Pijp?",
+    answer:
+      "Yes. If a listing includes a maps link, use the directions button to open route information."
+  },
+  {
+    question: "Does TobaccoNearby recommend specific shops?",
+    answer:
+      "No. TobaccoNearby is a neutral directory and does not rank, recommend or promote specific shops."
+  }
+];
+
 export default async function DePijpPage() {
   const shops = await getShopsByNeighborhood("De Pijp");
 
@@ -32,6 +60,7 @@ export default async function DePijpPage() {
       ]}
       shops={shops}
       searchHref="/search?neighborhood=De%20Pijp"
+      faqs={dePijpFaqs}
     />
   );
 }
