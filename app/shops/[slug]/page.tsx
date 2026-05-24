@@ -5,10 +5,18 @@ import { notFound } from "next/navigation";
 import { Accessibility, CalendarDays, ExternalLink, MapPin, Phone, Route, Train } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import LazyShopMap from "@/components/LazyShopMap";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
-import { TrackedDirectionsLink } from "@/components/TrackedLinks";
-import { formatOpeningHours, getOpeningHoursSpecification, getPlaceTypeLabel } from "@/data/shops";
-import { getShopBySlug } from "@/lib/shop-data";
+import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
+import {
+  Shop,
+  formatOpeningHours,
+  getDistanceKm,
+  getOpeningHoursSpecification,
+  getPlaceTypeLabel,
+  normalize
+} from "@/data/shops";
+import { getAllShops, getShopBySlug } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
 
@@ -33,8 +41,10 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
   }
 
   return {
-    title: `${shop.name} Amsterdam | Address, Hours & Directions`,
-    description: `View practical information for ${shop.name} in Amsterdam, including address, opening hours, directions, contact details, and verification dates where available.`,
+    title: {
+      absolute: `${shop.name} Amsterdam | Address, Opening Hours & Directions`
+    },
+    description: `View practical information for ${shop.name} in Amsterdam, including address, opening hours, directions, contact details and neighborhood information. Adults 18+ only.`,
     alternates: {
       canonical: `/shops/${shop.slug}`
     }
@@ -49,9 +59,17 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
     notFound();
   }
 
+  const shopList = await getAllShops();
+  const nearbyShops = getNearbyListedShops(shop, shopList);
+  const neighborhoodHref = getNeighborhoodHref(shop.neighborhood);
   const accessibility =
-    shop.wheelchairAccessible === undefined ? "Unknown" : shop.wheelchairAccessible ? "Yes" : "No";
-  const mapSrc = `https://maps.google.com/maps?q=${shop.latitude},${shop.longitude}&z=15&output=embed`;
+    shop.wheelchairAccessible === undefined
+      ? "Accessibility information not available."
+      : shop.wheelchairAccessible
+        ? "Yes"
+        : "No";
+  const openingHours = formatOpeningHours(shop.openingHours);
+  const hasMapLocation = hasValidCoordinates(shop);
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -107,6 +125,10 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
           <p className="mt-4 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">
             This website is intended for adults aged 18+.
           </p>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-muted">
+            This page provides neutral, practical information about this listed location in Amsterdam, including
+            address details, opening hours where available, contact links, directions and nearby public transport notes.
+          </p>
 
           <div className="mt-6 grid gap-5 md:grid-cols-2">
             <InfoBlock icon={<MapPin aria-hidden="true" size={18} />} title="Address">
@@ -116,30 +138,35 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               <br />
               {shop.country}
             </InfoBlock>
+            <InfoBlock icon={<MapPin aria-hidden="true" size={18} />} title="Neighborhood">
+              <Link className="font-semibold text-teal hover:text-ink" href={neighborhoodHref}>
+                {shop.neighborhood}
+              </Link>
+            </InfoBlock>
             <InfoBlock icon={<CalendarDays aria-hidden="true" size={18} />} title="Opening hours">
               <ul className="grid gap-1">
-                {formatOpeningHours(shop.openingHours).map((line) => (
+                {openingHours.map((line) => (
                   <li key={line}>{line}</li>
                 ))}
               </ul>
             </InfoBlock>
             <InfoBlock icon={<Phone aria-hidden="true" size={18} />} title="Contact information">
-              <span>Phone: {shop.phone ?? "Not available"}</span>
-              <br />
+              {shop.phone ? <p>Phone: {shop.phone}</p> : null}
               {shop.website ? (
                 <a className="font-semibold text-teal hover:text-ink" href={shop.website} target="_blank" rel="noreferrer">
                   Website
                 </a>
-              ) : (
-                <span>Website: Not available</span>
-              )}
+              ) : null}
+              {!shop.phone && !shop.website ? <p>Contact details not available.</p> : null}
             </InfoBlock>
             <InfoBlock icon={<Accessibility aria-hidden="true" size={18} />} title="Accessibility">
               Wheelchair accessible: {accessibility}
             </InfoBlock>
-            <InfoBlock icon={<Train aria-hidden="true" size={18} />} title="Nearby public transport">
-              {shop.nearbyPublicTransport ?? "Not available"}
-            </InfoBlock>
+            {shop.nearbyPublicTransport ? (
+              <InfoBlock icon={<Train aria-hidden="true" size={18} />} title="Nearby public transport">
+                {shop.nearbyPublicTransport}
+              </InfoBlock>
+            ) : null}
             <InfoBlock icon={<Route aria-hidden="true" size={18} />} title="Directions">
               <TrackedDirectionsLink
                 className="font-semibold text-teal hover:text-ink"
@@ -154,19 +181,30 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
             </InfoBlock>
           </div>
 
-          <DisclaimerNotice className="mt-6" />
+          <DisclaimerNotice
+            className="mt-6"
+            text="Please verify opening hours, contact details, accessibility information and product availability before visiting."
+          />
 
-          <div className="mt-8 overflow-hidden rounded-lg border border-line bg-paper">
-            <iframe
-              className="h-[320px] w-full border-0"
-              src={mapSrc}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title={`Map location for ${shop.name}`}
-            />
-          </div>
+          <section className="mt-8" aria-labelledby="shop-map-heading">
+            <h2 id="shop-map-heading" className="text-2xl font-bold text-ink">
+              Map location
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Map markers are approximate and are provided for practical location reference only.
+            </p>
+            <div className="mt-4">
+              {hasMapLocation ? (
+                <LazyShopMap shops={[shop]} />
+              ) : (
+                <div className="rounded-lg border border-line bg-paper p-5 text-sm leading-6 text-muted">
+                  Map location is not available for this listing.
+                </div>
+              )}
+            </div>
+          </section>
 
-          <p className="mt-5 text-sm text-muted">Last updated: {shop.lastUpdated}</p>
+          {shop.lastUpdated ? <p className="mt-5 text-sm text-muted">Last updated: {shop.lastUpdated}</p> : null}
         </article>
 
         <aside className="grid gap-5">
@@ -185,6 +223,18 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                 <Route aria-hidden="true" size={16} />
                 Directions
               </TrackedDirectionsLink>
+              <Link
+                className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+                href="/search"
+              >
+                Back to search
+              </Link>
+              <Link
+                className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+                href={neighborhoodHref}
+              >
+                View {shop.neighborhood}
+              </Link>
               {shop.website ? (
                 <a
                   className="focus-ring inline-flex items-center justify-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
@@ -202,8 +252,73 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
         </aside>
       </div>
 
+      {nearbyShops.length > 0 ? (
+        <section className="mt-8" aria-labelledby="nearby-shops-heading">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 id="nearby-shops-heading" className="text-2xl font-bold text-ink">
+                Nearby listed shops
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Nearby listings are shown for practical navigation. Please verify details before visiting.
+              </p>
+            </div>
+            <Link
+              className="focus-ring rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+              href={neighborhoodHref}
+            >
+              View area page
+            </Link>
+          </div>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {nearbyShops.map((nearbyShop) => (
+              <NearbyShopCard key={nearbyShop.slug} shop={nearbyShop} />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </section>
+  );
+}
+
+function NearbyShopCard({ shop }: { shop: Shop }) {
+  return (
+    <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
+      <p className="text-xs font-bold uppercase text-muted">{shop.neighborhood}</p>
+      <h3 className="mt-2 text-lg font-bold text-ink">
+        <TrackedShopDetailsLink
+          className="focus-ring rounded-md hover:text-teal"
+          href={`/shops/${shop.slug}`}
+          shopSlug={shop.slug}
+          neighborhood={shop.neighborhood}
+        >
+          {shop.name}
+        </TrackedShopDetailsLink>
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-muted">{shop.address}</p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <TrackedShopDetailsLink
+          className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white hover:bg-teal"
+          href={`/shops/${shop.slug}`}
+          shopSlug={shop.slug}
+          neighborhood={shop.neighborhood}
+        >
+          View details
+        </TrackedShopDetailsLink>
+        <TrackedDirectionsLink
+          className="focus-ring rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+          href={shop.googleMapsLink}
+          shopSlug={shop.slug}
+          neighborhood={shop.neighborhood}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Directions
+        </TrackedDirectionsLink>
+      </div>
+    </article>
   );
 }
 
@@ -225,4 +340,50 @@ function InfoBlock({
       <div className="mt-2 text-sm leading-6 text-muted">{children}</div>
     </section>
   );
+}
+
+function getNearbyListedShops(currentShop: Shop, shopList: Shop[]) {
+  return shopList
+    .filter((shop) => shop.slug !== currentShop.slug)
+    .map((shop) => ({
+      shop,
+      sameNeighborhood: normalize(shop.neighborhood) === normalize(currentShop.neighborhood),
+      distance: getSafeDistanceKm(currentShop, shop)
+    }))
+    .sort((a, b) => {
+      if (a.sameNeighborhood !== b.sameNeighborhood) {
+        return a.sameNeighborhood ? -1 : 1;
+      }
+
+      if (a.distance !== b.distance) {
+        return a.distance - b.distance;
+      }
+
+      return a.shop.name.localeCompare(b.shop.name);
+    })
+    .slice(0, 5)
+    .map(({ shop }) => shop);
+}
+
+function getSafeDistanceKm(origin: Shop, shop: Shop) {
+  if (!hasValidCoordinates(origin) || !hasValidCoordinates(shop)) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return getDistanceKm(shop, { latitude: origin.latitude, longitude: origin.longitude });
+}
+
+function hasValidCoordinates(shop: Shop) {
+  return Number.isFinite(shop.latitude) && Number.isFinite(shop.longitude);
+}
+
+function getNeighborhoodHref(neighborhood: string) {
+  const slug = normalize(neighborhood);
+  const knownAreaSlugs = new Set(["centrum", "de-pijp", "jordaan", "de-wallen", "west", "oost", "noord", "zuid", "zuidoost"]);
+
+  if (knownAreaSlugs.has(slug)) {
+    return `/amsterdam/${slug}`;
+  }
+
+  return `/search?neighborhood=${encodeURIComponent(neighborhood)}`;
 }

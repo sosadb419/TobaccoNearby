@@ -341,7 +341,7 @@ export function formatDistance(distanceKm: number) {
 
 export function formatOpeningHours(slots: OpeningHoursSlot[]) {
   if (slots.length === 0) {
-    return ["Opening hours not available"];
+    return ["Opening hours not available."];
   }
 
   return slots.map((slot) => `${formatDays(slot.days)}: ${slot.opens}-${slot.closes}${slot.note ? ` (${slot.note})` : ""}`);
@@ -349,7 +349,7 @@ export function formatOpeningHours(slots: OpeningHoursSlot[]) {
 
 export function getTodayOpeningHours(shop: Shop, date = new Date()) {
   if (shop.openingHours.length === 0) {
-    return "Opening hours not available";
+    return "Opening hours not available.";
   }
 
   const today = getAmsterdamDayAndMinutes(date).day;

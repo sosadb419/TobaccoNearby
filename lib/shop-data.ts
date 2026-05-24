@@ -53,7 +53,7 @@ const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
   }
 
   try {
-    const { data, error } = await supabase.from("shops").select(shopSelectColumns).eq("status", "published");
+    const { data, error } = await fetchPublishedShopRows(supabase);
 
     if (error) {
       console.error("Supabase shops fetch failed. Falling back to local shop data.", error);
@@ -208,10 +208,11 @@ function getSearchAliasTargets(value: string) {
 }
 
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
+  const hasStatusField = Object.prototype.hasOwnProperty.call(row, "status");
   const status = readString(row, ["status"]);
   const name = readString(row, ["name", "shop_name", "title"]);
 
-  if (status !== "published" || !name) {
+  if ((hasStatusField && status !== "published") || !name) {
     return null;
   }
 
@@ -240,7 +241,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     googleMapsLink,
     lastUpdated:
       readDate(row, ["last_updated", "last_updated_at", "updated_at"]) ?? new Date().toISOString().slice(0, 10),
-    status,
+    status: status ?? "published",
     verified: readBoolean(row, ["verified"]),
     last_checked_at: readDate(row, ["last_checked_at"]),
     place_type: readString(row, ["place_type", "placeType"]) ?? "tobacco_shop",
@@ -255,6 +256,41 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
       "transit_notes"
     ])
   };
+}
+
+async function fetchPublishedShopRows(client: NonNullable<typeof supabase>) {
+  const publishedQuery = await client.from("shops").select(shopSelectColumns).eq("status", "published");
+
+  if (!publishedQuery.error || !isMissingColumnError(publishedQuery.error)) {
+    return publishedQuery;
+  }
+
+  console.error(
+    "Supabase shops fetch with status filter failed because a selected column is missing. Retrying with available columns.",
+    publishedQuery.error
+  );
+
+  return client.from("shops").select("*");
+}
+
+function isMissingColumnError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const details = [readErrorField(error, "message"), readErrorField(error, "details"), readErrorField(error, "hint")]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const code = readErrorField(error, "code");
+
+  return code === "42703" || details.includes("column") || details.includes("schema cache");
+}
+
+function readErrorField(error: object, key: string) {
+  const value = (error as Record<string, unknown>)[key];
+
+  return typeof value === "string" ? value : undefined;
 }
 
 function readOpeningHours(row: SupabaseShopRow): OpeningHoursSlot[] {
