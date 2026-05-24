@@ -22,8 +22,14 @@ export default async function CentrumPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops in Amsterdam Centrum"
+      areaName="Amsterdam Centrum"
       intro="This page provides neutral, practical information about listed tobacco shops in Amsterdam Centrum. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
-      areaContext="Centrum covers central Amsterdam, including areas close to Damrak, Dam Square and major public transport connections. Use the listings to compare practical details such as address, opening hours and directions before visiting."
+      areaContext="Centrum covers central Amsterdam, including streets around Damrak, Dam Square, Nieuwezijds Voorburgwal and nearby public transport stops. Use this page to check practical details before travelling through the city centre."
+      practicalInfo={[
+        "Central Amsterdam can be busy during weekends, events and holidays, so checking opening hours before visiting is important.",
+        "Public transport access may include Amsterdam Central Station, metro stops, tram routes and nearby bus stops depending on the listing.",
+        "Listings focus on address details, directions, contact information and accessibility notes where available."
+      ]}
       shops={shops}
       searchHref="/search?neighborhood=Centrum"
       mapNote="Centrum listings may be close to major transit points, but opening hours can vary during holidays and events."

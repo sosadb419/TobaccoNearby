@@ -96,6 +96,49 @@ export async function getShopsByNeighborhood(neighborhood: string) {
   return shopList.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhood));
 }
 
+export async function getShopsForDeWallen() {
+  const shopList = await getAllShops();
+  const exactMatches = shopList.filter((shop) => normalize(shop.neighborhood) === "de-wallen");
+
+  if (exactMatches.length > 0) {
+    return exactMatches;
+  }
+
+  return shopList.filter((shop) => normalize(shop.neighborhood) === "centrum");
+}
+
+export async function getShopsForCentralStationArea() {
+  const shopList = await getAllShops();
+
+  return shopList
+    .filter((shop) => {
+      const searchable = getShopSearchableText(shop);
+
+      return (
+        normalize(shop.neighborhood) === "centrum" ||
+        searchable.includes("central-station") ||
+        searchable.includes("centraal-station") ||
+        searchable.includes("amsterdam-centraal")
+      );
+    })
+    .map((shop) => ({
+      shop,
+      distance: getDistanceKm(shop, amsterdamCentralStation)
+    }))
+    .sort((a, b) => a.distance - b.distance)
+    .map(({ shop }) => shop);
+}
+
+export async function getShopsForZuidoostArea() {
+  const shopList = await getAllShops();
+
+  return shopList.filter((shop) => {
+    const searchable = getShopSearchableText(shop);
+
+    return normalize(shop.neighborhood) === "zuidoost" || searchable.includes("bijlmer");
+  });
+}
+
 export async function getShopsNearCentralStation(maxKm = 1.5) {
   const shopList = await getAllShops();
 
@@ -134,6 +177,19 @@ export async function searchShops(query: string) {
 
 function normalizeSearchValue(query: string) {
   return normalize(query.trim());
+}
+
+function getShopSearchableText(shop: Shop) {
+  return normalize(
+    [
+      shop.name,
+      shop.address,
+      shop.postalCode,
+      shop.neighborhood,
+      shop.city,
+      shop.nearbyPublicTransport ?? ""
+    ].join(" ")
+  );
 }
 
 function getSearchAliasTargets(value: string) {

@@ -22,8 +22,14 @@ export default async function OostPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops in Amsterdam Oost"
+      areaName="Amsterdam Oost"
       intro="This page provides neutral, practical information about listed tobacco shops in Amsterdam Oost. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
       areaContext="Amsterdam Oost includes areas such as Oosterpark, Indische Buurt and Watergraafsmeer. Listings can help users check practical location details and directions before travelling."
+      practicalInfo={[
+        "Amsterdam Oost covers several residential and commercial areas, so listings are grouped by practical shop location details.",
+        "Public transport access may include tram, bus, metro or train connections depending on the exact street.",
+        "Opening hours and contact details should be checked before visiting, especially around holidays or temporary closures."
+      ]}
       shops={shops}
       searchHref="/search?neighborhood=Oost"
     />

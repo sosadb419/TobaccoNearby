@@ -22,8 +22,14 @@ export default async function NoordPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops in Amsterdam Noord"
+      areaName="Amsterdam Noord"
       intro="This page provides neutral, practical information about listed tobacco shops in Amsterdam Noord. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
       areaContext="Amsterdam Noord includes neighborhoods north of the IJ, with ferry, bus and metro connections depending on the area. Use the listings for practical address, opening hour and direction checks."
+      practicalInfo={[
+        "Amsterdam Noord shop locations may be reached by ferry, metro, bus, bicycle or car depending on the neighborhood.",
+        "Check directions carefully because travel routes can differ between Noord ferry areas, metro stations and residential streets.",
+        "Listings show contact details, websites and accessibility information when those details are available."
+      ]}
       shops={shops}
       searchHref="/search?neighborhood=Noord"
     />

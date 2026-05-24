@@ -22,8 +22,14 @@ export default async function JordaanPage() {
   return (
     <NeighborhoodPage
       title="Tobacco Shops in Jordaan Amsterdam"
+      areaName="Jordaan Amsterdam"
       intro="This page provides neutral, practical information about listed tobacco shops in the Jordaan area of Amsterdam. Listings may include addresses, opening hours, contact details, accessibility information and map directions where available. TobaccoNearby is intended for adults aged 18+ and does not sell tobacco products or promote smoking."
-      areaContext="The Jordaan area includes local streets such as Westerstraat and nearby routes around Rozengracht and Noordermarkt. Use listed shop information to check addresses, opening hours and directions."
+      areaContext="The Jordaan area includes local streets such as Westerstraat, Rozengracht and routes around Noordermarkt. Use listed shop information to check addresses, opening hours and directions."
+      practicalInfo={[
+        "Jordaan streets can be narrow and busy, so route planning and opening-hour checks can help avoid unnecessary travel.",
+        "Listings may include public transport context around tram and bus stops near Marnixstraat, Rozengracht or nearby canals.",
+        "Contact details and websites are shown where available so users can verify details directly before visiting."
+      ]}
       shops={shops}
       searchHref="/search?neighborhood=Jordaan"
     />
