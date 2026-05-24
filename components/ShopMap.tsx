@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
+import { getPlaceTypeLabel, getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
 import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
 type ShopMapProps = {
@@ -190,6 +190,10 @@ function createShopPopup(shop: Shop) {
   const neighborhood = document.createElement("p");
   neighborhood.textContent = `Neighborhood: ${shop.neighborhood}`;
   container.append(neighborhood);
+
+  const placeType = document.createElement("p");
+  placeType.textContent = `Place type: ${getPlaceTypeLabel(shop.place_type)}`;
+  container.append(placeType);
 
   const hours = document.createElement("p");
   hours.textContent = `Today: ${getTodayOpeningHours(shop)}`;

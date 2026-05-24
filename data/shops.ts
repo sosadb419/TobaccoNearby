@@ -32,6 +32,7 @@ export type Shop = {
   last_checked_at?: string;
   source_url?: string;
   internal_notes?: string;
+  place_type?: string;
   city: string;
   country: string;
   wheelchairAccessible?: boolean;
@@ -57,6 +58,15 @@ export const neighborhoods = [
   { name: "Noord", slug: "noord" },
   { name: "Zuid", slug: "zuid" },
   { name: "Zuidoost", slug: "zuidoost" }
+];
+
+export const placeTypes = [
+  { value: "tobacco_shop", label: "Tobacco shop" },
+  { value: "kiosk", label: "Kiosk" },
+  { value: "gas_station", label: "Gas station" },
+  { value: "convenience_store", label: "Convenience store" },
+  { value: "night_shop", label: "Night shop" },
+  { value: "other", label: "Other location" }
 ];
 
 const weekdays: DayName[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -89,6 +99,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.375763,4.897967",
     lastUpdated: "2026-05-12",
     status: "published",
+    place_type: "tobacco_shop",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -110,6 +121,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.380432,4.881354",
     lastUpdated: "2026-05-10",
     status: "published",
+    place_type: "kiosk",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: false,
@@ -133,6 +145,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.354782,4.891611",
     lastUpdated: "2026-05-11",
     status: "published",
+    place_type: "tobacco_shop",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -153,6 +166,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.360155,4.925732",
     lastUpdated: "2026-05-09",
     status: "published",
+    place_type: "convenience_store",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -174,6 +188,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.370811,4.855126",
     lastUpdated: "2026-05-08",
     status: "published",
+    place_type: "night_shop",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: undefined,
@@ -195,6 +210,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.389031,4.913202",
     lastUpdated: "2026-05-07",
     status: "published",
+    place_type: "kiosk",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -216,6 +232,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.348854,4.878623",
     lastUpdated: "2026-05-05",
     status: "published",
+    place_type: "tobacco_shop",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -236,6 +253,7 @@ export const shops: Shop[] = [
     googleMapsLink: "https://www.google.com/maps/search/?api=1&query=52.313591,4.946872",
     lastUpdated: "2026-05-03",
     status: "published",
+    place_type: "other",
     city: "Amsterdam",
     country: "Netherlands",
     wheelchairAccessible: true,
@@ -286,6 +304,16 @@ export function searchShops(query: string, shopList: Shop[] = shops) {
 
 export function normalize(value: string) {
   return value.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
+export function getPlaceTypeLabel(placeType?: string) {
+  if (!placeType) {
+    return "Tobacco shop";
+  }
+
+  return (
+    placeTypes.find((item) => item.value === placeType.trim().toLowerCase())?.label ?? "Other location"
+  );
 }
 
 export function getDistanceKm(shop: Pick<Shop, "latitude" | "longitude">, origin: Coordinates) {

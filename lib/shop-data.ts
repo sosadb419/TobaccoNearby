@@ -13,7 +13,7 @@ import {
 type SupabaseShopRow = Record<string, unknown>;
 
 const shopSelectColumns =
-  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at";
+  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type";
 
 const searchAliases: Record<string, string> = {
   bijlmer: "Zuidoost",
@@ -243,6 +243,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     status,
     verified: readBoolean(row, ["verified"]),
     last_checked_at: readDate(row, ["last_checked_at"]),
+    place_type: readString(row, ["place_type", "placeType"]) ?? "tobacco_shop",
     city,
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),

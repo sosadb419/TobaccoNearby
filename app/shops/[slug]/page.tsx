@@ -7,7 +7,7 @@ import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import { TrackedDirectionsLink } from "@/components/TrackedLinks";
-import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
+import { formatOpeningHours, getOpeningHoursSpecification, getPlaceTypeLabel } from "@/data/shops";
 import { getShopBySlug } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
@@ -91,18 +91,19 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
         <article className="rounded-lg border border-line bg-white p-6 shadow-sm">
           <p className="text-sm font-bold uppercase text-teal">Amsterdam shop detail</p>
           <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">{shop.name}</h1>
-          {shop.verified || shop.last_checked_at ? (
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              {shop.verified ? (
-                <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-teal">
-                  Verified listing
-                </span>
-              ) : null}
-              {shop.last_checked_at ? (
-                <span className="text-sm text-muted">Last checked: {shop.last_checked_at}</span>
-              ) : null}
-            </div>
-          ) : null}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-muted">
+              {getPlaceTypeLabel(shop.place_type)}
+            </span>
+            {shop.verified ? (
+              <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-teal">
+                Verified listing
+              </span>
+            ) : null}
+            {shop.last_checked_at ? (
+              <span className="text-sm text-muted">Last checked: {shop.last_checked_at}</span>
+            ) : null}
+          </div>
           <p className="mt-4 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">
             This website is intended for adults aged 18+.
           </p>

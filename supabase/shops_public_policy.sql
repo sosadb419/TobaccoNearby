@@ -56,6 +56,7 @@ grant select (
   status,
   verified,
   last_checked_at,
+  place_type,
   created_at,
   updated_at
 ) on table public.shops to anon;

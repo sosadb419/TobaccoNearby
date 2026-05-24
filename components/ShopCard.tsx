@@ -6,6 +6,7 @@ import {
   formatDistance,
   formatOpeningHours,
   getDistanceKm,
+  getPlaceTypeLabel,
   getTodayOpeningHours,
   isOpenNow,
   Shop
@@ -33,11 +34,16 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
           {priorityLabel ? (
             <p className="mb-2 text-xs font-bold uppercase text-teal">{priorityLabel}</p>
           ) : null}
-          {shop.verified ? (
-            <p className="mb-2 inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-teal">
-              Verified listing
-            </p>
-          ) : null}
+          <div className="mb-2 flex flex-wrap gap-2">
+            <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-muted">
+              {getPlaceTypeLabel(shop.place_type)}
+            </span>
+            {shop.verified ? (
+              <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-teal">
+                Verified listing
+              </span>
+            ) : null}
+          </div>
           <h2 className="text-xl font-bold text-ink">
             <TrackedShopDetailsLink
               className="focus-ring rounded-md hover:text-teal"

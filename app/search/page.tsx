@@ -12,9 +12,11 @@ import {
   Coordinates,
   Shop,
   getDistanceKm,
+  getPlaceTypeLabel,
   isOpenNow,
   neighborhoods,
-  normalize
+  normalize,
+  placeTypes
 } from "@/data/shops";
 import { getAllShops, searchShops } from "@/lib/shop-data";
 
@@ -99,6 +101,7 @@ type SearchPageProps = {
     accessible?: string;
     hasPhone?: string;
     hasWebsite?: string;
+    placeType?: string;
   }>;
 };
 
@@ -107,6 +110,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = (params.q ?? "").trim();
   const userLocation = getUserLocation(params.lat, params.lng);
   const selectedNeighborhood = params.neighborhood ?? "";
+  const selectedPlaceType = getValidPlaceType(params.placeType);
   const wantsNearest = params.sort === "nearest";
   const nearestNeedsLocation = wantsNearest && !userLocation;
 
@@ -115,6 +119,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     openNow: params.openNow === "true",
     sortNearest: wantsNearest,
     selectedNeighborhood,
+    selectedPlaceType,
     hasPhone: params.hasPhone === "true",
     hasWebsite: params.hasWebsite === "true",
     wheelchairAccessible: params.accessible === "true",
@@ -136,6 +141,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (params.hasPhone) filterParams.set("hasPhone", params.hasPhone);
   if (params.hasWebsite) filterParams.set("hasWebsite", params.hasWebsite);
   if (selectedNeighborhood) filterParams.set("neighborhood", selectedNeighborhood);
+  if (selectedPlaceType) filterParams.set("placeType", selectedPlaceType);
 
   const clearFilterParams = new URLSearchParams();
   if (query) clearFilterParams.set("q", query);
@@ -204,7 +210,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           {nearestNeedsLocation ? (
             <p className="mt-3 text-sm leading-6 text-muted">Allow location access to sort by nearest.</p>
           ) : null}
-          <form className="mt-4 flex max-w-sm flex-col gap-2 sm:flex-row" action="/search">
+          <form className="mt-4 grid max-w-2xl gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end" action="/search">
             {query ? <input type="hidden" name="q" value={query} /> : null}
             {params.lat ? <input type="hidden" name="lat" value={params.lat} /> : null}
             {params.lng ? <input type="hidden" name="lng" value={params.lng} /> : null}
@@ -213,22 +219,42 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {params.accessible ? <input type="hidden" name="accessible" value={params.accessible} /> : null}
             {params.hasPhone ? <input type="hidden" name="hasPhone" value={params.hasPhone} /> : null}
             {params.hasWebsite ? <input type="hidden" name="hasWebsite" value={params.hasWebsite} /> : null}
-            <label className="sr-only" htmlFor="neighborhood">
-              Neighborhood
-            </label>
-            <select
-              className="focus-ring min-h-11 flex-1 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
-              id="neighborhood"
-              name="neighborhood"
-              defaultValue={selectedNeighborhood}
-            >
-              <option value="">All neighborhoods</option>
-              {neighborhoodFilterOptions.map((neighborhood) => (
-                <option key={neighborhood} value={neighborhood}>
-                  {neighborhood}
-                </option>
-              ))}
-            </select>
+            <div className="grid gap-1">
+              <label className="text-xs font-bold uppercase text-muted" htmlFor="neighborhood">
+                Neighborhood
+              </label>
+              <select
+                className="focus-ring min-h-11 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
+                id="neighborhood"
+                name="neighborhood"
+                defaultValue={selectedNeighborhood}
+              >
+                <option value="">All neighborhoods</option>
+                {neighborhoodFilterOptions.map((neighborhood) => (
+                  <option key={neighborhood} value={neighborhood}>
+                    {neighborhood}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1">
+              <label className="text-xs font-bold uppercase text-muted" htmlFor="placeType">
+                Place type
+              </label>
+              <select
+                className="focus-ring min-h-11 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
+                id="placeType"
+                name="placeType"
+                defaultValue={selectedPlaceType}
+              >
+                <option value="">All types</option>
+                {placeTypes.map((placeType) => (
+                  <option key={placeType.value} value={placeType.value}>
+                    {placeType.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <button className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white hover:bg-teal" type="submit">
               Apply
             </button>
@@ -315,6 +341,7 @@ type ShopFilters = {
   openNow: boolean;
   sortNearest: boolean;
   selectedNeighborhood: string;
+  selectedPlaceType: string;
   hasPhone: boolean;
   hasWebsite: boolean;
   wheelchairAccessible: boolean;
@@ -328,6 +355,10 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
     const neighborhoodTarget = getNeighborhoodFilterTarget(filters.selectedNeighborhood);
 
     filteredShops = filteredShops.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhoodTarget));
+  }
+
+  if (filters.selectedPlaceType) {
+    filteredShops = filteredShops.filter((shop) => getNormalizedPlaceType(shop.place_type) === filters.selectedPlaceType);
   }
 
   if (filters.openNow) {
@@ -375,12 +406,25 @@ function getNeighborhoodFilterTarget(neighborhood: string) {
   return normalize(neighborhood) === "de-wallen" ? "Centrum" : neighborhood;
 }
 
+function getNormalizedPlaceType(placeType?: string) {
+  const value = placeType?.trim().toLowerCase() ?? "";
+
+  return placeTypes.some((item) => item.value === value) ? value : "tobacco_shop";
+}
+
+function getValidPlaceType(placeType?: string) {
+  const value = placeType?.trim().toLowerCase() ?? "";
+
+  return placeTypes.some((item) => item.value === value) ? value : "";
+}
+
 function getActiveFilterLabels(filters: ShopFilters) {
   const labels: string[] = [];
 
   if (filters.openNow) labels.push("Open now");
   if (filters.sortNearest) labels.push("Nearest");
   if (filters.selectedNeighborhood) labels.push(filters.selectedNeighborhood);
+  if (filters.selectedPlaceType) labels.push(getPlaceTypeLabel(filters.selectedPlaceType));
   if (filters.hasPhone) labels.push("Has phone number");
   if (filters.hasWebsite) labels.push("Has website");
   if (filters.wheelchairAccessible) labels.push("Wheelchair accessible");
