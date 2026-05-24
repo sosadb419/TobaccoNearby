@@ -3,9 +3,14 @@ import AdSlot from "@/components/AdSlot";
 import ShopSubmissionForm from "@/components/ShopSubmissionForm";
 
 export const metadata: Metadata = {
-  title: "Add or Update a Shop",
+  title: {
+    absolute: "Add or Update a Shop | TobaccoNearby"
+  },
   description:
-    "Submit a new Amsterdam shop, suggest an update, or request removal of outdated information for manual review."
+    "Submit a new Amsterdam shop, suggest an update, or request removal of outdated information for manual review.",
+  alternates: {
+    canonical: "/add-or-update-a-shop"
+  }
 };
 
 export default function AddOrUpdateShopPage() {

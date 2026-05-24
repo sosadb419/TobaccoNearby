@@ -3,9 +3,14 @@ import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: {
+    absolute: "About TobaccoNearby | Amsterdam Tobacco Shop Directory"
+  },
   description:
-    "Learn about TobaccoNearby, a neutral English-language directory for adults looking for practical tobacco shop location information in Amsterdam."
+    "Learn about TobaccoNearby, a neutral English-language directory for adults looking for practical tobacco shop location information in Amsterdam.",
+  alternates: {
+    canonical: "/about"
+  }
 };
 
 export default function AboutPage() {

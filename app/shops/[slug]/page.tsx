@@ -10,6 +10,8 @@ import { TrackedDirectionsLink } from "@/components/TrackedLinks";
 import { formatOpeningHours, getOpeningHoursSpecification } from "@/data/shops";
 import { getShopBySlug } from "@/lib/shop-data";
 
+const siteUrl = "https://tobacconearby.com";
+
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 export const revalidate = 0;
@@ -32,7 +34,7 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
 
   return {
     title: `${shop.name} Amsterdam | Address, Hours & Directions`,
-    description: `View practical information for ${shop.name} in Amsterdam, including address, opening hours, directions, contact details, and last updated date.`,
+    description: `View practical information for ${shop.name} in Amsterdam, including address, opening hours, directions, contact details, and verification dates where available.`,
     alternates: {
       canonical: `/shops/${shop.slug}`
     }
@@ -53,6 +55,8 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": `${siteUrl}/shops/${shop.slug}#localbusiness`,
+    mainEntityOfPage: `${siteUrl}/shops/${shop.slug}`,
     name: shop.name,
     address: {
       "@type": "PostalAddress",
@@ -67,7 +71,8 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
       longitude: shop.longitude
     },
     telephone: shop.phone,
-    url: shop.website,
+    url: `${siteUrl}/shops/${shop.slug}`,
+    sameAs: shop.website,
     hasMap: shop.googleMapsLink,
     openingHoursSpecification: getOpeningHoursSpecification(shop)
   };

@@ -22,9 +22,6 @@ export const metadata: Metadata = {
     "tobacco shop opening hours Amsterdam",
     "Amsterdam neighborhood directory"
   ],
-  alternates: {
-    canonical: "/"
-  },
   openGraph: {
     title: "TobaccoNearby",
     description:
@@ -45,23 +42,6 @@ export default function RootLayout({
 }: Readonly<{
   children: ReactNode;
 }>) {
-  const websiteSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "TobaccoNearby",
-    url: siteUrl,
-    inLanguage: "en",
-    audience: {
-      "@type": "PeopleAudience",
-      requiredMinAge: 18
-    },
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteUrl}/search?q={search_term_string}`,
-      "query-input": "required name=search_term_string"
-    }
-  };
-
   return (
     <html lang="en">
       <body>
@@ -73,10 +53,6 @@ export default function RootLayout({
         <main id="main-content">{children}</main>
         <Footer />
         <Analytics />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
       </body>
     </html>
   );

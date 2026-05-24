@@ -3,9 +3,14 @@ import type { ReactNode } from "react";
 import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
-  title: "Terms of Use",
+  title: {
+    absolute: "Terms of Use | TobaccoNearby"
+  },
   description:
-    "Read the TobaccoNearby terms of use for informational directory content, listing accuracy, acceptable use, and third-party links."
+    "Read the TobaccoNearby terms of use for informational directory content, listing accuracy, acceptable use, and third-party links.",
+  alternates: {
+    canonical: "/terms-of-use"
+  }
 };
 
 export default function TermsOfUsePage() {

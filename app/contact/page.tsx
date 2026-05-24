@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: {
+    absolute: "Contact TobaccoNearby | Amsterdam Directory Support"
+  },
   description:
-    "Contact TobaccoNearby for questions, corrections, listing updates, privacy requests, or removal requests."
+    "Contact TobaccoNearby for questions, corrections, listing updates, privacy requests, or removal requests.",
+  alternates: {
+    canonical: "/contact"
+  }
 };
 
 export default function ContactPage() {

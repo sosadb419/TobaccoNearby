@@ -3,9 +3,14 @@ import type { ReactNode } from "react";
 import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: {
+    absolute: "Privacy Policy | TobaccoNearby"
+  },
   description:
-    "Read the TobaccoNearby privacy policy covering analytics, location permission, contact form data, cookies, and data retention."
+    "Read the TobaccoNearby privacy policy covering analytics, location permission, contact form data, cookies, and data retention.",
+  alternates: {
+    canonical: "/privacy-policy"
+  }
 };
 
 export default function PrivacyPolicyPage() {

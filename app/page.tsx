@@ -11,10 +11,17 @@ import { getAllShops } from "@/lib/shop-data";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+const siteUrl = "https://tobacconearby.com";
+
 export const metadata: Metadata = {
-  title: "Find Tobacco Shops Near You in Amsterdam",
+  title: {
+    absolute: "TobaccoNearby | Find Tobacco Shops Near You in Amsterdam"
+  },
   description:
-    "Search for practical information about tobacco shops in Amsterdam, including addresses, opening hours, directions, accessibility notes, and contact details."
+    "Search for practical information about tobacco shops in Amsterdam, including addresses, opening hours, directions, accessibility notes, and contact details.",
+  alternates: {
+    canonical: "/"
+  }
 };
 
 const homepageNeighborhoods = [
@@ -32,6 +39,23 @@ const homepageNeighborhoods = [
 export default async function HomePage() {
   const shops = await getAllShops();
   const featuredShops = shops.slice(0, 3);
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    name: "TobaccoNearby",
+    url: siteUrl,
+    inLanguage: "en",
+    audience: {
+      "@type": "PeopleAudience",
+      requiredMinAge: 18
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteUrl}/search?q={search_term_string}`,
+      "query-input": "required name=search_term_string"
+    }
+  };
 
   return (
     <>
@@ -149,6 +173,8 @@ export default async function HomePage() {
           </p>
         </div>
       </section>
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
     </>
   );
 }

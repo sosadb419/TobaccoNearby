@@ -44,9 +44,14 @@ const neighborhoodFilterOptions = [
 ];
 
 export const metadata: Metadata = {
-  title: "Tobacco Shops Near You in Amsterdam",
+  title: {
+    absolute: "Search Tobacco Shops in Amsterdam | TobaccoNearby"
+  },
   description:
-    "Search nearby tobacco shops in Amsterdam by neighborhood, postal code, distance, opening hours, and accessibility information where available."
+    "Search listed tobacco shops in Amsterdam by neighborhood, postal code, opening hours, accessibility details, and available contact information.",
+  alternates: {
+    canonical: "/search"
+  }
 };
 
 type SearchPageProps = {

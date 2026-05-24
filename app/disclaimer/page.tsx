@@ -3,9 +3,14 @@ import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
-  title: "Disclaimer",
+  title: {
+    absolute: "Disclaimer | TobaccoNearby"
+  },
   description:
-    "Read the TobaccoNearby disclaimer about shop data accuracy, verification, neutral directory content, and adult-only use."
+    "Read the TobaccoNearby disclaimer about shop data accuracy, verification, neutral directory content, and adult-only use.",
+  alternates: {
+    canonical: "/disclaimer"
+  }
 };
 
 export default function DisclaimerPage() {
