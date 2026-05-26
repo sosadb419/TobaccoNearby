@@ -11,7 +11,11 @@ const locationDeniedMessage =
   "Location access was not allowed. You can still search by area, postal code, or neighborhood.";
 const locationFailedMessage = "Your location could not be detected. You can still search manually.";
 
-export default function HomeQuickActions() {
+type HomeQuickActionsProps = {
+  className?: string;
+};
+
+export default function HomeQuickActions({ className = "" }: HomeQuickActionsProps) {
   const [locationStatus, setLocationStatus] = useState("");
   const router = useRouter();
 
@@ -53,44 +57,43 @@ export default function HomeQuickActions() {
   }
 
   return (
-    <div className="mt-5">
-      <p className="text-sm leading-6 text-muted">Quick ways to find practical shop information in Amsterdam.</p>
-      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className={className}>
+      <div className="grid grid-cols-2 gap-2 md:gap-3 lg:grid-cols-4">
         <button
           type="button"
           onClick={handleLocationSearch}
           aria-label="Use my location to find nearby shop listings"
-          className="focus-ring flex min-h-20 flex-col justify-center gap-2 rounded-lg border border-line bg-white px-3 py-3 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+          className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
         >
           <LocateFixed aria-hidden="true" className="text-teal" size={18} />
           Use my location
         </button>
-        <button
-          type="button"
-          onClick={revealNeighborhoods}
-          aria-label="View Amsterdam neighborhood links"
-          className="focus-ring flex min-h-20 flex-col justify-center gap-2 rounded-lg border border-line bg-white px-3 py-3 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-        >
-          <MapPin aria-hidden="true" className="text-teal" size={18} />
-          Search by neighborhood
-        </button>
-        <TrackedNeighborhoodLink
-          href="/amsterdam/near-central-station"
-          neighborhood="Amsterdam Central Station"
-          aria-label="View shop listings near Amsterdam Central Station"
-          className="focus-ring flex min-h-20 flex-col justify-center gap-2 rounded-lg border border-line bg-white px-3 py-3 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-        >
-          <Train aria-hidden="true" className="text-teal" size={18} />
-          Near Amsterdam Central Station
-        </TrackedNeighborhoodLink>
         <Link
           href="/search?openNow=true"
           aria-label="View listings marked open now"
-          className="focus-ring flex min-h-20 flex-col justify-center gap-2 rounded-lg border border-line bg-white px-3 py-3 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+          className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
         >
           <Clock aria-hidden="true" className="text-teal" size={18} />
           Open now
         </Link>
+        <TrackedNeighborhoodLink
+          href="/amsterdam/near-central-station"
+          neighborhood="Amsterdam Central Station"
+          aria-label="View shop listings near Amsterdam Central Station"
+          className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
+        >
+          <Train aria-hidden="true" className="text-teal" size={18} />
+          Near Central Station
+        </TrackedNeighborhoodLink>
+        <button
+          type="button"
+          onClick={revealNeighborhoods}
+          aria-label="View Amsterdam neighborhood links"
+          className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
+        >
+          <MapPin aria-hidden="true" className="text-teal" size={18} />
+          Browse neighborhoods
+        </button>
       </div>
       {locationStatus ? (
         <p className="mt-3 rounded-lg border border-line bg-paper px-4 py-3 text-sm leading-6 text-muted" aria-live="polite">

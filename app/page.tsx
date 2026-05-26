@@ -89,27 +89,36 @@ export default async function HomePage() {
   return (
     <>
       <section className="border-b border-line bg-white">
-        <div className="container-shell grid gap-8 py-7 sm:gap-10 sm:py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
-          <div>
-            <p className="text-sm font-bold uppercase text-teal">TobaccoNearby</p>
-            <h1 className="mt-3 max-w-3xl text-3xl font-bold leading-tight text-ink sm:mt-4 sm:text-5xl">
+        <div className="container-shell grid gap-5 py-4 md:gap-8 md:py-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:py-16">
+          <div className="grid gap-3 md:block">
+            <p className="hidden text-sm font-bold uppercase text-teal md:block">TobaccoNearby</p>
+            <h1 className="sr-only md:not-sr-only md:mt-3 md:max-w-3xl md:text-5xl md:font-bold md:leading-tight md:text-ink">
               Find Tobacco Shops Near You in Amsterdam
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-muted sm:mt-5 sm:text-lg">
+            <p className="hidden max-w-2xl text-base leading-7 text-muted md:mt-5 md:block md:text-lg">
               Search by area, postal code, or neighborhood to find practical information such as shop locations,
               opening hours, directions, accessibility notes, and contact details.
             </p>
-            <p className="mt-3 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink sm:mt-4">
+            <p className="hidden rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink md:mt-4 md:block">
               This website is intended for adults aged 18+.
             </p>
-            <div className="mt-5 sm:mt-7">
-              <SearchBar showLocationButton={false} />
+            <div className="order-1 md:mt-7">
+              <SearchBar
+                helperText={null}
+                placeholder="Search by area, postal code, or neighborhood"
+                showLocationButton={false}
+                submitLabel="Find shops"
+              />
             </div>
-            <HomeQuickActions />
-            <DisclaimerNotice className="mt-5 bg-white" />
+            <HomeQuickActions className="order-2 mt-1 md:mt-5" />
+            <p className="order-3 text-sm leading-6 text-muted md:hidden">
+              Neutral location information for adults aged 18+, including addresses, opening hours, directions and
+              contact details where available.
+            </p>
+            <DisclaimerNotice className="mt-5 hidden bg-white md:block" />
           </div>
 
-          <div className="map-grid relative min-h-[280px] overflow-hidden rounded-lg border border-line bg-paper p-5 shadow-soft sm:min-h-[360px]">
+          <div className="map-grid relative hidden min-h-[280px] overflow-hidden rounded-lg border border-line bg-paper p-5 shadow-soft sm:min-h-[360px] lg:block">
             <div className="absolute left-8 top-8 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-bold text-ink">
                 <Map aria-hidden="true" size={18} />
@@ -140,21 +149,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section id="amsterdam-neighborhoods" className="container-shell scroll-mt-6 py-8" aria-labelledby="amsterdam-neighborhoods-heading">
-        <div className="grid gap-6 md:grid-cols-[0.9fr_1.1fr] md:items-start">
+      <section id="amsterdam-neighborhoods" className="container-shell scroll-mt-6 py-5 md:py-8" aria-labelledby="amsterdam-neighborhoods-heading">
+        <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-6">
           <div>
-            <h2 id="amsterdam-neighborhoods-heading" tabIndex={-1} className="focus-ring rounded-md text-2xl font-bold text-ink">
+            <h2 id="amsterdam-neighborhoods-heading" tabIndex={-1} className="focus-ring rounded-md text-xl font-bold text-ink md:text-2xl">
               Browse Amsterdam neighborhoods
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               Use neighborhood pages to narrow results before checking shop details and directions.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:gap-3">
             {homepageNeighborhoods.map((neighborhood) => (
               <TrackedNeighborhoodLink
                 key={neighborhood.href}
-                className="focus-ring rounded-lg border border-line bg-white px-4 py-3 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+                className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:px-4 md:py-3"
                 href={neighborhood.href}
                 neighborhood={neighborhood.name}
               >
@@ -165,10 +174,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-shell py-8">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <section className="container-shell py-5 md:py-8">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-ink">Recently updated Amsterdam listings</h2>
+            <h2 className="text-xl font-bold text-ink md:text-2xl">Recently updated Amsterdam listings</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               Published listings are loaded from Supabase, with local fallback records used only if the service is
               unavailable.
@@ -193,8 +202,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-shell py-8">
-        <div className="rounded-lg border border-line bg-white p-6 shadow-sm">
+      <section className="container-shell py-5 md:py-8">
+        <div className="rounded-lg border border-line bg-white p-5 shadow-sm md:p-6">
           <h2 className="text-xl font-bold text-ink">Neutral information only</h2>
           <p className="mt-3 text-sm leading-6 text-muted">
             TobaccoNearby does not sell tobacco products, process orders, show prices, or encourage tobacco use. Shop
@@ -203,7 +212,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <div className="container-shell py-8">
+      <div className="container-shell py-4 md:hidden">
+        <DisclaimerNotice />
+      </div>
+
+      <div className="container-shell py-5 md:py-8">
         <FAQSection
           id="homepage-faq"
           items={homepageFaqs}

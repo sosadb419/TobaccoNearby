@@ -8,14 +8,24 @@ import { classifySearchType, trackSearchSubmitted, trackUseLocationClicked } fro
 type SearchBarProps = {
   initialQuery?: string;
   compact?: boolean;
+  helperText?: string | null;
+  placeholder?: string;
   showLocationButton?: boolean;
+  submitLabel?: string;
 };
 
 const locationDeniedMessage =
   "Location access was not allowed. You can still search by area, postal code, or neighborhood.";
 const locationFailedMessage = "Your location could not be detected. You can still search manually.";
 
-export default function SearchBar({ initialQuery = "", compact = false, showLocationButton = true }: SearchBarProps) {
+export default function SearchBar({
+  initialQuery = "",
+  compact = false,
+  helperText = "Examples: De Pijp, Bijlmer, 1012, Amsterdam Centraal",
+  placeholder = "Search by area, postal code, street, or neighborhood",
+  showLocationButton = true,
+  submitLabel = "Search"
+}: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const [locationStatus, setLocationStatus] = useState("");
   const router = useRouter();
@@ -72,7 +82,7 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
     <div className={compact ? "w-full" : "w-full rounded-lg border border-line bg-white p-3 shadow-soft"}>
       <form className="flex flex-col gap-3 sm:flex-row" onSubmit={handleSubmit} role="search">
         <label className="sr-only" htmlFor="shop-search">
-          Search by area, postal code, street, or neighborhood
+          {placeholder}
         </label>
         <div className="relative flex-1">
           <Search
@@ -83,7 +93,7 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
           <input
             id="shop-search"
             className="focus-ring min-h-12 w-full rounded-lg border border-line bg-white py-3 pl-10 pr-4 text-base text-ink placeholder:text-muted"
-            placeholder="Search by area, postal code, street, or neighborhood"
+            placeholder={placeholder}
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -93,7 +103,7 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
           className="focus-ring inline-flex min-h-12 items-center justify-center rounded-lg bg-teal px-5 py-3 text-sm font-bold text-white transition hover:bg-ink"
           type="submit"
         >
-          Search
+          {submitLabel}
         </button>
         {showLocationButton ? (
           <button
@@ -106,7 +116,7 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
           </button>
         ) : null}
       </form>
-      <p className="mt-3 text-sm text-muted">Examples: De Pijp, Bijlmer, 1012, Amsterdam Centraal</p>
+      {helperText ? <p className="mt-3 text-sm text-muted">{helperText}</p> : null}
       {showLocationButton && locationStatus ? (
         <p className="mt-3 text-sm text-muted" aria-live="polite">
           {locationStatus}
