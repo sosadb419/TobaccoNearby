@@ -171,6 +171,7 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
       <p className="mt-3 text-xs leading-5 text-muted">
         Map locations are approximate. Marker icons indicate place type. Please verify details before visiting.
       </p>
+      <MapLegend />
     </section>
   );
 }
@@ -186,9 +187,9 @@ function getMarkerIcon(leaflet: LeafletLike, placeType?: string) {
   return leaflet.divIcon({
     className: `tn-map-marker tn-map-marker-${type}`,
     html: createMarkerSvg(icon.color, icon.symbol),
-    iconAnchor: [17, 41],
-    iconSize: [34, 42],
-    popupAnchor: [0, -38]
+    iconAnchor: [14, 36],
+    iconSize: [28, 38],
+    popupAnchor: [0, -34]
   });
 }
 
@@ -196,9 +197,9 @@ function getUserLocationIcon(leaflet: LeafletLike) {
   return leaflet.divIcon({
     className: "tn-map-marker tn-user-location-marker",
     html: createUserLocationSvg(),
-    iconAnchor: [17, 41],
-    iconSize: [34, 42],
-    popupAnchor: [0, -38]
+    iconAnchor: [16, 38],
+    iconSize: [32, 40],
+    popupAnchor: [0, -36]
   });
 }
 
@@ -206,32 +207,32 @@ const markerIconConfig = {
   tobacco_shop: {
     color: "#0f766e",
     symbol:
-      '<path d="M10 20h14v8H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 20h18l-2-5H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 28v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 14h4m-2 0v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      '<path d="M9 19h14v9H9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 19h18l-2.2-4.8H9.2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 28v-5h4v5M14 14h4m-2 0v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
   },
   kiosk: {
     color: "#2563eb",
     symbol:
-      '<path d="M10 28V17h14v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 17h18l-3-4H11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 28v-5h8v5M12 20h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      '<path d="M9 28V18h14v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 18h18l-3-4.5H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 22h8M13 28v-4h6v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
   },
   gas_station: {
     color: "#b45309",
     symbol:
-      '<path d="M11 28V13h9v15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 16h5v4h-5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 16h2.5l2 2.5V26a2 2 0 0 1-4 0v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 28h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      '<path d="M10 28V13h9v15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12.5 16h4v4h-4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19 16h2.5l2 2.6V26a2 2 0 0 1-4 0v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.5 28h12.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
   },
   convenience_store: {
     color: "#4d7c0f",
     symbol:
-      '<path d="M10 18h14l-1.5 10h-11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 18a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 23h6M17 20v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+      '<path d="M9.5 19h13l-1.3 9h-10.4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 19a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13.5 23.5h5M16 21v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
   },
   night_shop: {
     color: "#4f46e5",
     symbol:
-      '<path d="M10 28V17h14v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 17h18l-3-4H11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 28v-5h4v5M20 22h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 13a4.5 4.5 0 0 0 4 6 5 5 0 0 1-6-6z" fill="currentColor"/>'
+      '<path d="M9 28V18h14v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 18h18l-3-4.5H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 28v-4h4v4M20 23h1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 13a4 4 0 0 0 3.5 5.3 4.5 4.5 0 0 1-5.4-5.4z" fill="currentColor"/>'
   },
   other: {
     color: "#64748b",
     symbol:
-      '<path d="M17 28s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="2.5" fill="currentColor"/>'
+      '<path d="M16 28s6-5.5 6-10a6 6 0 1 0-12 0c0 4.5 6 10 6 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="16" cy="18" r="2.2" fill="currentColor"/>'
   }
 } as const;
 
@@ -253,11 +254,31 @@ function normalizePlaceType(placeType?: string): keyof typeof markerIconConfig {
 }
 
 function createMarkerSvg(color: string, symbol: string) {
-  return `<svg class="tn-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:${color}" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 41c5.5-7.1 14-13.2 14-24C31 8.7 24.7 2 17 2S3 8.7 3 17c0 10.8 8.5 16.9 14 24z"/><path class="tn-marker-pin" d="M17 39c5.2-6.8 12-12.2 12-22A12 12 0 0 0 5 17c0 9.8 6.8 15.2 12 22z"/><circle class="tn-marker-face" cx="17" cy="18" r="12"/><g class="tn-marker-symbol">${symbol}</g></svg>`;
+  return `<svg class="tn-marker-svg" viewBox="0 0 32 40" role="img" aria-hidden="true" focusable="false" style="color:${color}" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M16 39c5.4-6.8 12-12.4 12-22A12 12 0 0 0 4 17c0 9.6 6.6 15.2 12 22z"/><path class="tn-marker-pin" d="M16 37c5.1-6.5 10.5-11.2 10.5-20.2A10.5 10.5 0 0 0 5.5 16.8C5.5 25.8 10.9 30.5 16 37z"/><g class="tn-marker-symbol">${symbol}</g></svg>`;
 }
 
 function createUserLocationSvg() {
-  return '<svg class="tn-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:#1f2428" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 41c5.5-7.1 14-13.2 14-24C31 8.7 24.7 2 17 2S3 8.7 3 17c0 10.8 8.5 16.9 14 24z"/><path class="tn-marker-pin" d="M17 39c5.2-6.8 12-12.2 12-22A12 12 0 0 0 5 17c0 9.8 6.8 15.2 12 22z"/><circle class="tn-marker-face" cx="17" cy="18" r="12"/><g class="tn-marker-symbol"><circle cx="17" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 17v7M12 20h10M14 29l3-5 3 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+  return '<svg class="tn-marker-svg tn-user-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:#1f2428" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 40c5.7-6.9 12.5-12.5 12.5-22.2A12.5 12.5 0 0 0 4.5 17.8C4.5 27.5 11.3 33.1 17 40z"/><path class="tn-marker-pin tn-user-marker-pin" d="M17 38c5.2-6.3 10.8-11.1 10.8-20.1A10.8 10.8 0 0 0 6.2 17.9C6.2 26.9 11.8 31.7 17 38z"/><g class="tn-marker-symbol"><circle cx="15.5" cy="11.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15v7M11.5 18.3h8M13.2 28.5l2.3-6.5 3.3 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.8 15.5l4.4-1.2M22.8 14.2c1.5-.2 2.4.4 2.9 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M24.8 11.3c1.5.1 2.4-.7 2.5-2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".8"/></g></svg>';
+}
+
+function MapLegend() {
+  const items = [
+    { label: "Your location", swatchClass: "bg-ink" },
+    { label: "Tobacco shop", swatchClass: "bg-teal" },
+    { label: "Kiosk", swatchClass: "bg-blue-600" },
+    { label: "Gas station", swatchClass: "bg-amber-700" }
+  ];
+
+  return (
+    <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted" aria-label="Map marker legend">
+      {items.map((item) => (
+        <span key={item.label} className="inline-flex items-center gap-2 rounded-md border border-line bg-paper px-2 py-1">
+          <span className={`h-2.5 w-2.5 rounded-sm ${item.swatchClass}`} aria-hidden="true" />
+          {item.label}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 function createShopPopup(shop: Shop) {
