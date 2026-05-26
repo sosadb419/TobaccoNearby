@@ -5,6 +5,7 @@ import {
   Coordinates,
   formatDistance,
   formatOpeningHours,
+  getDirectionsUrl,
   getDistanceKm,
   getPlaceTypeLabel,
   getTodayOpeningHours,
@@ -26,6 +27,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
   const accessible =
     shop.wheelchairAccessible === undefined ? "Unknown" : shop.wheelchairAccessible ? "Yes" : "No";
   const openNow = showLiveStatus ? isOpenNow(shop) : null;
+  const directionsUrl = getDirectionsUrl(shop);
 
   return (
     <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -109,17 +111,19 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
           <ShieldCheck aria-hidden="true" size={16} />
           View details
         </TrackedShopDetailsLink>
-        <TrackedDirectionsLink
-          className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-          href={shop.googleMapsLink}
-          shopSlug={shop.slug}
-          neighborhood={shop.neighborhood}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Route aria-hidden="true" size={16} />
-          Directions
-        </TrackedDirectionsLink>
+        {directionsUrl ? (
+          <TrackedDirectionsLink
+            className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+            href={directionsUrl}
+            shopSlug={shop.slug}
+            neighborhood={shop.neighborhood}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Route aria-hidden="true" size={16} />
+            Directions
+          </TrackedDirectionsLink>
+        ) : null}
         {shop.website ? (
           <a
             className="focus-ring inline-flex items-center gap-2 rounded-lg border border-line bg-white px-4 py-2 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"

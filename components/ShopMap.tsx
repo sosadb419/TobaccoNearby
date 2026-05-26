@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getPlaceTypeLabel, getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
+import { getDirectionsUrl, getPlaceTypeLabel, getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
 import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
 type ShopMapProps = {
@@ -311,13 +311,17 @@ function createShopPopup(shop: Shop) {
   detailsLink.addEventListener("click", () => trackShopDetailsClicked(shop.slug, shop.neighborhood));
   links.append(detailsLink);
 
-  const directionsLink = document.createElement("a");
-  directionsLink.href = shop.googleMapsLink;
-  directionsLink.rel = "noreferrer";
-  directionsLink.target = "_blank";
-  directionsLink.textContent = "Directions";
-  directionsLink.addEventListener("click", () => trackDirectionsClicked(shop.slug, shop.neighborhood));
-  links.append(directionsLink);
+  const directionsUrl = getDirectionsUrl(shop);
+
+  if (directionsUrl) {
+    const directionsLink = document.createElement("a");
+    directionsLink.href = directionsUrl;
+    directionsLink.rel = "noreferrer";
+    directionsLink.target = "_blank";
+    directionsLink.textContent = "Directions";
+    directionsLink.addEventListener("click", () => trackDirectionsClicked(shop.slug, shop.neighborhood));
+    links.append(directionsLink);
+  }
 
   container.append(links);
 

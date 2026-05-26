@@ -317,6 +317,25 @@ export function getPlaceTypeLabel(placeType?: string) {
   );
 }
 
+export function getDirectionsUrl(
+  shop: Pick<Shop, "address" | "city" | "country" | "googleMapsLink" | "latitude" | "longitude" | "name" | "postalCode">
+) {
+  if (shop.address.trim()) {
+    const destination = [shop.name, shop.address, shop.postalCode, shop.city, shop.country]
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .join(", ");
+
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  }
+
+  if (Number.isFinite(shop.latitude) && Number.isFinite(shop.longitude)) {
+    return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${shop.latitude},${shop.longitude}`)}`;
+  }
+
+  return shop.googleMapsLink.trim() || null;
+}
+
 export function getDistanceKm(shop: Pick<Shop, "latitude" | "longitude">, origin: Coordinates) {
   const earthRadiusKm = 6371;
   const dLat = toRadians(shop.latitude - origin.latitude);
