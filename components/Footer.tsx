@@ -3,6 +3,7 @@ import AdSlot from "@/components/AdSlot";
 
 const footerLinks = [
   { href: "/about", label: "About" },
+  { href: "/forum", label: "Community Notes" },
   { href: "/contact", label: "Contact" },
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms-of-use", label: "Terms of Use" },

@@ -6,6 +6,7 @@ const siteUrl = "https://tobacconearby.com";
 const staticRoutes = [
   "",
   "/search",
+  "/forum",
   "/about",
   "/contact",
   "/privacy-policy",

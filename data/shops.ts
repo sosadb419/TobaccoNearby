@@ -15,6 +15,7 @@ export type OpeningHoursSlot = {
 };
 
 export type Shop = {
+  id?: string;
   name: string;
   slug: string;
   address: string;

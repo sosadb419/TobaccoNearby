@@ -13,7 +13,7 @@ import {
 type SupabaseShopRow = Record<string, unknown>;
 
 const shopSelectColumns =
-  "name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type";
+  "id,name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type";
 
 const searchAliases: Record<string, string> = {
   bijlmer: "Zuidoost",
@@ -228,6 +228,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
 
   return {
+    id: readId(row, ["id"]),
     name,
     slug,
     address: addressLine2 ? `${addressLine1}, ${addressLine2}` : addressLine1,
@@ -256,6 +257,20 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
       "transit_notes"
     ])
   };
+}
+
+function readId(row: SupabaseShopRow, keys: string[]) {
+  const value = readRaw(row, keys);
+
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  return undefined;
 }
 
 async function fetchPublishedShopRows(client: NonNullable<typeof supabase>) {

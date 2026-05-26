@@ -4,6 +4,7 @@ import AdSlot from "@/components/AdSlot";
 
 const navItems = [
   { href: "/search", label: "Search" },
+  { href: "/forum", label: "Community Notes" },
   { href: "/about", label: "About" },
   { href: "/add-or-update-a-shop", label: "Add or Update" },
   { href: "/contact", label: "Contact" }

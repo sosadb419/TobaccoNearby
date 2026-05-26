@@ -7,6 +7,7 @@ import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import LazyShopMap from "@/components/LazyShopMap";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
+import ShopComments from "@/components/ShopComments";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
 import {
   Shop,
@@ -17,6 +18,7 @@ import {
   normalize
 } from "@/data/shops";
 import { getAllShops, getShopBySlug } from "@/lib/shop-data";
+import { getApprovedCommentsForShop } from "@/lib/shop-comments";
 
 const siteUrl = "https://tobacconearby.com";
 
@@ -60,6 +62,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   }
 
   const shopList = await getAllShops();
+  const approvedComments = await getApprovedCommentsForShop(shop.slug);
   const nearbyShops = getNearbyListedShops(shop, shopList);
   const neighborhoodHref = getNeighborhoodHref(shop.neighborhood);
   const accessibility =
@@ -251,6 +254,13 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
           </div>
         </aside>
       </div>
+
+      <ShopComments
+        approvedComments={approvedComments}
+        shopId={shop.id}
+        shopName={shop.name}
+        shopSlug={shop.slug}
+      />
 
       {nearbyShops.length > 0 ? (
         <section className="mt-8" aria-labelledby="nearby-shops-heading">
