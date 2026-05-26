@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s | TobaccoNearby"
   },
   description:
-    "Neutral, practical information for adults aged 18+ looking for tobacco shop locations, opening hours, directions, and contact details in Amsterdam.",
+    "Search for practical information about tobacco shop locations in Amsterdam, including addresses, opening hours, directions and accessibility details. Adults 18+ only.",
   keywords: [
     "tobacco shops Amsterdam",
     "Amsterdam tobacconist locations",
@@ -34,7 +34,17 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true
-  }
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" }
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }
+    ]
+  },
+  manifest: "/site.webmanifest"
 };
 
 export default function RootLayout({
