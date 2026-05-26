@@ -6,6 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition } from "@/data/areas";
+import { seoLandingPages } from "@/data/seo-pages";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -252,6 +253,38 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         shops={results}
         sortNearest={wantsNearest}
       />
+
+      <section className="mt-6 rounded-lg border border-line bg-white p-4 md:mt-8 md:p-5" aria-labelledby="search-internal-links-heading">
+        <h2 id="search-internal-links-heading" className="text-lg font-bold text-ink">
+          Browse Amsterdam pages
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          Use these links for crawlable area pages and broader practical location pages.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {areaDefinitions.map((area) => (
+            <TrackedNeighborhoodLink
+              key={area.href}
+              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+              href={area.href}
+              neighborhood={area.label}
+            >
+              {area.label}
+            </TrackedNeighborhoodLink>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {seoLandingPages.map((page) => (
+            <Link
+              key={page.href}
+              className="focus-ring rounded-lg border border-line bg-paper px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+              href={page.href}
+            >
+              {page.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <FAQSection
         className="mt-6 md:mt-8"

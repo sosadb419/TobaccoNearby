@@ -8,6 +8,7 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
+import { seoLandingPages } from "@/data/seo-pages";
 import { getAllShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
@@ -158,6 +159,39 @@ export default async function HomePage() {
               >
                 {neighborhood.label}
               </TrackedNeighborhoodLink>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="container-shell py-5 md:py-8" aria-labelledby="key-amsterdam-pages-heading">
+        <div className="rounded-lg border border-line bg-white p-5 shadow-sm md:p-6">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 id="key-amsterdam-pages-heading" className="text-xl font-bold text-ink md:text-2xl">
+                Key Amsterdam pages
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Start with search or browse neutral location pages for Amsterdam listings, addresses, opening hours
+                and directions.
+              </p>
+            </div>
+            <Link
+              className="focus-ring inline-flex rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
+              href="/search"
+            >
+              Search
+            </Link>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {seoLandingPages.map((page) => (
+              <Link
+                key={page.href}
+                className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+                href={page.href}
+              >
+                {page.label}
+              </Link>
             ))}
           </div>
         </div>

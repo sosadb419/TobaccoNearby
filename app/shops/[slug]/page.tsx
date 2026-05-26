@@ -9,6 +9,7 @@ import LazyShopMap from "@/components/LazyShopMap";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import ShopComments from "@/components/ShopComments";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
+import { areaDefinitions, getAreaDefinition } from "@/data/areas";
 import {
   Shop,
   getDirectionsUrl,
@@ -63,7 +64,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const shopList = await getAllShops();
   const approvedComments = await getApprovedCommentsForShop(shop.slug);
   const nearbyShops = getNearbyListedShops(shop, shopList);
-  const neighborhoodHref = getNeighborhoodHref(shop.neighborhood);
+  const neighborhoodHref = getShopAreaHref(shop);
   const accessibility =
     shop.wheelchairAccessible === undefined
       ? "Accessibility information not available."
@@ -215,6 +216,12 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               </Link>
               <Link
                 className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+                href="/amsterdam/tobacco-shops"
+              >
+                Back to Amsterdam listings
+              </Link>
+              <Link
+                className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
                 href={neighborhoodHref}
               >
                 View {shop.neighborhood}
@@ -230,6 +237,12 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
                   Website
                 </a>
               ) : null}
+              <Link
+                className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
+                href="/add-or-update-a-shop"
+              >
+                Add or update information
+              </Link>
               <ReportIncorrectInfo shopName={shop.name} shopSlug={shop.slug} neighborhood={shop.neighborhood} />
             </div>
           </div>
@@ -339,13 +352,18 @@ function InfoBlock({
 
 function getNearbyListedShops(currentShop: Shop, shopList: Shop[]) {
   return shopList
-    .filter((shop) => shop.slug !== currentShop.slug)
+    .filter((shop) => shop.slug !== currentShop.slug && isPublishedShop(shop))
     .map((shop) => ({
       shop,
+      sameArea: getComparableAreaSlug(shop) === getComparableAreaSlug(currentShop),
       sameNeighborhood: normalize(shop.neighborhood) === normalize(currentShop.neighborhood),
       distance: getSafeDistanceKm(currentShop, shop)
     }))
     .sort((a, b) => {
+      if (a.sameArea !== b.sameArea) {
+        return a.sameArea ? -1 : 1;
+      }
+
       if (a.sameNeighborhood !== b.sameNeighborhood) {
         return a.sameNeighborhood ? -1 : 1;
       }
@@ -372,13 +390,42 @@ function hasValidCoordinates(shop: Shop) {
   return Number.isFinite(shop.latitude) && Number.isFinite(shop.longitude);
 }
 
-function getNeighborhoodHref(neighborhood: string) {
-  const slug = normalize(neighborhood);
-  const knownAreaSlugs = new Set(["centrum", "de-pijp", "jordaan", "de-wallen", "west", "oost", "noord", "zuid", "zuidoost"]);
+function getShopAreaHref(shop: Shop) {
+  if (shop.area_slug) {
+    const area = getAreaDefinition(shop.area_slug);
 
-  if (knownAreaSlugs.has(slug)) {
-    return `/amsterdam/${slug}`;
+    if (area) {
+      return area.href;
+    }
   }
 
-  return `/search?neighborhood=${encodeURIComponent(neighborhood)}`;
+  const normalizedNeighborhood = normalize(shop.neighborhood);
+  const area = areaDefinitions.find(
+    (item) =>
+      normalize(item.label) === normalizedNeighborhood ||
+      normalize(item.searchLabel) === normalizedNeighborhood ||
+      item.fallbackTerms.some((term) => normalize(term) === normalizedNeighborhood)
+  );
+
+  return area?.href ?? `/search?neighborhood=${encodeURIComponent(shop.neighborhood)}`;
+}
+
+function getComparableAreaSlug(shop: Shop) {
+  if (shop.area_slug) {
+    return getAreaDefinition(shop.area_slug)?.slug ?? normalize(shop.area_slug);
+  }
+
+  const normalizedNeighborhood = normalize(shop.neighborhood);
+  const area = areaDefinitions.find(
+    (item) =>
+      normalize(item.label) === normalizedNeighborhood ||
+      normalize(item.searchLabel) === normalizedNeighborhood ||
+      item.fallbackTerms.some((term) => normalize(term) === normalizedNeighborhood)
+  );
+
+  return area?.slug ?? normalizedNeighborhood;
+}
+
+function isPublishedShop(shop: Shop) {
+  return !shop.status || shop.status === "published";
 }

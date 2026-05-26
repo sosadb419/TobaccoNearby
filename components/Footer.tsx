@@ -1,14 +1,17 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
+import { areaDefinitions } from "@/data/areas";
+import { seoLandingPages } from "@/data/seo-pages";
 
-const footerLinks = [
+const siteLinks = [
+  { href: "/search", label: "Search" },
   { href: "/about", label: "About" },
   { href: "/forum", label: "Community Notes" },
   { href: "/contact", label: "Contact" },
+  { href: "/add-or-update-a-shop", label: "Add or Update a Shop" },
   { href: "/privacy-policy", label: "Privacy Policy" },
   { href: "/terms-of-use", label: "Terms of Use" },
-  { href: "/disclaimer", label: "Disclaimer" },
-  { href: "/add-or-update-a-shop", label: "Add or Update a Shop" }
+  { href: "/disclaimer", label: "Disclaimer" }
 ];
 
 export default function Footer() {
@@ -16,7 +19,7 @@ export default function Footer() {
     <footer className="mt-16 border-t border-line bg-white">
       <div className="container-shell py-8">
         <AdSlot placement="footer" />
-        <div className="mt-8 grid gap-8 md:grid-cols-[1.2fr_1fr]">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.1fr_1.4fr]">
           <div>
             <p className="text-lg font-bold text-ink">TobaccoNearby</p>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
@@ -29,18 +32,37 @@ export default function Footer() {
               information before visiting.
             </p>
           </div>
-          <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-2 text-sm">
-            {footerLinks.map((item) => (
-              <Link key={item.href} className="focus-ring rounded-md py-1 text-muted hover:text-ink" href={item.href}>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <div className="grid gap-6 sm:grid-cols-3">
+            <FooterLinkGroup label="Website" links={siteLinks} />
+            <FooterLinkGroup
+              label="Amsterdam pages"
+              links={seoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+            />
+            <FooterLinkGroup
+              label="Amsterdam areas"
+              links={areaDefinitions.map((area) => ({ href: area.href, label: area.label }))}
+            />
+          </div>
         </div>
         <div className="mt-8 border-t border-line pt-5 text-xs text-muted">
           © {new Date().getFullYear()} TobaccoNearby. Informational directory only.
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterLinkGroup({ label, links }: { label: string; links: { href: string; label: string }[] }) {
+  return (
+    <nav aria-label={label} className="text-sm">
+      <h2 className="text-xs font-bold uppercase text-ink">{label}</h2>
+      <div className="mt-3 grid gap-2">
+        {links.map((item) => (
+          <Link key={item.href} className="focus-ring rounded-md py-1 text-muted hover:text-ink" href={item.href}>
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </nav>
   );
 }
