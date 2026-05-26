@@ -117,17 +117,17 @@ textarea {
 
 .tn-map-legend-marker .tn-marker-svg {
   display: block;
-  filter: drop-shadow(0 3px 5px rgba(31, 36, 40, 0.2));
-  height: 28px;
-  width: 22px;
+  filter: drop-shadow(0 2px 3px rgba(31, 36, 40, 0.18));
+  height: 19px;
+  width: 16px;
 }
 
 .tn-map-legend-user img {
   display: block;
-  filter: drop-shadow(0 3px 5px rgba(31, 36, 40, 0.24));
-  height: 27px;
+  filter: drop-shadow(0 2px 3px rgba(31, 36, 40, 0.2));
+  height: 19px;
   object-fit: contain;
-  width: 27px;
+  width: 19px;
 }
 
 .tn-map-card-popup .leaflet-popup-content-wrapper {

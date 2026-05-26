@@ -24,13 +24,13 @@ export default function MapLegend({ showUserLocation, visiblePlaceTypes }: MapLe
   }
 
   return (
-    <div className="pointer-events-none absolute bottom-3 left-3 z-[450] max-w-[calc(100%-1.5rem)]">
+    <div className="pointer-events-none absolute bottom-2 left-2 z-[450] max-w-[calc(100%-1rem)] md:bottom-3 md:left-3">
       <div className="pointer-events-auto md:hidden">
         {isOpen ? (
           <LegendCard onClose={() => setIsOpen(false)} placeTypes={placeTypes} showUserLocation={showUserLocation} />
         ) : (
           <button
-            className="focus-ring rounded-lg border border-line bg-white/95 px-3 py-2 text-xs font-bold text-ink shadow-sm backdrop-blur"
+            className="focus-ring rounded-md border border-line bg-white/95 px-2.5 py-1.5 text-[11px] font-bold text-ink shadow-sm backdrop-blur"
             onClick={() => setIsOpen(true)}
             type="button"
           >
@@ -57,17 +57,17 @@ function LegendCard({
   return (
     <section
       aria-label="Map legend"
-      className="w-[min(78vw,15rem)] rounded-lg border border-line bg-white/95 p-3 shadow-sm backdrop-blur"
+      className="w-[min(64vw,11.25rem)] rounded-md border border-line bg-white/95 p-2 shadow-sm backdrop-blur"
     >
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-xs font-bold uppercase text-ink">Map legend</h2>
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-[11px] font-bold uppercase leading-none text-ink">Legend</h2>
         {onClose ? (
-          <button className="focus-ring rounded-md px-1.5 py-1 text-xs font-bold text-muted" onClick={onClose} type="button">
+          <button className="focus-ring rounded px-1 py-0.5 text-[10px] font-bold text-muted" onClick={onClose} type="button">
             Hide
           </button>
         ) : null}
       </div>
-      <ul className="mt-2 grid gap-1.5">
+      <ul className="mt-1.5 grid gap-1">
         {showUserLocation ? (
           <LegendItem
             icon={
@@ -98,8 +98,8 @@ function LegendCard({
 
 function LegendItem({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <li className="grid grid-cols-[24px_minmax(0,1fr)] items-center gap-2 text-xs font-semibold text-muted">
-      <span className="flex h-7 w-6 items-center justify-center">{icon}</span>
+    <li className="grid grid-cols-[18px_minmax(0,1fr)] items-center gap-1.5 text-[11px] font-semibold leading-tight text-muted">
+      <span className="flex h-5 w-[18px] items-center justify-center">{icon}</span>
       <span className="truncate">{label}</span>
     </li>
   );
