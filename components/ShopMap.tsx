@@ -116,13 +116,7 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
     visibleShops.forEach((shop) => {
       leaflet
         .marker([shop.latitude, shop.longitude], {
-          icon: leaflet.divIcon({
-            className: "tn-map-marker",
-            html: "<span></span>",
-            iconAnchor: [12, 12],
-            iconSize: [24, 24],
-            popupAnchor: [0, -10]
-          })
+          icon: getMarkerIcon(leaflet, shop.place_type)
         })
         .bindPopup(createShopPopup(shop))
         .addTo(markers);
@@ -131,13 +125,7 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
     if (userLocation) {
       leaflet
         .marker([userLocation.latitude, userLocation.longitude], {
-          icon: leaflet.divIcon({
-            className: "tn-user-marker",
-            html: "<span></span>",
-            iconAnchor: [13, 13],
-            iconSize: [26, 26],
-            popupAnchor: [0, -12]
-          })
+          icon: getUserLocationIcon(leaflet)
         })
         .bindPopup(createTextPopup("You are here"))
         .addTo(markers);
@@ -181,7 +169,7 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
         />
       )}
       <p className="mt-3 text-xs leading-5 text-muted">
-        Map locations are approximate. Please verify details before visiting.
+        Map locations are approximate. Marker icons indicate place type. Please verify details before visiting.
       </p>
     </section>
   );
@@ -189,6 +177,87 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
 
 function hasValidCoordinates(shop: Shop) {
   return Number.isFinite(shop.latitude) && Number.isFinite(shop.longitude);
+}
+
+function getMarkerIcon(leaflet: LeafletLike, placeType?: string) {
+  const type = normalizePlaceType(placeType);
+  const icon = markerIconConfig[type];
+
+  return leaflet.divIcon({
+    className: `tn-map-marker tn-map-marker-${type}`,
+    html: createMarkerSvg(icon.color, icon.symbol),
+    iconAnchor: [17, 41],
+    iconSize: [34, 42],
+    popupAnchor: [0, -38]
+  });
+}
+
+function getUserLocationIcon(leaflet: LeafletLike) {
+  return leaflet.divIcon({
+    className: "tn-map-marker tn-user-location-marker",
+    html: createUserLocationSvg(),
+    iconAnchor: [17, 41],
+    iconSize: [34, 42],
+    popupAnchor: [0, -38]
+  });
+}
+
+const markerIconConfig = {
+  tobacco_shop: {
+    color: "#0f766e",
+    symbol:
+      '<path d="M10 20h14v8H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 20h18l-2-5H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 28v-6h6v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M15 14h4m-2 0v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  kiosk: {
+    color: "#2563eb",
+    symbol:
+      '<path d="M10 28V17h14v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 17h18l-3-4H11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 28v-5h8v5M12 20h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  gas_station: {
+    color: "#b45309",
+    symbol:
+      '<path d="M11 28V13h9v15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 16h5v4h-5z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 16h2.5l2 2.5V26a2 2 0 0 1-4 0v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 28h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  convenience_store: {
+    color: "#4d7c0f",
+    symbol:
+      '<path d="M10 18h14l-1.5 10h-11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 18a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 23h6M17 20v6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  night_shop: {
+    color: "#4f46e5",
+    symbol:
+      '<path d="M10 28V17h14v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 17h18l-3-4H11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M13 28v-5h4v5M20 22h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 13a4.5 4.5 0 0 0 4 6 5 5 0 0 1-6-6z" fill="currentColor"/>'
+  },
+  other: {
+    color: "#64748b",
+    symbol:
+      '<path d="M17 28s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="17" cy="17" r="2.5" fill="currentColor"/>'
+  }
+} as const;
+
+function normalizePlaceType(placeType?: string): keyof typeof markerIconConfig {
+  const value = placeType?.trim().toLowerCase();
+
+  if (
+    value === "tobacco_shop" ||
+    value === "kiosk" ||
+    value === "gas_station" ||
+    value === "convenience_store" ||
+    value === "night_shop" ||
+    value === "other"
+  ) {
+    return value;
+  }
+
+  return "tobacco_shop";
+}
+
+function createMarkerSvg(color: string, symbol: string) {
+  return `<svg class="tn-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:${color}" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 41c5.5-7.1 14-13.2 14-24C31 8.7 24.7 2 17 2S3 8.7 3 17c0 10.8 8.5 16.9 14 24z"/><path class="tn-marker-pin" d="M17 39c5.2-6.8 12-12.2 12-22A12 12 0 0 0 5 17c0 9.8 6.8 15.2 12 22z"/><circle class="tn-marker-face" cx="17" cy="18" r="12"/><g class="tn-marker-symbol">${symbol}</g></svg>`;
+}
+
+function createUserLocationSvg() {
+  return '<svg class="tn-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:#1f2428" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 41c5.5-7.1 14-13.2 14-24C31 8.7 24.7 2 17 2S3 8.7 3 17c0 10.8 8.5 16.9 14 24z"/><path class="tn-marker-pin" d="M17 39c5.2-6.8 12-12.2 12-22A12 12 0 0 0 5 17c0 9.8 6.8 15.2 12 22z"/><circle class="tn-marker-face" cx="17" cy="18" r="12"/><g class="tn-marker-symbol"><circle cx="17" cy="13" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M17 17v7M12 20h10M14 29l3-5 3 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
 }
 
 function createShopPopup(shop: Shop) {
