@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { areaDefinitions } from "@/data/areas";
+import { seoLandingPages } from "@/data/seo-pages";
 import { getAllShops } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
@@ -14,7 +15,8 @@ const staticRoutes = [
   "/terms-of-use",
   "/disclaimer",
   "/add-or-update-a-shop",
-  ...areaDefinitions.map((area) => area.href)
+  ...areaDefinitions.map((area) => area.href),
+  ...seoLandingPages.map((page) => page.href)
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

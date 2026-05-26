@@ -7,6 +7,7 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
+import { seoLandingPages } from "@/data/seo-pages";
 import { Shop } from "@/data/shops";
 
 type NeighborhoodPageProps = {
@@ -149,6 +150,24 @@ export default function NeighborhoodPage({
             >
               {link.label}
             </TrackedNeighborhoodLink>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-lg border border-line bg-white p-5">
+        <h2 className="text-lg font-bold text-ink">Related practical search pages</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          Browse neutral search pages for broader Amsterdam location information in Dutch and English.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {seoLandingPages.map((page) => (
+            <Link
+              key={page.href}
+              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+              href={page.href}
+            >
+              {page.label}
+            </Link>
           ))}
         </div>
       </section>
