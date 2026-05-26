@@ -14,14 +14,12 @@ import {
   getDirectionsUrl,
   formatOpeningHours,
   getDistanceKm,
-  getOpeningHoursSpecification,
   getPlaceTypeLabel,
   normalize
 } from "@/data/shops";
 import { getAllShops, getShopBySlug } from "@/lib/shop-data";
 import { getApprovedCommentsForShop } from "@/lib/shop-comments";
-
-const siteUrl = "https://tobacconearby.com";
+import { generateLocalBusinessJsonLd } from "@/lib/structured-data";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -75,30 +73,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const openingHours = formatOpeningHours(shop.openingHours);
   const hasMapLocation = hasValidCoordinates(shop);
   const directionsUrl = getDirectionsUrl(shop);
-  const schema = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": `${siteUrl}/shops/${shop.slug}#localbusiness`,
-    mainEntityOfPage: `${siteUrl}/shops/${shop.slug}`,
-    name: shop.name,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: shop.address,
-      postalCode: shop.postalCode,
-      addressLocality: shop.city,
-      addressCountry: "NL"
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: shop.latitude,
-      longitude: shop.longitude
-    },
-    telephone: shop.phone,
-    url: `${siteUrl}/shops/${shop.slug}`,
-    sameAs: shop.website,
-    hasMap: shop.googleMapsLink,
-    openingHoursSpecification: getOpeningHoursSpecification(shop)
-  };
+  const schema = generateLocalBusinessJsonLd(shop);
 
   return (
     <section className="container-shell py-8">
@@ -294,7 +269,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
         </section>
       ) : null}
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      {schema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /> : null}
     </section>
   );
 }
