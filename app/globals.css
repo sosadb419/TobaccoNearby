@@ -101,6 +101,24 @@ textarea {
   width: 10px;
 }
 
+.tn-user-marker {
+  align-items: center;
+  background: #1f2428;
+  border: 3px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(31, 36, 40, 0.24);
+  display: flex;
+  justify-content: center;
+}
+
+.tn-user-marker span {
+  background: #ffffff;
+  border-radius: 999px;
+  display: block;
+  height: 8px;
+  width: 8px;
+}
+
 .tn-map-popup {
   color: #1f2428;
   display: grid;

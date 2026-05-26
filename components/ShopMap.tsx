@@ -130,21 +130,38 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
 
     if (userLocation) {
       leaflet
+        .marker([userLocation.latitude, userLocation.longitude], {
+          icon: leaflet.divIcon({
+            className: "tn-user-marker",
+            html: "<span></span>",
+            iconAnchor: [13, 13],
+            iconSize: [26, 26],
+            popupAnchor: [0, -12]
+          })
+        })
+        .bindPopup(createTextPopup("You are here"))
+        .addTo(markers);
+
+      leaflet
         .circle([userLocation.latitude, userLocation.longitude], {
           color: "#0f766e",
           fillColor: "#0f766e",
           fillOpacity: 0.12,
           radius: 180
         })
-        .bindPopup(createTextPopup("Approximate location"))
         .addTo(markers);
     }
 
-    if (visibleShops.length > 0) {
-      map.fitBounds(
-        visibleShops.map((shop) => [shop.latitude, shop.longitude]),
-        { maxZoom: 15, padding: [28, 28] }
-      );
+    const bounds: Array<[number, number]> = visibleShops.map((shop) => [shop.latitude, shop.longitude]);
+
+    if (userLocation) {
+      bounds.push([userLocation.latitude, userLocation.longitude]);
+    }
+
+    if (bounds.length > 1) {
+      map.fitBounds(bounds, { maxZoom: 15, padding: [28, 28] });
+    } else if (bounds.length === 1) {
+      map.setView(bounds[0], 14);
     } else {
       map.setView(amsterdamCenter, 12);
     }

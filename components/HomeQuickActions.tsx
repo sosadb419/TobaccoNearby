@@ -7,6 +7,10 @@ import { Clock, LocateFixed, MapPin, Train } from "lucide-react";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { trackUseLocationClicked } from "@/lib/analytics";
 
+const locationDeniedMessage =
+  "Location access was not allowed. You can still search by area, postal code, or neighborhood.";
+const locationFailedMessage = "Your location could not be detected. You can still search manually.";
+
 export default function HomeQuickActions() {
   const [locationStatus, setLocationStatus] = useState("");
   const router = useRouter();
@@ -15,25 +19,22 @@ export default function HomeQuickActions() {
     trackUseLocationClicked();
 
     if (!navigator.geolocation) {
-      setLocationStatus("Location access was not allowed. You can still search by area, postal code, or neighborhood.");
+      setLocationStatus(locationFailedMessage);
       return;
     }
 
     setLocationStatus("Requesting your location...");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      () => {
         const params = new URLSearchParams({
-          lat: position.coords.latitude.toString(),
-          lng: position.coords.longitude.toString(),
-          sort: "nearest"
+          sort: "nearest",
+          locate: "true"
         });
 
         router.push(`/search?${params.toString()}`);
       },
-      () => {
-        setLocationStatus(
-          "Location access was not allowed. You can still search by area, postal code, or neighborhood."
-        );
+      (error) => {
+        setLocationStatus(error.code === error.PERMISSION_DENIED ? locationDeniedMessage : locationFailedMessage);
       },
       {
         enableHighAccuracy: true,

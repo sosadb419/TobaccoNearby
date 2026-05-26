@@ -11,6 +11,10 @@ type SearchBarProps = {
   showLocationButton?: boolean;
 };
 
+const locationDeniedMessage =
+  "Location access was not allowed. You can still search by area, postal code, or neighborhood.";
+const locationFailedMessage = "Your location could not be detected. You can still search manually.";
+
 export default function SearchBar({ initialQuery = "", compact = false, showLocationButton = true }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const [locationStatus, setLocationStatus] = useState("");
@@ -34,23 +38,27 @@ export default function SearchBar({ initialQuery = "", compact = false, showLoca
     trackUseLocationClicked();
 
     if (!navigator.geolocation) {
-      setLocationStatus("Location is not available in this browser.");
+      setLocationStatus(locationFailedMessage);
       return;
     }
 
     setLocationStatus("Requesting your location...");
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      () => {
         const params = new URLSearchParams({
-          lat: position.coords.latitude.toString(),
-          lng: position.coords.longitude.toString(),
-          sort: "nearest"
+          sort: "nearest",
+          locate: "true"
         });
+        const trimmed = query.trim();
+
+        if (trimmed) {
+          params.set("q", trimmed);
+        }
 
         router.push(`/search?${params.toString()}`);
       },
-      () => {
-        setLocationStatus("Location permission was not granted.");
+      (error) => {
+        setLocationStatus(error.code === error.PERMISSION_DENIED ? locationDeniedMessage : locationFailedMessage);
       },
       {
         enableHighAccuracy: true,

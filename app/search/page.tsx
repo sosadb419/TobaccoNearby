@@ -1,20 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
-import AdSlot from "@/components/AdSlot";
-import DisclaimerNotice from "@/components/DisclaimerNotice";
 import FAQSection from "@/components/FAQSection";
-import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
-import ShopCard from "@/components/ShopCard";
+import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import {
-  Coordinates,
   Shop,
-  getDistanceKm,
   getPlaceTypeLabel,
   isOpenNow,
-  neighborhoods,
   normalize,
   placeTypes
 } from "@/data/shops";
@@ -93,9 +87,8 @@ export const metadata: Metadata = {
 type SearchPageProps = {
   searchParams: Promise<{
     q?: string;
-    lat?: string;
-    lng?: string;
     sort?: string;
+    locate?: string;
     openNow?: string;
     neighborhood?: string;
     accessible?: string;
@@ -108,11 +101,10 @@ type SearchPageProps = {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = (params.q ?? "").trim();
-  const userLocation = getUserLocation(params.lat, params.lng);
   const selectedNeighborhood = params.neighborhood ?? "";
   const selectedPlaceType = getValidPlaceType(params.placeType);
   const wantsNearest = params.sort === "nearest";
-  const nearestNeedsLocation = wantsNearest && !userLocation;
+  const shouldRequestLocation = params.locate === "true";
 
   const baseResults = query ? await searchShops(query) : await getAllShops();
   const filters: ShopFilters = {
@@ -122,8 +114,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     selectedPlaceType,
     hasPhone: params.hasPhone === "true",
     hasWebsite: params.hasWebsite === "true",
-    wheelchairAccessible: params.accessible === "true",
-    userLocation
+    wheelchairAccessible: params.accessible === "true"
   };
   const results = applyShopFilters(baseResults, filters);
   const activeFilterLabels = getActiveFilterLabels(filters);
@@ -131,11 +122,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const filterParams = new URLSearchParams();
   if (query) filterParams.set("q", query);
-  if (params.lat && params.lng) {
-    filterParams.set("lat", params.lat);
-    filterParams.set("lng", params.lng);
-  }
   if (params.sort) filterParams.set("sort", params.sort);
+  if (shouldRequestLocation) filterParams.set("locate", "true");
   if (params.openNow) filterParams.set("openNow", params.openNow);
   if (params.accessible) filterParams.set("accessible", params.accessible);
   if (params.hasPhone) filterParams.set("hasPhone", params.hasPhone);
@@ -207,14 +195,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               Clear filters
             </Link>
           </div>
-          {nearestNeedsLocation ? (
-            <p className="mt-3 text-sm leading-6 text-muted">Allow location access to sort by nearest.</p>
-          ) : null}
           <form className="mt-4 grid max-w-2xl gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end" action="/search">
             {query ? <input type="hidden" name="q" value={query} /> : null}
-            {params.lat ? <input type="hidden" name="lat" value={params.lat} /> : null}
-            {params.lng ? <input type="hidden" name="lng" value={params.lng} /> : null}
             {params.sort ? <input type="hidden" name="sort" value={params.sort} /> : null}
+            {shouldRequestLocation ? <input type="hidden" name="locate" value="true" /> : null}
             {params.openNow ? <input type="hidden" name="openNow" value={params.openNow} /> : null}
             {params.accessible ? <input type="hidden" name="accessible" value={params.accessible} /> : null}
             {params.hasPhone ? <input type="hidden" name="hasPhone" value={params.hasPhone} /> : null}
@@ -272,60 +256,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
-        <aside className="grid gap-5 lg:col-start-2 lg:row-start-1">
-          <div className="lg:sticky lg:top-6">
-            <LazyShopMap shops={results} userLocation={userLocation} />
-          </div>
-          <div className="hidden gap-5 lg:grid">
-            <AdSlot placement="sidebar" />
-            <div className="rounded-lg border border-line bg-white p-5">
-              <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
-              <div className="mt-4 grid gap-2 text-sm">
-                {neighborhoods.map((neighborhood) => (
-                  <TrackedNeighborhoodLink
-                    key={neighborhood.slug}
-                    className="focus-ring rounded-md py-1 text-muted hover:text-teal"
-                    href={`/amsterdam/${neighborhood.slug}`}
-                    neighborhood={neighborhood.name}
-                  >
-                    {neighborhood.name}
-                  </TrackedNeighborhoodLink>
-                ))}
-              </div>
-            </div>
-          </div>
-        </aside>
-
-        <div className="grid gap-5 lg:col-start-1 lg:row-start-1">
-          <DisclaimerNotice />
-
-          {query ? (
-            <div className="rounded-lg border border-line bg-paper px-4 py-3 text-sm leading-6 text-muted">
-              Active search: <strong className="text-ink">{query}</strong>
-            </div>
-          ) : null}
-
-          <p className="text-sm text-muted">
-            Showing <strong className="text-ink">{results.length}</strong> {results.length === 1 ? "listing" : "listings"}
-            {query ? ` for "${query}"` : ""}.
-          </p>
-
-          {results.length === 0 ? (
-            <div className="rounded-lg border border-line bg-white p-6">
-              <h2 className="text-xl font-bold text-ink">No matching listings</h2>
-              <p className="mt-2 text-sm leading-6 text-muted">{emptyStateMessage}</p>
-            </div>
-          ) : null}
-
-          {results.map((shop, index) => (
-            <div key={shop.slug} className="grid gap-5">
-              <ShopCard shop={shop} origin={userLocation} showLiveStatus />
-              {index === 2 ? <AdSlot placement="in-content" /> : null}
-            </div>
-          ))}
-        </div>
-      </div>
+      <SearchResultsView
+        emptyStateMessage={emptyStateMessage}
+        hasActiveFilters={hasActiveFilters}
+        query={query}
+        requestLocation={shouldRequestLocation}
+        shops={results}
+        sortNearest={wantsNearest}
+      />
 
       <FAQSection
         className="mt-8"
@@ -345,7 +283,6 @@ type ShopFilters = {
   hasPhone: boolean;
   hasWebsite: boolean;
   wheelchairAccessible: boolean;
-  userLocation?: Coordinates;
 };
 
 function applyShopFilters(shops: Shop[], filters: ShopFilters) {
@@ -377,25 +314,11 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
     filteredShops = filteredShops.filter((shop) => shop.wheelchairAccessible === true);
   }
 
-  if (filters.sortNearest && filters.userLocation) {
-    const userLocation = filters.userLocation;
-
-    filteredShops = filteredShops.sort(
-      (a, b) =>
-        calculateDistanceKm(userLocation.latitude, userLocation.longitude, a.latitude, a.longitude) -
-        calculateDistanceKm(userLocation.latitude, userLocation.longitude, b.latitude, b.longitude)
-    );
-  }
-
   return filteredShops;
 }
 
 function isShopOpenNow(shop: Shop) {
   return shop.openingHours.length > 0 && isOpenNow(shop);
-}
-
-function calculateDistanceKm(userLat: number, userLng: number, shopLat: number, shopLng: number) {
-  return getDistanceKm({ latitude: shopLat, longitude: shopLng }, { latitude: userLat, longitude: userLng });
 }
 
 function hasText(value?: string) {
@@ -463,15 +386,4 @@ function FilterLink({
       {label}
     </Link>
   );
-}
-
-function getUserLocation(lat?: string, lng?: string): Coordinates | undefined {
-  const latitude = Number(lat);
-  const longitude = Number(lng);
-
-  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-    return undefined;
-  }
-
-  return { latitude, longitude };
 }
