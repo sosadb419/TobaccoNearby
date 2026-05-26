@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { areaDefinitions } from "@/data/areas";
 import { getAllShops } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
@@ -13,16 +14,7 @@ const staticRoutes = [
   "/terms-of-use",
   "/disclaimer",
   "/add-or-update-a-shop",
-  "/amsterdam/centrum",
-  "/amsterdam/de-pijp",
-  "/amsterdam/jordaan",
-  "/amsterdam/de-wallen",
-  "/amsterdam/west",
-  "/amsterdam/oost",
-  "/amsterdam/noord",
-  "/amsterdam/zuid",
-  "/amsterdam/zuidoost",
-  "/amsterdam/near-central-station"
+  ...areaDefinitions.map((area) => area.href)
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

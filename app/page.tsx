@@ -7,6 +7,7 @@ import HomeQuickActions from "@/components/HomeQuickActions";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
+import { areaDefinitions } from "@/data/areas";
 import { getAllShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
@@ -24,18 +25,6 @@ export const metadata: Metadata = {
     canonical: "/"
   }
 };
-
-const homepageNeighborhoods = [
-  { href: "/amsterdam/centrum", name: "Centrum" },
-  { href: "/amsterdam/de-pijp", name: "De Pijp" },
-  { href: "/amsterdam/jordaan", name: "Jordaan" },
-  { href: "/amsterdam/de-wallen", name: "De Wallen" },
-  { href: "/amsterdam/west", name: "West" },
-  { href: "/amsterdam/oost", name: "Oost" },
-  { href: "/amsterdam/noord", name: "Noord" },
-  { href: "/amsterdam/zuid", name: "Zuid" },
-  { href: "/amsterdam/zuidoost", name: "Zuidoost" }
-];
 
 const homepageFaqs = [
   {
@@ -160,14 +149,14 @@ export default async function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:gap-3">
-            {homepageNeighborhoods.map((neighborhood) => (
+            {areaDefinitions.map((neighborhood) => (
               <TrackedNeighborhoodLink
                 key={neighborhood.href}
                 className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:px-4 md:py-3"
                 href={neighborhood.href}
-                neighborhood={neighborhood.name}
+                neighborhood={neighborhood.label}
               >
-                {neighborhood.name}
+                {neighborhood.label}
               </TrackedNeighborhoodLink>
             ))}
           </div>

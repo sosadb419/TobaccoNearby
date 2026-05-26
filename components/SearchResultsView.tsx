@@ -8,7 +8,8 @@ import DisclaimerNotice from "@/components/DisclaimerNotice";
 import LazyShopMap from "@/components/LazyShopMap";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
-import { Coordinates, Shop, getDistanceKm, neighborhoods, placeTypes } from "@/data/shops";
+import { areaDefinitions } from "@/data/areas";
+import { Coordinates, Shop, getDistanceKm, placeTypes } from "@/data/shops";
 import { classifySearchType, trackSearchSubmitted, trackUseLocationClicked } from "@/lib/analytics";
 
 type SearchFilterState = {
@@ -36,18 +37,6 @@ type SearchResultsViewProps = {
 const locationDeniedMessage =
   "Location access was not allowed. You can still search by area, postal code, or neighborhood.";
 const locationFailedMessage = "Your location could not be detected. You can still search manually.";
-const mobileNeighborhoodOptions = [
-  "Centrum",
-  "De Pijp",
-  "Jordaan",
-  "De Wallen",
-  "West",
-  "Oost",
-  "Noord",
-  "Zuid",
-  "Zuidoost"
-];
-
 export default function SearchResultsView({
   activeFilterLabels,
   emptyStateMessage,
@@ -155,14 +144,14 @@ export default function SearchResultsView({
           <div className="rounded-lg border border-line bg-white p-5">
             <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
             <div className="mt-4 grid gap-2 text-sm">
-              {neighborhoods.map((neighborhood) => (
+              {areaDefinitions.map((neighborhood) => (
                 <TrackedNeighborhoodLink
-                  key={neighborhood.slug}
+                  key={neighborhood.href}
                   className="focus-ring rounded-md py-1 text-muted hover:text-teal"
-                  href={`/amsterdam/${neighborhood.slug}`}
-                  neighborhood={neighborhood.name}
+                  href={neighborhood.href}
+                  neighborhood={neighborhood.label}
                 >
-                  {neighborhood.name}
+                  {neighborhood.label}
                 </TrackedNeighborhoodLink>
               ))}
             </div>
@@ -485,7 +474,7 @@ function MobileSearchControls({
 
             <div className="grid gap-2">
               <label className="text-xs font-bold uppercase text-muted" htmlFor="mobile-neighborhood">
-                Neighborhood
+                Area
               </label>
               <select
                 className="focus-ring min-h-10 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
@@ -495,10 +484,10 @@ function MobileSearchControls({
                 }
                 value={pendingFilters.selectedNeighborhood}
               >
-                <option value="">All neighborhoods</option>
-                {mobileNeighborhoodOptions.map((neighborhood) => (
-                  <option key={neighborhood} value={neighborhood}>
-                    {neighborhood}
+                <option value="">All areas</option>
+                {areaDefinitions.map((area) => (
+                  <option key={area.slug} value={area.slug}>
+                    {area.label}
                   </option>
                 ))}
               </select>

@@ -34,6 +34,7 @@ export type Shop = {
   source_url?: string;
   internal_notes?: string;
   place_type?: string;
+  area_slug?: string;
   city: string;
   country: string;
   wheelchairAccessible?: boolean;
@@ -54,11 +55,14 @@ export const neighborhoods = [
   { name: "Centrum", slug: "centrum" },
   { name: "De Pijp", slug: "de-pijp" },
   { name: "Jordaan", slug: "jordaan" },
-  { name: "Oost", slug: "oost" },
+  { name: "De Wallen", slug: "de-wallen" },
   { name: "West", slug: "west" },
+  { name: "Nieuw-West", slug: "nieuw-west" },
+  { name: "Oost", slug: "oost" },
   { name: "Noord", slug: "noord" },
   { name: "Zuid", slug: "zuid" },
-  { name: "Zuidoost", slug: "zuidoost" }
+  { name: "Zuidoost", slug: "zuidoost" },
+  { name: "Diemen", slug: "diemen" }
 ];
 
 export const placeTypes = [

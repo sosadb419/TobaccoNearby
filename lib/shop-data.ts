@@ -1,6 +1,13 @@
 import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import {
+  AreaSlug,
+  areaDefinitions,
+  getAreaDefinition,
+  getAreaDisplayName as getSharedAreaDisplayName,
+  normalizeAreaSlug
+} from "@/data/areas";
+import {
   amsterdamCentralStation,
   DayName,
   OpeningHoursSlot,
@@ -13,35 +20,7 @@ import {
 type SupabaseShopRow = Record<string, unknown>;
 
 const shopSelectColumns =
-  "id,name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type";
-
-const searchAliases: Record<string, string> = {
-  bijlmer: "Zuidoost",
-  "amsterdam-bijlmer": "Zuidoost",
-  zuidoost: "Zuidoost",
-  "central-station": "Centrum",
-  "amsterdam-centraal": "Centrum",
-  "centraal-station": "Centrum",
-  dam: "Centrum",
-  wallen: "Centrum",
-  "de-wallen": "Centrum",
-  "red-light-district": "Centrum",
-  "redlight-district": "Centrum",
-  oudezijds: "Centrum",
-  "oudezijds-voorburgwal": "Centrum",
-  "oudezijds-achterburgwal": "Centrum",
-  "de-pijp": "De Pijp",
-  jordaan: "Jordaan",
-  "de-jordaan": "Jordaan",
-  westerstraat: "Jordaan",
-  noordermarkt: "Jordaan",
-  rozengracht: "Jordaan",
-  west: "West",
-  kinkerstraat: "West",
-  oost: "Oost",
-  noord: "Noord",
-  zuid: "Zuid"
-};
+  "id,name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type,area_slug";
 
 // This deduplicates reads during one server render only. Supabase requests remain no-store.
 const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
@@ -93,34 +72,25 @@ export async function getShopBySlug(slug: string) {
 export async function getShopsByNeighborhood(neighborhood: string) {
   const shopList = await getAllShops();
 
-  return shopList.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhood));
+  const areaSlug = getAreaSlugFromLabel(neighborhood);
+
+  if (areaSlug) {
+    return filterShopsForArea(shopList, areaSlug);
+  }
+
+  return shopList.filter(
+    (shop) => isPublicShop(shop) && normalizeAreaText(shop.neighborhood).includes(normalizeAreaText(neighborhood))
+  );
 }
 
 export async function getShopsForDeWallen() {
-  const shopList = await getAllShops();
-  const exactMatches = shopList.filter((shop) => normalize(shop.neighborhood) === "de-wallen");
-
-  if (exactMatches.length > 0) {
-    return exactMatches;
-  }
-
-  return shopList.filter((shop) => normalize(shop.neighborhood) === "centrum");
+  return getShopsForArea("de-wallen");
 }
 
 export async function getShopsForCentralStationArea() {
-  const shopList = await getAllShops();
+  const shops = await getShopsForArea("central-station");
 
-  return shopList
-    .filter((shop) => {
-      const searchable = getShopSearchableText(shop);
-
-      return (
-        normalize(shop.neighborhood) === "centrum" ||
-        searchable.includes("central-station") ||
-        searchable.includes("centraal-station") ||
-        searchable.includes("amsterdam-centraal")
-      );
-    })
+  return shops
     .map((shop) => ({
       shop,
       distance: getDistanceKm(shop, amsterdamCentralStation)
@@ -130,13 +100,30 @@ export async function getShopsForCentralStationArea() {
 }
 
 export async function getShopsForZuidoostArea() {
+  return getShopsForArea("zuidoost");
+}
+
+export async function getShopsForArea(areaSlug: string) {
   const shopList = await getAllShops();
 
-  return shopList.filter((shop) => {
-    const searchable = getShopSearchableText(shop);
+  return filterShopsForArea(shopList, areaSlug);
+}
 
-    return normalize(shop.neighborhood) === "zuidoost" || searchable.includes("bijlmer");
-  });
+export function filterShopsForArea(shopList: Shop[], areaSlug: string) {
+  const normalizedAreaSlug = normalizeAreaSlug(areaSlug);
+  const filtered = shopList.filter((shop) => isPublicShop(shop) && matchesArea(shop, normalizedAreaSlug));
+
+  if (normalizedAreaSlug === "central-station") {
+    return filtered
+      .map((shop) => ({
+        shop,
+        distance: getDistanceKm(shop, amsterdamCentralStation)
+      }))
+      .sort((a, b) => a.distance - b.distance)
+      .map(({ shop }) => shop);
+  }
+
+  return filtered;
 }
 
 export async function getShopsNearCentralStation(maxKm = 1.5) {
@@ -163,48 +150,123 @@ export async function searchShops(query: string) {
   const aliasTargets = getSearchAliasTargets(value);
 
   return shopList.filter((shop) => {
-    const searchable = normalize(
-      [shop.name, shop.address, shop.postalCode, shop.neighborhood, shop.city].join(" ")
-    );
+    const searchable = getShopSearchableText(shop);
 
-    if (searchable.includes(value)) {
+    if (matchesNormalizedText(searchable, value)) {
       return true;
     }
 
-    return aliasTargets.some((target) => normalize(shop.neighborhood) === normalize(target));
+    return aliasTargets.some((target) => matchesArea(shop, target));
   });
 }
 
 function normalizeSearchValue(query: string) {
-  return normalize(query.trim());
+  return normalizeAreaText(query.trim());
 }
 
 function getShopSearchableText(shop: Shop) {
-  return normalize(
+  return normalizeAreaText(
     [
       shop.name,
       shop.address,
       shop.postalCode,
       shop.neighborhood,
       shop.city,
+      shop.country,
+      shop.place_type ?? "",
+      shop.area_slug ?? "",
       shop.nearbyPublicTransport ?? ""
     ].join(" ")
   );
 }
 
 function getSearchAliasTargets(value: string) {
-  const exactTarget = searchAliases[value];
-  const targets = exactTarget ? [exactTarget] : [];
+  const targets: AreaSlug[] = [];
 
-  Object.entries(searchAliases).forEach(([alias, target]) => {
-    const shouldMatchInsideQuery = alias.length >= 6 || alias.includes("-");
+  areaDefinitions.forEach((area) => {
+    const aliases = [area.slug, area.label, area.searchLabel, ...area.fallbackTerms].map(normalizeAreaText);
 
-    if (shouldMatchInsideQuery && value.includes(alias) && !targets.includes(target)) {
-      targets.push(target);
+    if (
+      aliases.some((alias) => {
+        const shouldMatchInsideQuery = alias.length >= 5;
+
+        return value === alias || (shouldMatchInsideQuery && value.includes(alias));
+      })
+    ) {
+      targets.push(area.slug);
     }
   });
 
   return targets;
+}
+
+function matchesArea(shop: Shop, areaSlug: string) {
+  const normalizedAreaSlug = normalizeAreaSlug(areaSlug);
+  const shopAreaSlug = shop.area_slug?.trim();
+
+  if (shopAreaSlug) {
+    return normalizeAreaSlug(shopAreaSlug) === normalizedAreaSlug;
+  }
+
+  return matchesAreaFallback(shop, normalizedAreaSlug);
+}
+
+export function matchesAreaFallback(shop: Shop, areaSlug: string) {
+  const area = getAreaDefinition(areaSlug);
+
+  if (!area) {
+    return false;
+  }
+
+  const searchable = getShopSearchableText(shop);
+
+  return area.fallbackTerms.some((term) => matchesNormalizedText(searchable, normalizeAreaText(term)));
+}
+
+export function normalizeAreaText(value?: string) {
+  return (value ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function matchesNormalizedText(searchable: string, term: string) {
+  const normalizedTerm = normalizeAreaText(term);
+
+  if (!normalizedTerm) {
+    return false;
+  }
+
+  if (!normalizedTerm.includes(" ")) {
+    return searchable.split(" ").includes(normalizedTerm);
+  }
+
+  return searchable.includes(normalizedTerm);
+}
+
+export function getAreaDisplayName(areaSlug: string) {
+  return getSharedAreaDisplayName(areaSlug);
+}
+
+function getAreaSlugFromLabel(label: string) {
+  const normalizedLabel = normalizeAreaText(label);
+  const area = areaDefinitions.find(
+    (item) =>
+      normalizeAreaText(item.label) === normalizedLabel ||
+      normalizeAreaText(item.searchLabel) === normalizedLabel ||
+      item.fallbackTerms.some((term) => normalizeAreaText(term) === normalizedLabel)
+  );
+
+  return area?.slug;
+}
+
+function isPublicShop(shop: Shop) {
+  return !shop.status || shop.status === "published";
 }
 
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
@@ -246,6 +308,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     verified: readBoolean(row, ["verified"]),
     last_checked_at: readDate(row, ["last_checked_at"]),
     place_type: readString(row, ["place_type", "placeType"]) ?? "tobacco_shop",
+    area_slug: readString(row, ["area_slug", "areaSlug"]),
     city,
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),

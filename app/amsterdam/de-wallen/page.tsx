@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import NeighborhoodPage from "@/components/NeighborhoodPage";
-import { getShopsForDeWallen } from "@/lib/shop-data";
+import { getShopsForArea } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -45,7 +45,7 @@ const deWallenFaqs = [
 ];
 
 export default async function DeWallenPage() {
-  const shops = await getShopsForDeWallen();
+  const shops = await getShopsForArea("de-wallen");
 
   return (
     <NeighborhoodPage

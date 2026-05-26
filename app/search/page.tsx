@@ -5,6 +5,7 @@ import FAQSection from "@/components/FAQSection";
 import SearchBar from "@/components/SearchBar";
 import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
+import { areaDefinitions, getAreaDefinition } from "@/data/areas";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -12,33 +13,12 @@ import {
   normalize,
   placeTypes
 } from "@/data/shops";
-import { getAllShops, searchShops } from "@/lib/shop-data";
+import { filterShopsForArea, getAllShops, searchShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const quickSearches = [
-  "Centrum",
-  "De Pijp",
-  "West",
-  "Oost",
-  "Noord",
-  "Zuid",
-  "Zuidoost",
-  "Amsterdam Centraal"
-];
-
-const neighborhoodFilterOptions = [
-  "Centrum",
-  "De Pijp",
-  "Jordaan",
-  "De Wallen",
-  "West",
-  "Oost",
-  "Noord",
-  "Zuid",
-  "Zuidoost"
-];
+const quickSearches = areaDefinitions.map((area) => area.searchLabel);
 
 const searchFaqs = [
   {
@@ -102,7 +82,7 @@ type SearchPageProps = {
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = (params.q ?? "").trim();
-  const selectedNeighborhood = params.neighborhood ?? "";
+  const selectedNeighborhood = getSelectedAreaSlug(params.neighborhood);
   const selectedPlaceType = getValidPlaceType(params.placeType);
   const wantsNearest = params.sort === "nearest";
   const shouldRequestLocation = params.locate === "true";
@@ -210,7 +190,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {params.hasWebsite ? <input type="hidden" name="hasWebsite" value={params.hasWebsite} /> : null}
             <div className="grid gap-1">
               <label className="text-xs font-bold uppercase text-muted" htmlFor="neighborhood">
-                Neighborhood
+                Area
               </label>
               <select
                 className="focus-ring min-h-11 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
@@ -218,10 +198,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 name="neighborhood"
                 defaultValue={selectedNeighborhood}
               >
-                <option value="">All neighborhoods</option>
-                {neighborhoodFilterOptions.map((neighborhood) => (
-                  <option key={neighborhood} value={neighborhood}>
-                    {neighborhood}
+                <option value="">All areas</option>
+                {areaDefinitions.map((area) => (
+                  <option key={area.slug} value={area.slug}>
+                    {area.label}
                   </option>
                 ))}
               </select>
@@ -297,9 +277,7 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
   let filteredShops = [...shops];
 
   if (filters.selectedNeighborhood) {
-    const neighborhoodTarget = getNeighborhoodFilterTarget(filters.selectedNeighborhood);
-
-    filteredShops = filteredShops.filter((shop) => normalize(shop.neighborhood) === normalize(neighborhoodTarget));
+    filteredShops = filterShopsForArea(filteredShops, filters.selectedNeighborhood);
   }
 
   if (filters.selectedPlaceType) {
@@ -333,14 +311,27 @@ function hasText(value?: string) {
   return Boolean(value && value.trim());
 }
 
-function getNeighborhoodFilterTarget(neighborhood: string) {
-  return normalize(neighborhood) === "de-wallen" ? "Centrum" : neighborhood;
-}
-
 function getNormalizedPlaceType(placeType?: string) {
   const value = placeType?.trim().toLowerCase() ?? "";
 
   return placeTypes.some((item) => item.value === value) ? value : "tobacco_shop";
+}
+
+function getSelectedAreaSlug(area?: string) {
+  if (!area) {
+    return "";
+  }
+
+  const normalizedArea = normalize(area);
+  const areaDefinition = areaDefinitions.find(
+    (item) =>
+      item.slug === normalizedArea ||
+      normalize(item.label) === normalizedArea ||
+      normalize(item.searchLabel) === normalizedArea ||
+      item.fallbackTerms.some((term) => normalize(term) === normalizedArea)
+  );
+
+  return areaDefinition?.slug ?? "";
 }
 
 function getValidPlaceType(placeType?: string) {
@@ -354,7 +345,7 @@ function getActiveFilterLabels(filters: ShopFilters) {
 
   if (filters.openNow) labels.push("Open now");
   if (filters.sortNearest) labels.push("Nearest");
-  if (filters.selectedNeighborhood) labels.push(filters.selectedNeighborhood);
+  if (filters.selectedNeighborhood) labels.push(getAreaDefinition(filters.selectedNeighborhood)?.label ?? filters.selectedNeighborhood);
   if (filters.selectedPlaceType) labels.push(getPlaceTypeLabel(filters.selectedPlaceType));
   if (filters.hasPhone) labels.push("Has phone number");
   if (filters.hasWebsite) labels.push("Has website");

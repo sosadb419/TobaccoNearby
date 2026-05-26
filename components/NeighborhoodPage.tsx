@@ -6,20 +6,8 @@ import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
+import { areaDefinitions } from "@/data/areas";
 import { Shop } from "@/data/shops";
-
-const areaLinks = [
-  { href: "/amsterdam/centrum", label: "Centrum" },
-  { href: "/amsterdam/de-pijp", label: "De Pijp" },
-  { href: "/amsterdam/jordaan", label: "Jordaan" },
-  { href: "/amsterdam/de-wallen", label: "De Wallen" },
-  { href: "/amsterdam/west", label: "West" },
-  { href: "/amsterdam/oost", label: "Oost" },
-  { href: "/amsterdam/noord", label: "Noord" },
-  { href: "/amsterdam/zuid", label: "Zuid" },
-  { href: "/amsterdam/zuidoost", label: "Zuidoost" },
-  { href: "/amsterdam/near-central-station", label: "Amsterdam Central Station" }
-];
 
 type NeighborhoodPageProps = {
   title: string;
@@ -152,7 +140,7 @@ export default function NeighborhoodPage({
           Browse other Amsterdam area pages for nearby shop locations, opening hours, directions and contact details.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {areaLinks.map((link) => (
+          {areaDefinitions.map((link) => (
             <TrackedNeighborhoodLink
               key={link.href}
               className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"

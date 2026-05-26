@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import NeighborhoodPage from "@/components/NeighborhoodPage";
-import { getShopsForZuidoostArea } from "@/lib/shop-data";
+import { getShopsForArea } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -45,7 +45,7 @@ const zuidoostFaqs = [
 ];
 
 export default async function ZuidoostPage() {
-  const shops = await getShopsForZuidoostArea();
+  const shops = await getShopsForArea("zuidoost");
 
   return (
     <NeighborhoodPage
