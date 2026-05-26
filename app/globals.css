@@ -115,6 +115,21 @@ textarea {
   width: 42px;
 }
 
+.tn-map-legend-marker .tn-marker-svg {
+  display: block;
+  filter: drop-shadow(0 3px 5px rgba(31, 36, 40, 0.2));
+  height: 28px;
+  width: 22px;
+}
+
+.tn-map-legend-user img {
+  display: block;
+  filter: drop-shadow(0 3px 5px rgba(31, 36, 40, 0.24));
+  height: 27px;
+  object-fit: contain;
+  width: 27px;
+}
+
 .tn-map-card-popup .leaflet-popup-content-wrapper {
   border: 1px solid rgba(31, 36, 40, 0.1);
   border-radius: 12px;
