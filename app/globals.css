@@ -107,13 +107,12 @@ textarea {
   color: #ffffff;
 }
 
-.tn-user-marker-svg {
+.tn-user-location-marker img {
+  display: block;
+  filter: drop-shadow(0 5px 8px rgba(31, 36, 40, 0.28));
   height: 42px;
-  width: 34px;
-}
-
-.tn-user-location-marker .tn-marker-symbol {
-  color: #ffffff;
+  object-fit: contain;
+  width: 42px;
 }
 
 .tn-map-popup {

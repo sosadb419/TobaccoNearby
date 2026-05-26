@@ -196,10 +196,10 @@ function getMarkerIcon(leaflet: LeafletLike, placeType?: string) {
 function getUserLocationIcon(leaflet: LeafletLike) {
   return leaflet.divIcon({
     className: "tn-map-marker tn-user-location-marker",
-    html: createUserLocationSvg(),
-    iconAnchor: [16, 38],
-    iconSize: [32, 40],
-    popupAnchor: [0, -36]
+    html: '<img src="/icons/user-smoker-marker.png" alt="" aria-hidden="true" />',
+    iconAnchor: [21, 42],
+    iconSize: [42, 42],
+    popupAnchor: [0, -40]
   });
 }
 
@@ -255,10 +255,6 @@ function normalizePlaceType(placeType?: string): keyof typeof markerIconConfig {
 
 function createMarkerSvg(color: string, symbol: string) {
   return `<svg class="tn-marker-svg" viewBox="0 0 32 40" role="img" aria-hidden="true" focusable="false" style="color:${color}" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M16 39c5.4-6.8 12-12.4 12-22A12 12 0 0 0 4 17c0 9.6 6.6 15.2 12 22z"/><path class="tn-marker-pin" d="M16 37c5.1-6.5 10.5-11.2 10.5-20.2A10.5 10.5 0 0 0 5.5 16.8C5.5 25.8 10.9 30.5 16 37z"/><g class="tn-marker-symbol">${symbol}</g></svg>`;
-}
-
-function createUserLocationSvg() {
-  return '<svg class="tn-marker-svg tn-user-marker-svg" viewBox="0 0 34 42" role="img" aria-hidden="true" focusable="false" style="color:#1f2428" xmlns="http://www.w3.org/2000/svg"><path class="tn-marker-shadow" d="M17 40c5.7-6.9 12.5-12.5 12.5-22.2A12.5 12.5 0 0 0 4.5 17.8C4.5 27.5 11.3 33.1 17 40z"/><path class="tn-marker-pin tn-user-marker-pin" d="M17 38c5.2-6.3 10.8-11.1 10.8-20.1A10.8 10.8 0 0 0 6.2 17.9C6.2 26.9 11.8 31.7 17 38z"/><g class="tn-marker-symbol"><circle cx="15.5" cy="11.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15v7M11.5 18.3h8M13.2 28.5l2.3-6.5 3.3 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.8 15.5l4.4-1.2M22.8 14.2c1.5-.2 2.4.4 2.9 1.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M24.8 11.3c1.5.1 2.4-.7 2.5-2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".8"/></g></svg>';
 }
 
 function MapLegend() {
