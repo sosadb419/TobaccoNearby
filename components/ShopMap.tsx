@@ -22,7 +22,7 @@ type LeafletLayerGroup = {
 
 type LeafletMarker = {
   addTo: (target: LeafletMap | LeafletLayerGroup) => LeafletMarker;
-  bindPopup: (content: HTMLElement) => LeafletMarker;
+  bindPopup: (content: HTMLElement, options?: Record<string, unknown>) => LeafletMarker;
 };
 
 type LeafletLike = {
@@ -118,7 +118,11 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
         .marker([shop.latitude, shop.longitude], {
           icon: getMarkerIcon(leaflet, shop.place_type)
         })
-        .bindPopup(createShopPopup(shop))
+        .bindPopup(createShopPopup(shop), {
+          className: "tn-map-card-popup",
+          maxWidth: 286,
+          minWidth: 238
+        })
         .addTo(markers);
     });
 
@@ -278,34 +282,44 @@ function MapLegend() {
 }
 
 function createShopPopup(shop: Shop) {
-  const container = document.createElement("div");
+  const container = document.createElement("article");
   container.className = "tn-map-popup";
+  const placeTypeLabel = getPlaceTypeLabel(shop.place_type);
 
-  const title = document.createElement("p");
+  const header = document.createElement("div");
+  header.className = "tn-map-popup-header";
+
+  const title = document.createElement("h3");
   title.className = "tn-map-popup-title";
   title.textContent = shop.name;
-  container.append(title);
+  header.append(title);
 
-  const address = document.createElement("p");
-  address.textContent = shop.address;
-  container.append(address);
+  const badge = document.createElement("span");
+  badge.className = "tn-map-popup-badge";
+  badge.textContent = placeTypeLabel;
+  header.append(badge);
+  container.append(header);
 
-  const neighborhood = document.createElement("p");
-  neighborhood.textContent = `Neighborhood: ${shop.neighborhood}`;
-  container.append(neighborhood);
+  const rows = document.createElement("div");
+  rows.className = "tn-map-popup-rows";
 
-  const placeType = document.createElement("p");
-  placeType.textContent = `Place type: ${getPlaceTypeLabel(shop.place_type)}`;
-  container.append(placeType);
+  const addressText = [shop.address, [shop.postalCode, shop.city].filter(Boolean).join(" ")]
+    .filter(Boolean)
+    .join(", ");
 
-  const hours = document.createElement("p");
-  hours.textContent = `Today: ${getTodayOpeningHours(shop)}`;
-  container.append(hours);
+  rows.append(
+    createPopupRow("pin", addressText || "Address not available"),
+    createPopupRow("map", shop.neighborhood),
+    createPopupRow(normalizePlaceType(shop.place_type), placeTypeLabel),
+    createPopupRow("clock", getTodayOpeningHours(shop))
+  );
+  container.append(rows);
 
   const links = document.createElement("div");
-  links.className = "tn-map-popup-links";
+  links.className = "tn-map-popup-actions";
 
   const detailsLink = document.createElement("a");
+  detailsLink.className = "tn-map-popup-button tn-map-popup-button-primary";
   detailsLink.href = `/shops/${shop.slug}`;
   detailsLink.textContent = "View details";
   detailsLink.addEventListener("click", () => trackShopDetailsClicked(shop.slug, shop.neighborhood));
@@ -315,6 +329,7 @@ function createShopPopup(shop: Shop) {
 
   if (directionsUrl) {
     const directionsLink = document.createElement("a");
+    directionsLink.className = "tn-map-popup-button tn-map-popup-button-secondary";
     directionsLink.href = directionsUrl;
     directionsLink.rel = "noreferrer";
     directionsLink.target = "_blank";
@@ -327,6 +342,76 @@ function createShopPopup(shop: Shop) {
 
   return container;
 }
+
+function createPopupRow(iconName: keyof typeof popupIconConfig, text: string) {
+  const row = document.createElement("div");
+  row.className = "tn-map-popup-row";
+  row.append(createPopupIcon(iconName));
+
+  const value = document.createElement("span");
+  value.textContent = text;
+  row.append(value);
+
+  return row;
+}
+
+function createPopupIcon(iconName: keyof typeof popupIconConfig) {
+  const icon = popupIconConfig[iconName];
+  const wrapper = document.createElement("span");
+  wrapper.className = "tn-map-popup-icon";
+  wrapper.style.color = icon.color;
+  wrapper.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">${icon.svg}</svg>`;
+
+  return wrapper;
+}
+
+const popupIconConfig = {
+  pin: {
+    color: "#0f766e",
+    svg:
+      '<path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="currentColor"/>'
+  },
+  map: {
+    color: "#0f766e",
+    svg:
+      '<path d="M9 18l-5 2V6l5-2 6 2 5-2v14l-5 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4v14M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  clock: {
+    color: "#0f766e",
+    svg:
+      '<circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>'
+  },
+  tobacco_shop: {
+    color: "#0f766e",
+    svg:
+      '<path d="M5 20V9h14v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 9h16l-2-4H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 20v-5h4v5M10 5h4m-2 0v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  kiosk: {
+    color: "#2563eb",
+    svg:
+      '<path d="M5 20V10h14v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 10h16l-3-5H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 14h6M10 20v-4h4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  gas_station: {
+    color: "#b45309",
+    svg:
+      '<path d="M7 20V5h8v15" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 8h4v4H9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 8h2l2 2.5V18a2 2 0 0 1-4 0v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 20h11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  convenience_store: {
+    color: "#4d7c0f",
+    svg:
+      '<path d="M6 10h12l-1 10H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 10a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9.5 15h5M12 12.5v5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>'
+  },
+  night_shop: {
+    color: "#4f46e5",
+    svg:
+      '<path d="M5 20V10h14v10" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M4 10h16l-3-5H7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 20v-4h4v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 5a4 4 0 0 0 3.4 5.1 4.5 4.5 0 0 1-5.5-5.5z" fill="currentColor"/>'
+  },
+  other: {
+    color: "#64748b",
+    svg:
+      '<path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="2" fill="currentColor"/>'
+  }
+} as const;
 
 function createTextPopup(text: string) {
   const container = document.createElement("div");
