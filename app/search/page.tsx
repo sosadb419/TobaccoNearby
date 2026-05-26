@@ -95,6 +95,7 @@ type SearchPageProps = {
     hasPhone?: string;
     hasWebsite?: string;
     placeType?: string;
+    perPage?: string;
   }>;
 };
 
@@ -105,6 +106,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const selectedPlaceType = getValidPlaceType(params.placeType);
   const wantsNearest = params.sort === "nearest";
   const shouldRequestLocation = params.locate === "true";
+  const initialPerPage = params.perPage === "20" ? 20 : 10;
 
   const baseResults = query ? await searchShops(query) : await getAllShops();
   const filters: ShopFilters = {
@@ -130,6 +132,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (params.hasWebsite) filterParams.set("hasWebsite", params.hasWebsite);
   if (selectedNeighborhood) filterParams.set("neighborhood", selectedNeighborhood);
   if (selectedPlaceType) filterParams.set("placeType", selectedPlaceType);
+  if (initialPerPage === 20) filterParams.set("perPage", "20");
 
   const clearFilterParams = new URLSearchParams();
   if (query) clearFilterParams.set("q", query);
@@ -139,16 +142,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : "No shops found for this search. Try another neighborhood, postal code, or nearby area.";
 
   return (
-    <section className="container-shell py-8">
-      <div className="mb-6">
-        <p className="text-sm font-bold uppercase text-teal">Amsterdam search</p>
-        <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">Tobacco shops near you in Amsterdam</h1>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
+    <section className="container-shell py-3 md:py-8">
+      <div className="md:mb-6">
+        <p className="hidden text-sm font-bold uppercase text-teal md:block">Amsterdam search</p>
+        <h1 className="sr-only md:not-sr-only md:mt-3 md:block md:text-3xl md:font-bold md:text-ink lg:text-4xl">
+          Tobacco shops near you in Amsterdam
+        </h1>
+        <p className="mt-3 hidden max-w-3xl text-sm leading-6 text-muted md:block">
           Use filters for practical information only. Listings are neutral and should be verified before visiting.
         </p>
       </div>
 
-      <div className="mt-6 rounded-lg border border-line bg-white p-4 shadow-sm">
+      <div className="mt-6 hidden rounded-lg border border-line bg-white p-4 shadow-sm md:block">
         <SearchBar initialQuery={query} compact />
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-sm font-bold text-ink">Quick searches</span>
@@ -257,8 +262,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
       <SearchResultsView
+        activeFilterLabels={activeFilterLabels}
         emptyStateMessage={emptyStateMessage}
+        filterState={filters}
         hasActiveFilters={hasActiveFilters}
+        initialPerPage={initialPerPage}
         query={query}
         requestLocation={shouldRequestLocation}
         shops={results}
@@ -266,7 +274,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       />
 
       <FAQSection
-        className="mt-8"
+        className="mt-6 md:mt-8"
         id="search-faq"
         items={searchFaqs}
         intro="Practical answers about search, filters, distance sorting and listing verification."

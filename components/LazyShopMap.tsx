@@ -10,11 +10,12 @@ const DynamicShopMap = dynamic(() => import("@/components/ShopMap"), {
 });
 
 type LazyShopMapProps = {
+  mobileMode?: "hidden" | "toggle" | "visible";
   shops: Shop[];
   userLocation?: Coordinates;
 };
 
-export default function LazyShopMap({ shops, userLocation }: LazyShopMapProps) {
+export default function LazyShopMap({ mobileMode = "toggle", shops, userLocation }: LazyShopMapProps) {
   const [loadDesktopMap, setLoadDesktopMap] = useState(false);
 
   useEffect(() => {
@@ -37,7 +38,8 @@ export default function LazyShopMap({ shops, userLocation }: LazyShopMapProps) {
         )}
       </div>
       <div className="lg:hidden">
-        <MobileMapToggle shops={shops} userLocation={userLocation} />
+        {mobileMode === "toggle" ? <MobileMapToggle shops={shops} userLocation={userLocation} /> : null}
+        {mobileMode === "visible" ? <DynamicShopMap shops={shops} userLocation={userLocation} /> : null}
       </div>
     </>
   );

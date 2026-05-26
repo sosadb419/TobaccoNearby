@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { MapPin, Search } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Home, MapPin, Search } from "lucide-react";
 import AdSlot from "@/components/AdSlot";
 
 const navItems = [
@@ -11,23 +14,43 @@ const navItems = [
 ];
 
 export default function Header() {
+  const pathname = usePathname();
+  const isSearchPage = pathname === "/search";
+
   return (
     <header className="border-b border-line bg-white/90 backdrop-blur">
-      <div className="bg-ink px-4 py-2 text-center text-xs font-medium text-white">
+      <div className={`bg-ink px-4 text-center font-medium text-white ${isSearchPage ? "py-1 text-[10px] md:py-2 md:text-xs" : "py-2 text-xs"}`}>
         This website is intended for adults aged 18+.
       </div>
-      <div className="container-shell flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
+      <div
+        className={`container-shell flex gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4 ${
+          isSearchPage ? "flex-row items-center justify-between" : "flex-col md:flex-row"
+        }`}
+      >
         <Link className="focus-ring flex items-center gap-3 rounded-lg" href="/" aria-label="TobaccoNearby home">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal text-white">
-            <MapPin aria-hidden="true" size={21} />
+          <span className={`flex items-center justify-center rounded-lg bg-teal text-white ${isSearchPage ? "h-8 w-8 md:h-10 md:w-10" : "h-10 w-10"}`}>
+            <MapPin aria-hidden="true" size={isSearchPage ? 18 : 21} />
           </span>
           <span>
-            <span className="block text-lg font-bold text-ink">TobaccoNearby</span>
-            <span className="block text-xs text-muted">Amsterdam directory</span>
+            <span className={`block font-bold text-ink ${isSearchPage ? "text-base md:text-lg" : "text-lg"}`}>TobaccoNearby</span>
+            <span className={`text-xs text-muted ${isSearchPage ? "hidden md:block" : "block"}`}>Amsterdam directory</span>
           </span>
         </Link>
 
-        <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-2">
+        {isSearchPage ? (
+          <Link
+            className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-lg border border-line px-3 py-2 text-xs font-bold text-ink md:hidden"
+            href="/"
+          >
+            <Home aria-hidden="true" size={15} />
+            Home
+          </Link>
+        ) : null}
+
+        <nav
+          aria-label="Main navigation"
+          className={`flex flex-wrap items-center gap-2 ${isSearchPage ? "hidden md:flex" : "flex"}`}
+        >
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -46,7 +69,7 @@ export default function Header() {
           </Link>
         </nav>
       </div>
-      <div className="container-shell pb-4">
+      <div className={`container-shell pb-4 ${isSearchPage ? "hidden md:block" : ""}`}>
         <AdSlot placement="header" />
       </div>
     </header>
