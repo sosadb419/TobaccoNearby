@@ -393,8 +393,8 @@ function createSeoLandingPage(seed: SeoRouteSeed): SeoLandingPageDefinition {
   const seoTitle = seed.seoTitle ?? getSeoTitle(seed);
   const metaDescription = seed.metaDescription ?? getMetaDescription(seed);
   const h1 = seed.h1 ?? getH1(seed);
-  const introCopy = getIntro(seed.language, seed.areaDisplayName);
-  const faqItems = getFaqItems(seed.language, seed.areaDisplayName);
+  const introCopy = getIntro(seed);
+  const faqItems = getFaqItems(seed);
 
   return {
     ...seed,
@@ -483,24 +483,157 @@ function getH1(seed: SeoRouteSeed) {
     : `Where to Buy Cigarettes in ${seed.areaDisplayName}`;
 }
 
-function getIntro(language: SeoLanguage, areaDisplayName: string) {
+function getIntro(seed: SeoRouteSeed) {
+  const area = seed.areaDisplayName;
+  const areaContext = getAreaContext(seed.language, seed.areaSlug, area);
+  const compliance = getComplianceSentence(seed.language);
+
+  if (seed.language === "nl") {
+    const opening =
+      seed.intent === "where"
+        ? `Wil je weten waar je in ${area} praktische informatie over verkooppunten kunt vinden?`
+        : `Zoek je praktische informatie over sigaretten kopen in ${area}, zoals locaties van tabakswinkels, kiosken of tankstations?`;
+
+    return `${opening} Op deze pagina vind je adressen, openingstijden waar beschikbaar, route-informatie en een kaartweergave. ${areaContext} ${compliance}`;
+  }
+
+  if (seed.language === "de") {
+    const opening =
+      seed.intent === "tobacco"
+        ? `Suchen Sie einen Tabakladen in ${area} oder praktische Informationen zu gelisteten Standorten?`
+        : `Neu in Amsterdam oder nur für ein paar Tage in der Stadt und auf der Suche nach Informationen zu Zigaretten kaufen in ${area}?`;
+
+    return `${opening} Diese Seite hilft Erwachsenen ab 18 Jahren, praktische Standortinformationen zu Tabakgeschäften, Kiosken oder Tankstellen zu finden, darunter Adressen, Öffnungszeiten soweit verfügbar, Wegbeschreibungen und eine Kartenansicht. ${areaContext} ${compliance}`;
+  }
+
+  if (seed.language === "fr") {
+    const opening =
+      seed.intent === "where"
+        ? `Vous êtes de passage à Amsterdam, expatrié ou simplement peu familier avec les règles locales et vous cherchez où acheter des cigarettes à ${area} ?`
+        : `Vous recherchez des informations pratiques pour acheter des cigarettes à ${area} ou trouver un bureau de tabac dans le secteur ?`;
+
+    return `${opening} Cette page aide les adultes de 18 ans et plus à consulter des informations pratiques sur les bureaux de tabac, kiosques ou stations-service, avec adresses, horaires lorsque disponibles, itinéraires et vue carte. ${areaContext} ${compliance}`;
+  }
+
+  const opening =
+    seed.intent === "tobacco"
+      ? `Looking for practical information about tobacco shops in ${area}?`
+      : `New to Amsterdam, visiting for a few days, or just not used to the Dutch tobacco sales rules?`;
+
+  return `${opening} This page helps adults aged 18+ who search for where to buy cigarettes in ${area} by showing practical location information for listed tobacco shops, kiosks or gas stations, including addresses, opening hours where available, directions and a map view. ${areaContext} ${compliance}`;
+}
+
+function getComplianceSentence(language: SeoLanguage) {
   if (language === "nl") {
-    return `Deze pagina biedt neutrale en praktische locatie-informatie voor volwassenen van 18+ die zoeken naar tabakswinkels, kiosken of tankstations in ${areaDisplayName}. TobaccoNearby verkoopt geen tabaksproducten en moedigt roken niet aan. Controleer altijd openingstijden, contactgegevens en beschikbaarheid voordat je een locatie bezoekt.`;
+    return "TobaccoNearby verkoopt geen tabaksproducten en moedigt roken niet aan. De website biedt alleen praktische locatie-informatie voor volwassenen van 18+.";
   }
 
   if (language === "de") {
-    return `Diese Seite bietet neutrale und praktische Standortinformationen für Erwachsene ab 18 Jahren, die nach Tabakgeschäften, Kiosken oder Tankstellen in ${areaDisplayName} suchen. TobaccoNearby verkauft keine Tabakprodukte und fördert das Rauchen nicht. Bitte überprüfen Sie Öffnungszeiten und Details, bevor Sie einen Standort besuchen.`;
+    return "TobaccoNearby verkauft keine Tabakprodukte und fördert das Rauchen nicht. Die Website bietet nur praktische Standortinformationen für Erwachsene ab 18 Jahren.";
   }
 
   if (language === "fr") {
-    return `Cette page fournit des informations pratiques et neutres pour les adultes de 18 ans et plus qui recherchent des bureaux de tabac, kiosques ou stations-service à ${areaDisplayName}. TobaccoNearby ne vend pas de produits du tabac et ne fait pas la promotion du tabagisme. Veuillez vérifier les horaires et les informations avant de vous déplacer.`;
+    return "TobaccoNearby ne vend pas de produits du tabac et ne fait pas la promotion du tabagisme. Le site fournit uniquement des informations pratiques de localisation pour les adultes de 18 ans et plus.";
   }
 
-  return `This page provides neutral practical location information for adults aged 18+ looking for listed tobacco shops, kiosks or gas stations in ${areaDisplayName}. TobaccoNearby does not sell tobacco products, process orders or promote smoking. Please verify opening hours and details before visiting.`;
+  return "TobaccoNearby does not sell tobacco products or promote smoking. The website only provides practical location information for adults aged 18+.";
 }
 
-function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] {
-  if (language === "nl") {
+function getAreaContext(language: SeoLanguage, areaSlug: SeoAreaSlug, areaDisplayName: string) {
+  const contexts: Record<SeoAreaSlug, Record<SeoLanguage, string>> = {
+    amsterdam: {
+      nl: "Amsterdam bestaat uit veel verschillende buurten, waardoor zoeken per gebied vaak sneller werkt dan alleen zoeken op stadsniveau.",
+      en: "Amsterdam is compact but very neighborhood-based, so searching by area can be more useful than searching the whole city.",
+      de: "Amsterdam ist kompakt, aber stark in Stadtteile gegliedert; die Suche nach einem bestimmten Viertel ist oft hilfreicher.",
+      fr: "Amsterdam est une ville compacte mais très organisée par quartiers, ce qui rend la recherche par zone souvent plus pratique."
+    },
+    centrum: {
+      nl: "Centrum heeft drukke straten, veel openbaarvervoerverbindingen en korte loopafstanden tussen bekende plekken.",
+      en: "Centrum has busy central streets, many public transport connections and short walking distances between well-known places.",
+      de: "Das Zentrum hat belebte Straßen, viele Verbindungen mit öffentlichen Verkehrsmitteln und kurze Wege zwischen bekannten Orten.",
+      fr: "Le centre regroupe des rues fréquentées, de nombreuses connexions de transport public et de courtes distances à pied."
+    },
+    "de-pijp": {
+      nl: "De Pijp is een dicht woon- en winkelgebied rond onder meer de Albert Cuypstraat en het Sarphatipark.",
+      en: "De Pijp is a dense residential and commercial area near Albert Cuyp and Sarphatipark.",
+      de: "De Pijp ist ein dichtes Wohn- und Geschäftsviertel nahe Albert Cuyp und Sarphatipark.",
+      fr: "De Pijp est un quartier résidentiel et commerçant dense près d’Albert Cuyp et de Sarphatipark."
+    },
+    jordaan: {
+      nl: "De Jordaan staat bekend om smalle straten en lokale winkels rond onder meer Westerstraat en Rozengracht.",
+      en: "The Jordaan has narrow streets and local shops around areas such as Westerstraat and Rozengracht.",
+      de: "Der Jordaan ist geprägt von schmalen Straßen und lokalen Geschäften rund um Westerstraat und Rozengracht.",
+      fr: "Le Jordaan se caractérise par ses rues étroites et ses commerces locaux autour de Westerstraat et Rozengracht."
+    },
+    "de-wallen": {
+      nl: "De Wallen ligt centraal en heeft een historisch stratenpatroon met smalle stegen en grachten.",
+      en: "De Wallen is centrally located and has a historic street layout with narrow lanes and canals.",
+      de: "De Wallen liegt zentral und hat ein historisches Straßennetz mit engen Gassen und Grachten.",
+      fr: "De Wallen est situé au centre et possède un tracé historique de rues étroites et de canaux."
+    },
+    west: {
+      nl: "Amsterdam West omvat praktische woon- en winkelgebieden zoals Oud-West, De Baarsjes en Bos en Lommer.",
+      en: "Amsterdam West includes practical residential and commercial areas such as Oud-West, De Baarsjes and Bos en Lommer.",
+      de: "Amsterdam West umfasst praktische Wohn- und Geschäftsviertel wie Oud-West, De Baarsjes und Bos en Lommer.",
+      fr: "Amsterdam Ouest comprend des zones résidentielles et commerçantes comme Oud-West, De Baarsjes et Bos en Lommer."
+    },
+    "nieuw-west": {
+      nl: "Nieuw-West omvat onder meer Osdorp, Slotervaart, Slotermeer, Geuzenveld en gebieden rond Lelylaan.",
+      en: "Nieuw-West includes areas such as Osdorp, Slotervaart, Slotermeer, Geuzenveld and Lelylaan.",
+      de: "Nieuw-West umfasst unter anderem Osdorp, Slotervaart, Slotermeer, Geuzenveld und Bereiche rund um Lelylaan.",
+      fr: "Nieuw-West comprend notamment Osdorp, Slotervaart, Slotermeer, Geuzenveld et le secteur de Lelylaan."
+    },
+    oost: {
+      nl: "Oost loopt van gebieden rond Oosterpark en de Indische Buurt tot Watergraafsmeer en IJburg.",
+      en: "Oost stretches from areas around Oosterpark and Indische Buurt to Watergraafsmeer and IJburg.",
+      de: "Oost reicht von Bereichen rund um Oosterpark und Indische Buurt bis Watergraafsmeer und IJburg.",
+      fr: "Oost s’étend des environs d’Oosterpark et de l’Indische Buurt jusqu’à Watergraafsmeer et IJburg."
+    },
+    noord: {
+      nl: "Amsterdam Noord is bereikbaar met veerboot en metro en omvat gebieden zoals NDSM en Buikslotermeer.",
+      en: "North Amsterdam connects to the centre by ferry and metro, with areas such as NDSM and Buikslotermeer.",
+      de: "Amsterdam Nord ist per Fähre und Metro angebunden und umfasst Bereiche wie NDSM und Buikslotermeer.",
+      fr: "Amsterdam Nord est relié au centre par ferry et métro, avec des secteurs comme NDSM et Buikslotermeer."
+    },
+    zuid: {
+      nl: "Amsterdam Zuid omvat onder meer Museumkwartier, Rivierenbuurt, Buitenveldert en de Zuidas.",
+      en: "Amsterdam Zuid includes Museumkwartier, Rivierenbuurt, Buitenveldert and Zuidas.",
+      de: "Amsterdam Zuid umfasst unter anderem Museumkwartier, Rivierenbuurt, Buitenveldert und Zuidas.",
+      fr: "Amsterdam Zuid comprend notamment Museumkwartier, Rivierenbuurt, Buitenveldert et Zuidas."
+    },
+    zuidoost: {
+      nl: "Zuidoost omvat Bijlmer, Amsterdamse Poort, de ArenA-omgeving en goede metroverbindingen.",
+      en: "Zuidoost includes Bijlmer, Amsterdamse Poort, the ArenA area and useful metro connections.",
+      de: "Zuidoost umfasst Bijlmer, Amsterdamse Poort, den ArenA-Bereich und gute Metroverbindungen.",
+      fr: "Zuidoost comprend Bijlmer, Amsterdamse Poort, le secteur ArenA et de bonnes connexions en métro."
+    },
+    bijlmer: {
+      nl: "Bijlmer is onderdeel van Amsterdam Zuidoost en wordt vaak apart gezocht door bezoekers en bewoners.",
+      en: "Bijlmer is part of Amsterdam Zuidoost and is often searched separately by visitors and locals.",
+      de: "Bijlmer gehört zu Amsterdam Zuidoost und wird von Besuchern und Einheimischen oft separat gesucht.",
+      fr: "Bijlmer fait partie d’Amsterdam Zuidoost et fait souvent l’objet de recherches séparées par les visiteurs et les habitants."
+    },
+    diemen: {
+      nl: "Diemen is een gemeente naast Amsterdam met gebieden zoals Diemen Centrum en Diemen Zuid.",
+      en: "Diemen is a municipality next to Amsterdam with areas such as Diemen Centrum and Diemen Zuid.",
+      de: "Diemen ist eine Gemeinde neben Amsterdam mit Bereichen wie Diemen Centrum und Diemen Zuid.",
+      fr: "Diemen est une commune voisine d’Amsterdam avec des secteurs comme Diemen Centrum et Diemen Zuid."
+    },
+    "central-station": {
+      nl: "Amsterdam Centraal is een belangrijk vervoersknooppunt waar veel bezoekers hun route door de stad beginnen.",
+      en: "Amsterdam Central Station is a major transport hub where many visitors start their route through the city.",
+      de: "Amsterdam Centraal ist ein wichtiger Verkehrsknotenpunkt, an dem viele Besucher ihre Route durch die Stadt beginnen.",
+      fr: "La gare centrale d’Amsterdam est un grand pôle de transport où de nombreux visiteurs commencent leur itinéraire dans la ville."
+    }
+  };
+
+  return contexts[areaSlug]?.[language] ?? contexts.amsterdam[language].replace("Amsterdam", areaDisplayName);
+}
+
+function getFaqItems(seed: SeoRouteSeed): FAQItem[] {
+  const areaDisplayName = seed.areaDisplayName;
+
+  if (seed.language === "nl") {
     return [
       {
         question: "Verkoopt TobaccoNearby sigaretten?",
@@ -510,7 +643,12 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
       {
         question: `Waar kan ik sigaretten kopen in ${areaDisplayName}?`,
         answer:
-          "Volwassenen van 18+ kunnen praktische informatie bekijken over vermelde locaties, zoals adressen, openingstijden en route-informatie. Controleer gegevens altijd voordat je vertrekt."
+          "Volwassenen van 18+ kunnen op deze pagina praktische locatie-informatie bekijken, zoals adressen, openingstijden waar beschikbaar en route-informatie. Controleer gegevens altijd voordat je vertrekt."
+      },
+      {
+        question: "Kan ik via deze pagina zoeken op buurt?",
+        answer:
+          "Ja. Je kunt praktische locatie-informatie bekijken per buurt of gebied, zoals Centrum, De Pijp, Bijlmer, Noord of Diemen."
       },
       {
         question: "Zijn openingstijden altijd actueel?",
@@ -530,7 +668,7 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
     ];
   }
 
-  if (language === "de") {
+  if (seed.language === "de") {
     return [
       {
         question: "Verkauft TobaccoNearby Zigaretten?",
@@ -540,7 +678,12 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
       {
         question: `Wo kann ich in ${areaDisplayName} Zigaretten kaufen?`,
         answer:
-          "Erwachsene ab 18 Jahren können praktische Informationen zu gelisteten Standorten ansehen, darunter Adressen, Öffnungszeiten und Wegbeschreibungen."
+          "Erwachsene ab 18 Jahren können hier praktische Informationen zu gelisteten Standorten ansehen, darunter Adressen, Öffnungszeiten soweit verfügbar und Wegbeschreibungen."
+      },
+      {
+        question: "Ich bin als Besucher in Amsterdam. Ist diese Seite hilfreich?",
+        answer:
+          "Ja. Besucher, Touristen und Expats können die Seite nutzen, um sich praktisch nach Gebiet, Straße oder Stadtteil zu orientieren. Bitte prüfen Sie Details vor dem Besuch."
       },
       {
         question: "Sind die Öffnungszeiten immer aktuell?",
@@ -560,7 +703,7 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
     ];
   }
 
-  if (language === "fr") {
+  if (seed.language === "fr") {
     return [
       {
         question: "TobaccoNearby vend-il des cigarettes ?",
@@ -570,7 +713,12 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
       {
         question: `Où acheter des cigarettes à ${areaDisplayName} ?`,
         answer:
-          "Les adultes de 18 ans et plus peuvent consulter des informations pratiques sur les lieux listés, comme les adresses, horaires et itinéraires."
+          "Les adultes de 18 ans et plus peuvent consulter des informations pratiques sur les lieux listés, comme les adresses, horaires disponibles et itinéraires."
+      },
+      {
+        question: "Je visite Amsterdam. Cette page peut-elle m’aider ?",
+        answer:
+          "Oui. Les visiteurs, touristes et expatriés peuvent l’utiliser pour se repérer par quartier, rue ou zone. Vérifiez toujours les détails avant de vous déplacer."
       },
       {
         question: "Les horaires sont-ils toujours exacts ?",
@@ -597,9 +745,14 @@ function getFaqItems(language: SeoLanguage, areaDisplayName: string): FAQItem[] 
         "No. TobaccoNearby does not sell tobacco products, process orders or promote smoking. It only provides practical location information for adults aged 18+."
     },
     {
+      question: "I’m visiting Amsterdam. Can I use this page to find nearby tobacco shops?",
+      answer:
+        "Yes. Adults aged 18+ can use this page to find practical location information such as addresses, opening hours where available and directions. Please verify details before visiting."
+    },
+    {
       question: `Where can I buy cigarettes in ${areaDisplayName}?`,
       answer:
-        "Adults aged 18+ can use TobaccoNearby to find practical information about listed locations, including addresses, opening hours and directions."
+        "Adults aged 18+ can use TobaccoNearby to find practical information about listed locations, including addresses, opening hours where available and directions."
     },
     {
       question: "Are opening hours always accurate?",
