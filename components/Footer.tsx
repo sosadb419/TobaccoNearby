@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import { areaDefinitions } from "@/data/areas";
-import { seoLandingPages } from "@/data/seo-pages";
+import { primarySeoLandingPages } from "@/data/seo-pages";
 
 const siteLinks = [
   { href: "/search", label: "Search" },
@@ -36,7 +36,7 @@ export default function Footer() {
             <FooterLinkGroup label="Website" links={siteLinks} />
             <FooterLinkGroup
               label="Amsterdam pages"
-              links={seoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+              links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
             />
             <FooterLinkGroup
               label="Amsterdam areas"

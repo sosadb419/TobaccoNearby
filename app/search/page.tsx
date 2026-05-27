@@ -6,7 +6,7 @@ import SearchBar from "@/components/SearchBar";
 import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition } from "@/data/areas";
-import { seoLandingPages } from "@/data/seo-pages";
+import { primarySeoLandingPages } from "@/data/seo-pages";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -274,7 +274,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          {seoLandingPages.map((page) => (
+          {primarySeoLandingPages.map((page) => (
             <Link
               key={page.href}
               className="focus-ring rounded-lg border border-line bg-paper px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"

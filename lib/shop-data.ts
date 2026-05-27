@@ -148,16 +148,23 @@ export async function searchShops(query: string) {
   }
 
   const aliasTargets = getSearchAliasTargets(value);
+  const isGeneralAmsterdamQuery = isGeneralAmsterdamSearch(value);
 
-  return shopList.filter((shop) => {
+  const matchedShops = shopList.filter((shop) => {
     const searchable = getShopSearchableText(shop);
 
     if (matchesNormalizedText(searchable, value)) {
       return true;
     }
 
-    return aliasTargets.some((target) => matchesArea(shop, target));
+    if (aliasTargets.some((target) => matchesArea(shop, target))) {
+      return true;
+    }
+
+    return isGeneralAmsterdamQuery && normalizeAreaText(shop.city).includes("amsterdam");
   });
+
+  return sortSearchResultsForQuery(matchedShops, value);
 }
 
 function normalizeSearchValue(query: string) {
@@ -198,6 +205,64 @@ function getSearchAliasTargets(value: string) {
   });
 
   return targets;
+}
+
+function isGeneralAmsterdamSearch(value: string) {
+  const hasAmsterdam = value.includes("amsterdam");
+
+  if (!hasAmsterdam) {
+    return false;
+  }
+
+  return [
+    "sigaretten kopen",
+    "waar sigaretten kopen",
+    "waar kan ik sigaretten kopen",
+    "where to buy cigarettes",
+    "buy cigarettes",
+    "cigarettes",
+    "tobacco shop",
+    "tobacco shops",
+    "tabakswinkel",
+    "tabakszaak",
+    "zigaretten kaufen",
+    "cigarettes kaufen",
+    "tabakladen",
+    "tabakgeschaft",
+    "acheter cigarettes",
+    "acheter des cigarettes",
+    "ou acheter des cigarettes",
+    "bureau de tabac",
+    "bureaux de tabac"
+  ].some((term) => value.includes(normalizeAreaText(term)));
+}
+
+function sortSearchResultsForQuery(shopList: Shop[], value: string) {
+  const priorityTerms = getPriorityTermsForSearch(value);
+
+  if (priorityTerms.length === 0) {
+    return shopList;
+  }
+
+  return [...shopList].sort((a, b) => getSearchPriorityScore(a, priorityTerms) - getSearchPriorityScore(b, priorityTerms));
+}
+
+function getPriorityTermsForSearch(value: string) {
+  if (value.includes("bijlmer")) {
+    return ["bijlmer", "bijlmer arena", "amsterdamse poort", "ganzenhoef", "kraaiennest"];
+  }
+
+  if (value.includes("central station") || value.includes("centraal") || value.includes("gare centrale")) {
+    return ["amsterdam centraal", "central station", "centraal station", "stationsplein", "damrak", "prins hendrikkade"];
+  }
+
+  return [];
+}
+
+function getSearchPriorityScore(shop: Shop, priorityTerms: string[]) {
+  const searchable = getShopSearchableText(shop);
+
+  return priorityTerms.some((term) => matchesNormalizedText(searchable, normalizeAreaText(term))) ? 0 : 1;
 }
 
 function matchesArea(shop: Shop, areaSlug: string) {

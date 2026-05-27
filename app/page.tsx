@@ -8,7 +8,7 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
-import { seoLandingPages } from "@/data/seo-pages";
+import { primarySeoLandingPages } from "@/data/seo-pages";
 import { getAllShops } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
@@ -184,7 +184,7 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {seoLandingPages.map((page) => (
+            {primarySeoLandingPages.map((page) => (
               <Link
                 key={page.href}
                 className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"

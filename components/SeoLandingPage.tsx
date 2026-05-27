@@ -1,14 +1,11 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
-import DutchInternalLinks from "@/components/DutchInternalLinks";
 import FAQSection from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
-import { areaDefinitions } from "@/data/areas";
-import { seoLandingPages, SeoLandingPageDefinition } from "@/data/seo-pages";
+import { getSeoPageUiLabels, SeoLandingPageDefinition } from "@/data/seo-pages";
 import { Shop } from "@/data/shops";
 
 type SeoLandingPageProps = {
@@ -18,46 +15,45 @@ type SeoLandingPageProps = {
 
 export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
   const pageId = slugifyId(page.h1);
-  const listingLimit = 10;
+  const labels = getSeoPageUiLabels(page.language);
+  const listingLimit = page.listingLimit ?? 10;
   const visibleShops = shops.slice(0, listingLimit);
   const hasMoreListings = shops.length > visibleShops.length;
-  const isDutchSeoPage =
-    page.href === "/amsterdam/sigaretten-kopen" || page.href === "/amsterdam/waar-sigaretten-kopen";
+  const searchCopy = getSearchCopy(page.language);
 
   return (
-    <section className="container-shell py-6 md:py-8">
+    <section className="container-shell py-6 md:py-8" lang={labels.htmlLang}>
       <div className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
         <div>
-          <p className="text-sm font-bold uppercase text-teal">Amsterdam location information</p>
+          <p className="text-sm font-bold uppercase text-teal">{labels.eyebrow}</p>
           <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">{page.h1}</h1>
-          <p className="mt-4 max-w-3xl text-sm leading-6 text-muted">{page.intro}</p>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-muted">{page.introCopy}</p>
           <p className="mt-4 rounded-lg border border-line bg-white px-4 py-3 text-sm font-medium text-ink">
-            This website is intended for adults aged 18+.
+            {labels.adultNotice}
           </p>
           <div className="mt-6">
             <SearchBar
               compact
-              helperText="Search by area, postal code, street, station, or neighborhood."
-              placeholder="Search by area, postal code, street, or neighborhood"
+              helperText={searchCopy.helperText}
+              placeholder={searchCopy.placeholder}
             />
           </div>
         </div>
         <aside className="grid gap-5">
           <AdSlot placement="sidebar" />
           <div className="rounded-lg border border-line bg-white p-5">
-            <h2 className="text-lg font-bold text-ink">Practical note</h2>
+            <h2 className="text-lg font-bold text-ink">{labels.practicalNoteHeading}</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Shop details may change. Verify opening hours, contact information, accessibility details and
-              availability before visiting.
+              {labels.disclaimer}
             </p>
           </div>
         </aside>
       </div>
 
-      <DisclaimerNotice className="mt-8" />
+      <DisclaimerNotice className="mt-8" text={labels.disclaimer} />
 
       <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">About this page</h2>
+        <h2 className="text-lg font-bold text-ink">{labels.aboutHeading}</h2>
         <p className="mt-2 text-sm leading-6 text-muted">{page.context}</p>
         <ul className="mt-4 grid gap-2 text-sm leading-6 text-muted">
           {page.practicalPoints.map((point) => (
@@ -70,17 +66,17 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 id={`${pageId}-listings-heading`} className="text-2xl font-bold text-ink">
-              Listed Amsterdam shop locations
+              {labels.listingsHeading}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Showing a limited set of published listings. Use the full search page to browse all Amsterdam listings.
+              {labels.listingsIntro}
             </p>
           </div>
           <Link
             className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
             href="/search"
           >
-            View all Amsterdam listings
+            {page.ctaLabel}
           </Link>
         </div>
 
@@ -89,20 +85,18 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
             visibleShops.map((shop) => <ShopCard key={shop.slug} shop={shop} />)
           ) : (
             <div className="rounded-lg border border-line bg-white p-6">
-              <h2 className="text-xl font-bold text-ink">No published listings available</h2>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Published Amsterdam shop information will appear here when records are available.
-              </p>
+              <h2 className="text-xl font-bold text-ink">{labels.noListingsHeading}</h2>
+              <p className="mt-2 text-sm leading-6 text-muted">{labels.noListingsText}</p>
             </div>
           )}
         </div>
         {hasMoreListings ? (
           <div className="mt-5 rounded-lg border border-line bg-white p-5 text-sm leading-6 text-muted">
             <p>
-              Showing {visibleShops.length} of {shops.length} published Amsterdam listings on this page.
+              {getListingCountCopy(page.language, visibleShops.length, shops.length)}
             </p>
             <Link className="mt-3 inline-flex font-bold text-teal hover:text-ink" href="/search">
-              View all Amsterdam listings
+              {page.ctaLabel}
             </Link>
           </div>
         ) : null}
@@ -112,71 +106,83 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
         <section className="mt-8" aria-labelledby={`${pageId}-map-heading`}>
           <div className="mb-4">
             <h2 id={`${pageId}-map-heading`} className="text-2xl font-bold text-ink">
-              Map of listed shop locations
+              {labels.mapHeading}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Map markers are approximate and provided for practical location reference only.
-            </p>
+            <p className="mt-2 text-sm leading-6 text-muted">{labels.mapIntro}</p>
           </div>
           <LazyShopMap shops={visibleShops} />
         </section>
       ) : null}
 
-      {isDutchSeoPage ? (
-        <DutchInternalLinks />
-      ) : (
-        <>
-          <section className="mt-8 rounded-lg border border-line bg-white p-5">
-            <h2 className="text-lg font-bold text-ink">Amsterdam area pages</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Browse local area pages for more specific address, opening-hour, direction and contact information.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {areaDefinitions.map((area) => (
-                <TrackedNeighborhoodLink
-                  key={area.href}
-                  className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-                  href={area.href}
-                  neighborhood={area.label}
-                >
-                  {area.label}
-                </TrackedNeighborhoodLink>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-8 rounded-lg border border-line bg-white p-5">
-            <h2 className="text-lg font-bold text-ink">Related practical search pages</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              These pages use neutral wording and link to the same practical Amsterdam directory information.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {seoLandingPages.map((relatedPage) => (
-                <Link
-                  key={relatedPage.href}
-                  className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-                    relatedPage.href === page.href
-                      ? "border-teal bg-teal text-white"
-                      : "border-line bg-white text-muted hover:border-teal hover:text-teal"
-                  }`}
-                  href={relatedPage.href}
-                >
-                  {relatedPage.label}
-                </Link>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+      <section className="mt-8 rounded-lg border border-line bg-white p-5">
+        <h2 className="text-lg font-bold text-ink">{labels.relatedHeading}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">{labels.relatedIntro}</p>
+        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {page.relatedLinks.map((relatedPage) => (
+            <Link
+              key={relatedPage.href}
+              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+              href={relatedPage.href}
+            >
+              {relatedPage.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <FAQSection
         className="mt-8"
         id={`${pageId}-faq`}
-        items={page.faqs}
-        intro="Answers are neutral and practical. Shop details may change, so verify important information before visiting."
+        items={page.faqItems}
+        intro={labels.faqIntro}
+        title={labels.faqTitle}
       />
     </section>
   );
+}
+
+function getSearchCopy(language: SeoLandingPageDefinition["language"]) {
+  if (language === "nl") {
+    return {
+      helperText: "Zoek op gebied, postcode, straat, station of buurt.",
+      placeholder: "Zoek op gebied, postcode, straat of buurt"
+    };
+  }
+
+  if (language === "de") {
+    return {
+      helperText: "Suchen Sie nach Gebiet, Postleitzahl, Straße, Bahnhof oder Stadtteil.",
+      placeholder: "Gebiet, Postleitzahl, Straße oder Stadtteil"
+    };
+  }
+
+  if (language === "fr") {
+    return {
+      helperText: "Recherchez par zone, code postal, rue, gare ou quartier.",
+      placeholder: "Zone, code postal, rue ou quartier"
+    };
+  }
+
+  return {
+    helperText: "Search by area, postal code, street, station, or neighborhood.",
+    placeholder: "Search by area, postal code, street, or neighborhood"
+  };
+}
+
+function getListingCountCopy(language: SeoLandingPageDefinition["language"], visibleCount: number, totalCount: number) {
+  if (language === "nl") {
+    return `${visibleCount} van ${totalCount} gepubliceerde vermeldingen worden op deze pagina getoond.`;
+  }
+
+  if (language === "de") {
+    return `${visibleCount} von ${totalCount} veröffentlichten Einträgen werden auf dieser Seite angezeigt.`;
+  }
+
+  if (language === "fr") {
+    return `${visibleCount} sur ${totalCount} fiches publiées sont affichées sur cette page.`;
+  }
+
+  return `Showing ${visibleCount} of ${totalCount} published Amsterdam listings on this page.`;
 }
 
 function slugifyId(value: string) {
