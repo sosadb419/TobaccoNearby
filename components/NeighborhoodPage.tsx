@@ -6,7 +6,6 @@ import LazyShopMap from "@/components/LazyShopMap";
 import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
-import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
 import { primarySeoLandingPages } from "@/data/seo-pages";
 import { Shop } from "@/data/shops";
@@ -136,30 +135,11 @@ export default function NeighborhoodPage({
         </p>
       </section>
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">Nearby Amsterdam areas</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Browse other Amsterdam area pages for nearby shop locations, opening hours, directions and contact details.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {areaDefinitions.map((link) => (
-            <TrackedNeighborhoodLink
-              key={link.href}
-              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={link.href}
-              neighborhood={link.label}
-            >
-              {link.label}
-            </TrackedNeighborhoodLink>
-          ))}
-        </div>
-      </section>
-
       <RelatedPagesSection
         className="mt-8"
-        intro="A compact set of neutral search pages for broader Amsterdam location information."
-        links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
-        title="Related Amsterdam pages"
+        intro="A small set of related Amsterdam pages for practical location information."
+        links={getNeighborhoodRelatedLinks(areaName)}
+        title="Related pages"
       />
 
       <FAQSection
@@ -170,6 +150,75 @@ export default function NeighborhoodPage({
       />
     </section>
   );
+}
+
+function getNeighborhoodRelatedLinks(areaName: string) {
+  const value = areaName.toLowerCase();
+  const englishPrimaryLinks = primarySeoLandingPages
+    .filter((page) => page.language === "en")
+    .map((page) => ({ href: page.href, label: page.label }));
+  const areaLinks = areaDefinitions.map((area) => ({ href: area.href, label: area.label }));
+
+  if (value.includes("noord")) {
+    return uniqueLinks([
+      { href: "/amsterdam/where-to-buy-cigarettes-north-amsterdam", label: "Where to buy cigarettes North Amsterdam" },
+      { href: "/amsterdam/tobacco-shops-north-amsterdam", label: "Tobacco shops North Amsterdam" },
+      { href: "/amsterdam/noord", label: "Amsterdam Noord" },
+      { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
+      { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
+      ...areaLinks,
+      ...englishPrimaryLinks
+    ]);
+  }
+
+  if (value.includes("zuidoost") || value.includes("bijlmer")) {
+    return uniqueLinks([
+      { href: "/amsterdam/where-to-buy-cigarettes-bijlmer", label: "Where to buy cigarettes Bijlmer" },
+      { href: "/amsterdam/tobacco-shops-bijlmer", label: "Tobacco shops Bijlmer" },
+      { href: "/amsterdam/zuidoost", label: "Amsterdam Zuidoost" },
+      { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
+      { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
+      ...areaLinks,
+      ...englishPrimaryLinks
+    ]);
+  }
+
+  if (value.includes("central")) {
+    return uniqueLinks([
+      { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Where to buy cigarettes Central Station" },
+      { href: "/amsterdam/tobacco-shops-central-station", label: "Tobacco shops Central Station" },
+      { href: "/amsterdam/near-central-station", label: "Amsterdam Central Station" },
+      { href: "/amsterdam/centrum", label: "Amsterdam Centrum" },
+      { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
+      ...areaLinks,
+      ...englishPrimaryLinks
+    ]);
+  }
+
+  const matchedArea = areaLinks.find((area) => value.includes(area.label.toLowerCase()));
+
+  return uniqueLinks([
+    matchedArea,
+    { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
+    { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
+    { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Where to buy cigarettes Central Station" },
+    { href: "/search", label: "Search Amsterdam listings" },
+    ...areaLinks,
+    ...englishPrimaryLinks
+  ]);
+}
+
+function uniqueLinks(links: Array<{ href: string; label: string } | undefined>) {
+  const seen = new Set<string>();
+
+  return links.filter((link): link is { href: string; label: string } => {
+    if (!link || seen.has(link.href)) {
+      return false;
+    }
+
+    seen.add(link.href);
+    return true;
+  });
 }
 
 function getDefaultFaqs(areaName: string): FAQItem[] {

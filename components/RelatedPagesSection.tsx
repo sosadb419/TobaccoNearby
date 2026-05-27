@@ -11,27 +11,27 @@ type RelatedPagesSectionProps = {
 
 const labels = {
   nl: {
-    title: "Andere handige pagina’s",
-    intro: "Bekijk een compacte selectie verwante pagina’s met praktische locatie-informatie.",
-    showMore: "Meer pagina’s tonen",
+    title: "Gerelateerde pagina’s",
+    intro: "Een korte selectie met praktische gerelateerde pagina’s.",
+    showMore: "Meer gerelateerde pagina’s tonen",
     showLess: "Minder tonen"
   },
   en: {
-    title: "Related Amsterdam pages",
-    intro: "A compact set of related pages with practical location information.",
-    showMore: "Show more pages",
+    title: "Related pages",
+    intro: "A short set of related pages with practical location information.",
+    showMore: "Show more related pages",
     showLess: "Show fewer"
   },
   de: {
-    title: "Weitere Amsterdam-Seiten",
-    intro: "Eine kompakte Auswahl verwandter Seiten mit praktischen Standortinformationen.",
-    showMore: "Mehr Seiten anzeigen",
+    title: "Verwandte Seiten",
+    intro: "Eine kurze Auswahl verwandter Seiten mit praktischen Standortinformationen.",
+    showMore: "Mehr verwandte Seiten anzeigen",
     showLess: "Weniger anzeigen"
   },
   fr: {
-    title: "Pages utiles à Amsterdam",
-    intro: "Une sélection compacte de pages associées avec des informations pratiques de localisation.",
-    showMore: "Afficher plus de pages",
+    title: "Pages liées",
+    intro: "Une courte sélection de pages liées avec des informations pratiques de localisation.",
+    showMore: "Afficher plus de pages liées",
     showLess: "Afficher moins"
   }
 } satisfies Record<
@@ -60,30 +60,30 @@ export default function RelatedPagesSection({
   }
 
   return (
-    <section className={`rounded-lg border border-line bg-white p-4 md:p-5 ${className}`}>
-      <h2 className="text-base font-bold text-ink md:text-lg">{title ?? copy.title}</h2>
-      <p className="mt-1.5 text-sm leading-6 text-muted">{intro ?? copy.intro}</p>
+    <section className={`border-t border-line pt-4 ${className}`}>
+      <h2 className="text-sm font-bold uppercase tracking-wide text-ink">{title ?? copy.title}</h2>
+      <p className="mt-1 text-sm leading-5 text-muted">{intro ?? copy.intro}</p>
       <LinkGrid links={visibleLinks} />
       {hiddenLinks.length > 0 ? (
-        <details className="group mt-3">
-          <summary className="focus-ring inline-flex cursor-pointer list-none rounded-lg border border-line bg-paper px-3 py-2 text-sm font-bold text-ink marker:hidden hover:border-teal hover:text-teal">
+        <details className="group mt-2">
+          <summary className="focus-ring inline-flex cursor-pointer list-none rounded-md px-1 py-1 text-xs font-bold text-teal marker:hidden hover:text-ink">
             <span className="group-open:hidden">{copy.showMore}</span>
             <span className="hidden group-open:inline">{copy.showLess}</span>
           </summary>
-          <LinkGrid className="mt-3" links={hiddenLinks} />
+          <LinkGrid className="mt-2" links={hiddenLinks} />
         </details>
       ) : null}
     </section>
   );
 }
 
-function LinkGrid({ className = "mt-3", links }: { className?: string; links: SeoRelatedLink[] }) {
+function LinkGrid({ className = "mt-2", links }: { className?: string; links: SeoRelatedLink[] }) {
   return (
-    <div className={`grid gap-2 sm:grid-cols-2 lg:grid-cols-3 ${className}`}>
+    <div className={`grid gap-1.5 md:grid-cols-2 ${className}`}>
       {links.map((link) => (
         <Link
           key={link.href}
-          className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+          className="focus-ring rounded-md px-2 py-1.5 text-sm font-semibold text-muted transition hover:bg-paper hover:text-teal"
           href={link.href}
         >
           {link.label}

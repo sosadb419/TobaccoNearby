@@ -14,6 +14,11 @@ const siteLinks = [
   { href: "/disclaimer", label: "Disclaimer" }
 ];
 
+const footerAmsterdamLinks = primarySeoLandingPages
+  .filter((page) => page.language === "en")
+  .slice(0, 5)
+  .map((page) => ({ href: page.href, label: page.label }));
+
 export default function Footer() {
   return (
     <footer className="mt-16 border-t border-line bg-white">
@@ -36,7 +41,7 @@ export default function Footer() {
             <FooterLinkGroup label="Website" links={siteLinks} />
             <FooterLinkGroup
               label="Amsterdam pages"
-              links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+              links={footerAmsterdamLinks}
             />
             <FooterLinkGroup
               label="Amsterdam areas"

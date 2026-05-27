@@ -777,10 +777,10 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
     nl: [
       { href: "/amsterdam/sigaretten-kopen", label: "Sigaretten kopen Amsterdam" },
       { href: "/amsterdam/waar-sigaretten-kopen", label: "Waar sigaretten kopen Amsterdam" },
+      { href: "/amsterdam/sigaretten-kopen-amsterdam-centraal", label: "Sigaretten kopen Amsterdam Centraal" },
+      { href: "/amsterdam/sigaretten-kopen-north-amsterdam", label: "Sigaretten kopen North Amsterdam" },
       { href: "/amsterdam/sigaretten-kopen-bijlmer", label: "Sigaretten kopen Bijlmer" },
       { href: "/amsterdam/sigaretten-kopen-noord", label: "Sigaretten kopen Amsterdam Noord" },
-      { href: "/amsterdam/sigaretten-kopen-north-amsterdam", label: "Sigaretten kopen North Amsterdam" },
-      { href: "/amsterdam/sigaretten-kopen-amsterdam-centraal", label: "Sigaretten kopen Amsterdam Centraal" },
       { href: "/amsterdam/tobacco-shops", label: "Tabakswinkels Amsterdam" }
     ],
     en: [
@@ -830,16 +830,19 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
 function getContextualRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
   const areaLinkLabels = getAreaLinkLabels(seed.language);
   const generalLink = getGeneralAmsterdamLink(seed.language);
+  const generalTobaccoLink = getTobaccoOverviewLink(seed.language);
   const centralStationLink = getSeoAreaLink(seed.language, seed.intent, "central-station");
   const currentSeoLink = getSeoAreaLink(seed.language, seed.intent, seed.areaSlug);
+  const currentTobaccoLink = getSeoAreaLink(seed.language, "tobacco", seed.areaSlug);
   const currentAreaLink = getPublicAreaLink(seed.areaSlug, areaLinkLabels);
 
   if (seed.areaSlug === "bijlmer") {
     return [
       currentSeoLink,
+      currentTobaccoLink,
       { href: "/amsterdam/zuidoost", label: areaLinkLabels.zuidoost },
-      getSeoAreaLink(seed.language, seed.intent, "zuidoost"),
       generalLink,
+      generalTobaccoLink,
       centralStationLink
     ].filter(Boolean) as SeoRelatedLink[];
   }
@@ -847,8 +850,10 @@ function getContextualRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
   if (seed.areaSlug === "noord") {
     return [
       currentSeoLink,
+      currentTobaccoLink,
       { href: "/amsterdam/noord", label: areaLinkLabels.noord },
       generalLink,
+      generalTobaccoLink,
       centralStationLink,
       getSeoAreaLink(seed.language, seed.intent, "bijlmer")
     ].filter(Boolean) as SeoRelatedLink[];
@@ -859,14 +864,21 @@ function getContextualRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
       currentSeoLink,
       { href: "/amsterdam/near-central-station", label: areaLinkLabels["central-station"] },
       { href: "/amsterdam/centrum", label: areaLinkLabels.centrum },
+      generalLink,
       { href: "/amsterdam/de-wallen", label: areaLinkLabels["de-wallen"] },
-      generalLink
+      generalTobaccoLink
     ].filter(Boolean) as SeoRelatedLink[];
   }
 
-  return [currentSeoLink, currentAreaLink, generalLink, centralStationLink, getSeoAreaLink(seed.language, seed.intent, "bijlmer")].filter(
-    Boolean
-  ) as SeoRelatedLink[];
+  return [
+    currentSeoLink,
+    currentTobaccoLink,
+    currentAreaLink,
+    generalLink,
+    generalTobaccoLink,
+    centralStationLink,
+    getSeoAreaLink(seed.language, seed.intent, "bijlmer")
+  ].filter(Boolean) as SeoRelatedLink[];
 }
 
 function getGeneralAmsterdamLink(language: SeoLanguage): SeoRelatedLink {
@@ -883,6 +895,18 @@ function getGeneralAmsterdamLink(language: SeoLanguage): SeoRelatedLink {
   }
 
   return { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" };
+}
+
+function getTobaccoOverviewLink(language: SeoLanguage): SeoRelatedLink {
+  if (language === "de") {
+    return { href: "/de/amsterdam/tabakladen-amsterdam", label: "Tabakladen Amsterdam" };
+  }
+
+  if (language === "fr") {
+    return { href: "/fr/amsterdam/bureau-de-tabac-amsterdam", label: "Bureau de tabac Amsterdam" };
+  }
+
+  return { href: "/amsterdam/tobacco-shops", label: language === "nl" ? "Tabakswinkels Amsterdam" : "Tobacco shops Amsterdam" };
 }
 
 function getSeoAreaLink(language: SeoLanguage, intent: SeoIntent, areaSlug: SeoAreaSlug): SeoRelatedLink | null {
@@ -1150,7 +1174,7 @@ const uiLabels = {
     mapHeading: "Kaart met vermelde locaties",
     mapIntro: "Kaartmarkeringen zijn bij benadering en alleen bedoeld als praktische locatiehulp.",
     relatedHeading: "Gerelateerde pagina’s",
-    relatedIntro: "Bekijk ook andere pagina’s met praktische locatie-informatie over Amsterdamse gebieden en zoekvragen.",
+    relatedIntro: "Een korte selectie met praktische gerelateerde pagina’s.",
     faqTitle: "Veelgestelde vragen",
     faqIntro: "Antwoorden zijn neutraal en praktisch. Controleer belangrijke gegevens altijd voordat je vertrekt.",
     noListingsHeading: "Geen gepubliceerde vermeldingen beschikbaar",
@@ -1178,7 +1202,7 @@ const uiLabels = {
     mapHeading: "Map of listed locations",
     mapIntro: "Map markers are approximate and provided for practical location reference only.",
     relatedHeading: "Related pages",
-    relatedIntro: "Browse related neutral location pages for Amsterdam areas and practical search variants.",
+    relatedIntro: "A short set of related pages with practical location information.",
     faqTitle: "FAQ",
     faqIntro: "Answers are neutral and practical. Shop details may change, so verify important information before visiting.",
     noListingsHeading: "No published listings available",
@@ -1206,7 +1230,7 @@ const uiLabels = {
     mapHeading: "Karte der gelisteten Standorte",
     mapIntro: "Kartenmarkierungen sind ungefähr und dienen nur als praktische Orientierung.",
     relatedHeading: "Verwandte Seiten",
-    relatedIntro: "Weitere neutrale Standortseiten für Amsterdamer Gebiete und Suchvarianten.",
+    relatedIntro: "Eine kurze Auswahl verwandter Seiten mit praktischen Standortinformationen.",
     faqTitle: "FAQ",
     faqIntro: "Die Antworten sind neutral und praktisch. Bitte prüfen Sie wichtige Details vor einem Besuch.",
     noListingsHeading: "Keine veröffentlichten Einträge verfügbar",
@@ -1233,8 +1257,8 @@ const uiLabels = {
     listingsIntro: "Une sélection limitée de fiches publiées est affichée. Utilisez la recherche pour voir tous les lieux.",
     mapHeading: "Carte des lieux listés",
     mapIntro: "Les marqueurs de carte sont approximatifs et fournis comme aide pratique à la localisation.",
-    relatedHeading: "Pages associées",
-    relatedIntro: "Consultez d’autres pages neutres avec des informations pratiques sur les quartiers et recherches à Amsterdam.",
+    relatedHeading: "Pages liées",
+    relatedIntro: "Une courte sélection de pages liées avec des informations pratiques de localisation.",
     faqTitle: "Questions fréquentes",
     faqIntro: "Les réponses sont neutres et pratiques. Vérifiez les informations importantes avant de vous déplacer.",
     noListingsHeading: "Aucune fiche publiée disponible",

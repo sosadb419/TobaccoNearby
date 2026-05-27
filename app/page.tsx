@@ -56,6 +56,10 @@ const homepageFaqs = [
   }
 ];
 
+const homepageRelatedLinks = primarySeoLandingPages
+  .filter((page) => page.language === "en")
+  .map((page) => ({ href: page.href, label: page.label }));
+
 export default async function HomePage() {
   const shops = await getAllShops();
   const featuredShops = shops.slice(0, 3);
@@ -209,9 +213,9 @@ export default async function HomePage() {
 
       <div className="container-shell py-5 md:py-8">
         <RelatedPagesSection
-          intro="A compact set of useful Amsterdam pages for practical location information."
-          links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
-          title="Related Amsterdam pages"
+          intro="A small set of useful Amsterdam pages for practical location information."
+          links={homepageRelatedLinks}
+          title="Related pages"
         />
       </div>
 

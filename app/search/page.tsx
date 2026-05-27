@@ -7,7 +7,6 @@ import SearchBar from "@/components/SearchBar";
 import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition } from "@/data/areas";
-import { primarySeoLandingPages } from "@/data/seo-pages";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -21,6 +20,15 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const quickSearches = areaDefinitions.map((area) => area.searchLabel);
+const searchRelatedLinks = [
+  { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
+  { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
+  { href: "/amsterdam/buy-cigarettes", label: "Buy cigarettes Amsterdam" },
+  { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Where to buy cigarettes Central Station" },
+  { href: "/amsterdam/where-to-buy-cigarettes-north-amsterdam", label: "Where to buy cigarettes North Amsterdam" },
+  { href: "/amsterdam/where-to-buy-cigarettes-bijlmer", label: "Where to buy cigarettes Bijlmer" },
+  ...areaDefinitions.map((area) => ({ href: area.href, label: area.label }))
+];
 
 const searchFaqs = [
   {
@@ -255,32 +263,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         sortNearest={wantsNearest}
       />
 
-      <section className="mt-6 rounded-lg border border-line bg-white p-4 md:mt-8 md:p-5" aria-labelledby="search-internal-links-heading">
-        <h2 id="search-internal-links-heading" className="text-lg font-bold text-ink">
-          Browse Amsterdam pages
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Use these links for crawlable area pages and broader practical location pages.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {areaDefinitions.map((area) => (
-            <TrackedNeighborhoodLink
-              key={area.href}
-              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={area.href}
-              neighborhood={area.label}
-            >
-              {area.label}
-            </TrackedNeighborhoodLink>
-          ))}
-        </div>
-      </section>
-
       <RelatedPagesSection
         className="mt-6 md:mt-8"
-        intro="A compact set of related pages for practical Amsterdam location information."
-        links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
-        title="Related Amsterdam pages"
+        intro="A small set of related Amsterdam pages for practical location information."
+        links={searchRelatedLinks}
+        title="Related pages"
       />
 
       <FAQSection
