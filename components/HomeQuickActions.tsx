@@ -70,7 +70,7 @@ export default function HomeQuickActions({ className = "" }: HomeQuickActionsPro
         </button>
         <Link
           href="/search?openNow=true"
-          aria-label="View listings marked open now"
+          aria-label="View listings open now"
           className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
         >
           <Clock aria-hidden="true" className="text-teal" size={18} />

@@ -437,7 +437,7 @@ function parseDayEntry(day: string, value: unknown): OpeningHoursSlot[] {
     const match = value.match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/);
 
     if (!match) {
-      return [{ days, opens: "00:00", closes: "00:00", note: value }];
+      return isClosedOpeningHoursText(value) ? [{ days, opens: "00:00", closes: "00:00", note: "Closed" }] : [];
     }
 
     return [{ days, opens: normalizeTime(match[1]), closes: normalizeTime(match[2]) }];
@@ -527,4 +527,10 @@ function normalizeTime(value: string) {
   const [hour, minute] = value.split(":");
 
   return `${hour.padStart(2, "0")}:${minute}`;
+}
+
+function isClosedOpeningHoursText(value: string) {
+  const normalized = normalizeAreaText(value);
+
+  return normalized === "closed" || normalized === "gesloten";
 }

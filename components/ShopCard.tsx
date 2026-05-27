@@ -29,6 +29,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
     shop.wheelchairAccessible === undefined ? "Unknown" : shop.wheelchairAccessible ? "Yes" : "No";
   const openNow = showLiveStatus ? isOpenNow(shop) : null;
   const openingStatusLabel = showLiveStatus ? getOpeningStatusLabel(shop) : "";
+  const todayOpeningHours = showLiveStatus ? getTodayOpeningHours(shop) : "";
   const directionsUrl = getDirectionsUrl(shop);
 
   return (
@@ -72,14 +73,24 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
 
       <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt className="font-semibold text-ink">{showLiveStatus ? "Current status" : "Opening hours"}</dt>
+          <dt className="font-semibold text-ink">Opening hours</dt>
           <dd className="mt-1 text-muted">
             {showLiveStatus ? (
               <>
-                <span className={openNow ? "font-semibold text-moss" : "font-semibold text-amber"}>
+                <span
+                  className={
+                    openNow
+                      ? "font-semibold text-moss"
+                      : openingStatusLabel === "Opening hours not available"
+                        ? "font-semibold text-muted"
+                        : "font-semibold text-amber"
+                  }
+                >
                   {openingStatusLabel}
                 </span>
-                <span className="block">Today: {getTodayOpeningHours(shop)}</span>
+                {todayOpeningHours !== "Opening hours not available" ? (
+                  <span className="block">Today: {todayOpeningHours}</span>
+                ) : null}
               </>
             ) : (
               formatOpeningHours(shop.openingHours).slice(0, 2).join("; ")

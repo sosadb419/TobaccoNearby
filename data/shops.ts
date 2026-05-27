@@ -364,33 +364,49 @@ export function formatDistance(distanceKm: number) {
 }
 
 export function formatOpeningHours(slots: OpeningHoursSlot[]) {
-  if (slots.length === 0) {
-    return ["Opening hours not available."];
+  const readableSlots = slots.filter(isReadableOpeningHoursSlot);
+
+  if (readableSlots.length === 0) {
+    return ["Opening hours not available"];
   }
 
-  return slots.map((slot) => `${formatDays(slot.days)}: ${slot.opens}-${slot.closes}${slot.note ? ` (${slot.note})` : ""}`);
+  return readableSlots.map((slot) => {
+    if (isClosedOpeningHoursSlot(slot)) {
+      return `${formatDays(slot.days)}: Closed`;
+    }
+
+    return `${formatDays(slot.days)}: ${slot.opens}–${slot.closes}${slot.note ? ` (${slot.note})` : ""}`;
+  });
 }
 
 export function getTodayOpeningHours(shop: Shop, date = new Date()) {
-  if (shop.openingHours.length === 0) {
-    return "Opening hours not available.";
+  if (!hasReadableOpeningHours(shop)) {
+    return "Opening hours not available";
   }
 
   const today = getAmsterdamDayAndMinutes(date).day;
   const slot = shop.openingHours.find((item) => item.days.includes(today));
 
   if (!slot) {
-    return "Closed today";
+    return "Closed";
   }
 
-  return `${slot.opens}-${slot.closes}${slot.note ? ` (${slot.note})` : ""}`;
+  if (isClosedOpeningHoursSlot(slot)) {
+    return "Closed";
+  }
+
+  if (!isReadableOpeningHoursSlot(slot)) {
+    return "Opening hours not available";
+  }
+
+  return `${slot.opens}–${slot.closes}${slot.note ? ` (${slot.note})` : ""}`;
 }
 
 export function isOpenNow(shop: Shop, date = new Date()) {
   const { day, minutes } = getAmsterdamDayAndMinutes(date);
   const slot = shop.openingHours.find((item) => item.days.includes(day));
 
-  if (!slot) {
+  if (!slot || isClosedOpeningHoursSlot(slot)) {
     return false;
   }
 
@@ -409,20 +425,45 @@ export function isOpenNow(shop: Shop, date = new Date()) {
 }
 
 export function getOpeningStatusLabel(shop: Shop, date = new Date()) {
-  if (shop.openingHours.length === 0) {
+  if (getTodayOpeningHours(shop, date) === "Opening hours not available") {
     return "Opening hours not available";
   }
 
-  return isOpenNow(shop, date) ? "Open now" : "Not currently marked as open";
+  return isOpenNow(shop, date) ? "Open now" : "Closed now";
 }
 
 export function getOpeningHoursSpecification(shop: Shop) {
-  return shop.openingHours.map((slot) => ({
-    "@type": "OpeningHoursSpecification",
-    dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
-    opens: slot.opens,
-    closes: slot.closes
-  }));
+  return shop.openingHours
+    .filter((slot) => isReadableOpeningHoursSlot(slot) && !isClosedOpeningHoursSlot(slot))
+    .map((slot) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
+      opens: slot.opens,
+      closes: slot.closes
+    }));
+}
+
+function hasReadableOpeningHours(shop: Shop) {
+  return shop.openingHours.some(isReadableOpeningHoursSlot);
+}
+
+function isReadableOpeningHoursSlot(slot: OpeningHoursSlot) {
+  if (isClosedOpeningHoursSlot(slot)) {
+    return true;
+  }
+
+  const openMinutes = parseTime(slot.opens);
+  const closeMinutes = parseTime(slot.closes);
+
+  return openMinutes !== null && closeMinutes !== null && openMinutes !== closeMinutes;
+}
+
+function isClosedOpeningHoursSlot(slot: OpeningHoursSlot) {
+  return normalizeOpeningHoursNote(slot.note) === "closed";
+}
+
+function normalizeOpeningHoursNote(note?: string) {
+  return note?.trim().toLowerCase() === "closed" || note?.trim().toLowerCase() === "gesloten" ? "closed" : "";
 }
 
 function getAmsterdamDayAndMinutes(date: Date) {

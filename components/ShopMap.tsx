@@ -7,7 +7,14 @@ import {
   createUserLocationMarkerSvg,
   normalizeMarkerPlaceType
 } from "@/components/mapMarkerIcons";
-import { getDirectionsUrl, getPlaceTypeLabel, getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
+import {
+  getDirectionsUrl,
+  getOpeningStatusLabel,
+  getPlaceTypeLabel,
+  getTodayOpeningHours,
+  Shop,
+  type Coordinates
+} from "@/data/shops";
 import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
 type ShopMapProps = {
@@ -245,12 +252,18 @@ function createShopPopup(shop: Shop) {
   const addressText = [shop.address, [shop.postalCode, shop.city].filter(Boolean).join(" ")]
     .filter(Boolean)
     .join(", ");
+  const openingStatusLabel = getOpeningStatusLabel(shop);
+  const todayOpeningHours = getTodayOpeningHours(shop);
+  const openingText =
+    todayOpeningHours === "Opening hours not available"
+      ? openingStatusLabel
+      : `${openingStatusLabel}. Today: ${todayOpeningHours}`;
 
   rows.append(
     createPopupRow("pin", addressText || "Address not available"),
     createPopupRow("map", shop.neighborhood),
     createPopupRow(normalizeMarkerPlaceType(shop.place_type), placeTypeLabel),
-    createPopupRow("clock", getTodayOpeningHours(shop))
+    createPopupRow("clock", openingText)
   );
   container.append(rows);
 
