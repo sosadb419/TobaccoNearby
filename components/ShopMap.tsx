@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import MapLegend from "@/components/MapLegend";
-import { createPlaceTypeMarkerSvg, normalizeMarkerPlaceType } from "@/components/mapMarkerIcons";
+import {
+  createPlaceTypeMarkerSvg,
+  createUserLocationMarkerSvg,
+  normalizeMarkerPlaceType
+} from "@/components/mapMarkerIcons";
 import { getDirectionsUrl, getPlaceTypeLabel, getTodayOpeningHours, Shop, type Coordinates } from "@/data/shops";
 import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
@@ -134,19 +138,21 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
 
     if (userLocation) {
       leaflet
+        .circle([userLocation.latitude, userLocation.longitude], {
+          color: "#14b8a6",
+          fillColor: "#14b8a6",
+          fillOpacity: 0.055,
+          opacity: 0.38,
+          radius: 140,
+          weight: 2
+        })
+        .addTo(markers);
+
+      leaflet
         .marker([userLocation.latitude, userLocation.longitude], {
           icon: getUserLocationIcon(leaflet)
         })
         .bindPopup(createTextPopup("You are here"))
-        .addTo(markers);
-
-      leaflet
-        .circle([userLocation.latitude, userLocation.longitude], {
-          color: "#0f766e",
-          fillColor: "#0f766e",
-          fillOpacity: 0.12,
-          radius: 180
-        })
         .addTo(markers);
     }
 
@@ -207,7 +213,7 @@ function getMarkerIcon(leaflet: LeafletLike, placeType?: string) {
 function getUserLocationIcon(leaflet: LeafletLike) {
   return leaflet.divIcon({
     className: "tn-map-marker tn-user-location-marker",
-    html: '<img src="/icons/user-smoker-marker.png" alt="" aria-hidden="true" />',
+    html: createUserLocationMarkerSvg(),
     iconAnchor: [21, 42],
     iconSize: [42, 42],
     popupAnchor: [0, -40]

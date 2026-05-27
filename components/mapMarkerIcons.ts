@@ -68,3 +68,22 @@ export function createPlaceTypeMarkerSvg(placeType?: string) {
 
   return createMarkerSvg(icon.color, icon.symbol);
 }
+
+export function createUserLocationMarkerSvg() {
+  return `<svg class="tn-user-marker-svg" viewBox="0 0 64 64" role="img" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <ellipse class="tn-user-marker-halo-fill" cx="32" cy="55" rx="21" ry="7"/>
+  <ellipse class="tn-user-marker-halo-ring" cx="32" cy="55" rx="21" ry="7"/>
+  <g class="tn-user-marker-outline">
+    <circle cx="32" cy="18" r="10"/>
+    <path d="M32 28v18M32 34l-14 8M32 35l15-6M32 46l-13 12M32 46l13 12"/>
+    <path d="M42 27l8-2M49 25c4-3 2-6-1-8M50 19c5-4 5-8 1-12"/>
+    <path d="M26 16h.1M36 16h.1M27 23c3 2 7 2 10-.4"/>
+  </g>
+  <g class="tn-user-marker-line">
+    <circle cx="32" cy="18" r="10"/>
+    <path d="M32 28v18M32 34l-14 8M32 35l15-6M32 46l-13 12M32 46l13 12"/>
+    <path d="M42 27l8-2M49 25c4-3 2-6-1-8M50 19c5-4 5-8 1-12"/>
+    <path d="M26 16h.1M36 16h.1M27 23c3 2 7 2 10-.4"/>
+  </g>
+</svg>`;
+}

@@ -3,7 +3,11 @@
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { getPlaceTypeLabel } from "@/data/shops";
-import { createPlaceTypeMarkerSvg, markerPlaceTypeOrder } from "@/components/mapMarkerIcons";
+import {
+  createPlaceTypeMarkerSvg,
+  createUserLocationMarkerSvg,
+  markerPlaceTypeOrder
+} from "@/components/mapMarkerIcons";
 import type { MarkerPlaceType } from "@/components/mapMarkerIcons";
 
 type MapLegendProps = {
@@ -71,9 +75,11 @@ function LegendCard({
         {showUserLocation ? (
           <LegendItem
             icon={
-              <span className="tn-map-legend-user" aria-hidden="true">
-                <img src="/icons/user-smoker-marker.png" alt="" />
-              </span>
+              <span
+                className="tn-map-legend-user"
+                dangerouslySetInnerHTML={{ __html: createUserLocationMarkerSvg() }}
+                aria-hidden="true"
+              />
             }
             label="Your location"
           />
