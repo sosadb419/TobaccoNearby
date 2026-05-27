@@ -408,6 +408,14 @@ export function isOpenNow(shop: Shop, date = new Date()) {
   return minutes >= openMinutes && minutes < closeMinutes;
 }
 
+export function getOpeningStatusLabel(shop: Shop, date = new Date()) {
+  if (shop.openingHours.length === 0) {
+    return "Opening hours not available";
+  }
+
+  return isOpenNow(shop, date) ? "Open now" : "Not currently marked as open";
+}
+
 export function getOpeningHoursSpecification(shop: Shop) {
   return shop.openingHours.map((slot) => ({
     "@type": "OpeningHoursSpecification",

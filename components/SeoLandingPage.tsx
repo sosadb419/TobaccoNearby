@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
+import DutchInternalLinks from "@/components/DutchInternalLinks";
 import FAQSection from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
 import SearchBar from "@/components/SearchBar";
@@ -17,6 +18,11 @@ type SeoLandingPageProps = {
 
 export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
   const pageId = slugifyId(page.h1);
+  const listingLimit = 10;
+  const visibleShops = shops.slice(0, listingLimit);
+  const hasMoreListings = shops.length > visibleShops.length;
+  const isDutchSeoPage =
+    page.href === "/amsterdam/sigaretten-kopen" || page.href === "/amsterdam/waar-sigaretten-kopen";
 
   return (
     <section className="container-shell py-6 md:py-8">
@@ -67,21 +73,20 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
               Listed Amsterdam shop locations
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Published listings are loaded from Supabase, with local fallback records used only if Supabase cannot be
-              reached.
+              Showing a limited set of published listings. Use the full search page to browse all Amsterdam listings.
             </p>
           </div>
           <Link
             className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
             href="/search"
           >
-            Open full search
+            View all Amsterdam listings
           </Link>
         </div>
 
         <div className="mt-6 grid gap-5">
-          {shops.length > 0 ? (
-            shops.map((shop) => <ShopCard key={shop.slug} shop={shop} />)
+          {visibleShops.length > 0 ? (
+            visibleShops.map((shop) => <ShopCard key={shop.slug} shop={shop} />)
           ) : (
             <div className="rounded-lg border border-line bg-white p-6">
               <h2 className="text-xl font-bold text-ink">No published listings available</h2>
@@ -91,9 +96,19 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
             </div>
           )}
         </div>
+        {hasMoreListings ? (
+          <div className="mt-5 rounded-lg border border-line bg-white p-5 text-sm leading-6 text-muted">
+            <p>
+              Showing {visibleShops.length} of {shops.length} published Amsterdam listings on this page.
+            </p>
+            <Link className="mt-3 inline-flex font-bold text-teal hover:text-ink" href="/search">
+              View all Amsterdam listings
+            </Link>
+          </div>
+        ) : null}
       </section>
 
-      {shops.length > 0 ? (
+      {visibleShops.length > 0 ? (
         <section className="mt-8" aria-labelledby={`${pageId}-map-heading`}>
           <div className="mb-4">
             <h2 id={`${pageId}-map-heading`} className="text-2xl font-bold text-ink">
@@ -103,50 +118,56 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
               Map markers are approximate and provided for practical location reference only.
             </p>
           </div>
-          <LazyShopMap shops={shops} />
+          <LazyShopMap shops={visibleShops} />
         </section>
       ) : null}
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">Amsterdam area pages</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Browse local area pages for more specific address, opening-hour, direction and contact information.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {areaDefinitions.map((area) => (
-            <TrackedNeighborhoodLink
-              key={area.href}
-              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={area.href}
-              neighborhood={area.label}
-            >
-              {area.label}
-            </TrackedNeighborhoodLink>
-          ))}
-        </div>
-      </section>
+      {isDutchSeoPage ? (
+        <DutchInternalLinks />
+      ) : (
+        <>
+          <section className="mt-8 rounded-lg border border-line bg-white p-5">
+            <h2 className="text-lg font-bold text-ink">Amsterdam area pages</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Browse local area pages for more specific address, opening-hour, direction and contact information.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {areaDefinitions.map((area) => (
+                <TrackedNeighborhoodLink
+                  key={area.href}
+                  className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
+                  href={area.href}
+                  neighborhood={area.label}
+                >
+                  {area.label}
+                </TrackedNeighborhoodLink>
+              ))}
+            </div>
+          </section>
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">Related practical search pages</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          These pages use neutral wording and link to the same practical Amsterdam directory information.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {seoLandingPages.map((relatedPage) => (
-            <Link
-              key={relatedPage.href}
-              className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
-                relatedPage.href === page.href
-                  ? "border-teal bg-teal text-white"
-                  : "border-line bg-white text-muted hover:border-teal hover:text-teal"
-              }`}
-              href={relatedPage.href}
-            >
-              {relatedPage.label}
-            </Link>
-          ))}
-        </div>
-      </section>
+          <section className="mt-8 rounded-lg border border-line bg-white p-5">
+            <h2 className="text-lg font-bold text-ink">Related practical search pages</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              These pages use neutral wording and link to the same practical Amsterdam directory information.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {seoLandingPages.map((relatedPage) => (
+                <Link
+                  key={relatedPage.href}
+                  className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                    relatedPage.href === page.href
+                      ? "border-teal bg-teal text-white"
+                      : "border-line bg-white text-muted hover:border-teal hover:text-teal"
+                  }`}
+                  href={relatedPage.href}
+                >
+                  {relatedPage.label}
+                </Link>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
       <FAQSection
         className="mt-8"

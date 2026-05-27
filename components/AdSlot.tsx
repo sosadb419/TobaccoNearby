@@ -4,10 +4,10 @@ type AdSlotProps = {
 };
 
 const placementClasses = {
-  header: "flex min-h-[64px] sm:min-h-[76px] lg:min-h-[90px]",
-  sidebar: "hidden min-h-[300px] lg:flex",
-  "in-content": "flex min-h-[112px] sm:min-h-[120px]",
-  footer: "flex min-h-[80px] sm:min-h-[96px]"
+  header: "flex min-h-12",
+  sidebar: "hidden min-h-32 lg:flex",
+  "in-content": "flex min-h-16",
+  footer: "flex min-h-14"
 };
 
 export default function AdSlot({ placement, label = "Advertisement" }: AdSlotProps) {
@@ -18,11 +18,11 @@ export default function AdSlot({ placement, label = "Advertisement" }: AdSlotPro
       <aside
         aria-label={`${label} space`}
         data-ad-placement={placement}
-        className={`w-full items-center justify-center rounded-lg border border-line bg-paper/70 px-4 py-3 text-center text-muted ${placementClasses[placement]}`}
+        className={`w-full items-center justify-center rounded-lg border border-dashed border-line bg-white/60 px-3 py-2 text-center text-muted ${placementClasses[placement]}`}
       >
         <div>
           <p className="text-[11px] font-semibold uppercase text-muted">{label}</p>
-          <p className="mt-1.5 text-xs leading-5">Reserved neutral ad space</p>
+          <p className="sr-only">Reserved neutral ad space</p>
         </div>
       </aside>
     </>

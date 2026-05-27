@@ -7,6 +7,7 @@ import {
   formatOpeningHours,
   getDirectionsUrl,
   getDistanceKm,
+  getOpeningStatusLabel,
   getPlaceTypeLabel,
   getTodayOpeningHours,
   isOpenNow,
@@ -27,6 +28,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
   const accessible =
     shop.wheelchairAccessible === undefined ? "Unknown" : shop.wheelchairAccessible ? "Yes" : "No";
   const openNow = showLiveStatus ? isOpenNow(shop) : null;
+  const openingStatusLabel = showLiveStatus ? getOpeningStatusLabel(shop) : "";
   const directionsUrl = getDirectionsUrl(shop);
 
   return (
@@ -75,7 +77,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
             {showLiveStatus ? (
               <>
                 <span className={openNow ? "font-semibold text-moss" : "font-semibold text-amber"}>
-                  {openNow ? "Open now" : "Not marked open now"}
+                  {openingStatusLabel}
                 </span>
                 <span className="block">Today: {getTodayOpeningHours(shop)}</span>
               </>

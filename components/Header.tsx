@@ -18,6 +18,11 @@ export default function Header() {
   const isSearchPage = pathname === "/search";
   const isHomePage = pathname === "/";
   const isCompactMobileRoute = isSearchPage || isHomePage;
+  const headerLayoutClass = isHomePage
+    ? "container-shell flex flex-row items-center justify-start gap-3 py-2 md:flex-row md:items-center md:justify-between md:py-4"
+    : isSearchPage
+      ? "container-shell flex flex-row items-center justify-between gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4"
+      : "container-shell flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4";
 
   return (
     <header className="border-b border-line bg-white/90 backdrop-blur">
@@ -28,11 +33,7 @@ export default function Header() {
       >
         This website is intended for adults aged 18+.
       </div>
-      <div
-        className={`container-shell flex gap-3 py-3 md:flex-row md:items-center md:justify-between md:py-4 ${
-          isCompactMobileRoute ? "flex-row items-center justify-between" : "flex-col md:flex-row"
-        }`}
-      >
+      <div className={headerLayoutClass}>
         <Link className="focus-ring flex items-center gap-3 rounded-lg" href="/" aria-label="TobaccoNearby home">
           <span
             className={`flex items-center justify-center rounded-lg bg-teal text-white ${
@@ -60,16 +61,6 @@ export default function Header() {
             Home
           </Link>
         ) : null}
-        {isHomePage ? (
-          <Link
-            className="focus-ring inline-flex min-h-9 items-center gap-2 rounded-lg border border-line px-3 py-2 text-xs font-bold text-ink md:hidden"
-            href="/search"
-          >
-            <Search aria-hidden="true" size={15} />
-            Search
-          </Link>
-        ) : null}
-
         <nav
           aria-label="Main navigation"
           className={`flex flex-wrap items-center gap-2 ${isCompactMobileRoute ? "hidden md:flex" : "flex"}`}
@@ -92,9 +83,11 @@ export default function Header() {
           </Link>
         </nav>
       </div>
-      <div className={`container-shell pb-4 ${isCompactMobileRoute ? "hidden md:block" : ""}`}>
-        <AdSlot placement="header" />
-      </div>
+      {!isCompactMobileRoute ? (
+        <div className="container-shell pb-3">
+          <AdSlot placement="header" />
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -134,7 +134,7 @@ export default function SearchResultsView({
         query={query}
       />
 
-      <div className="mt-3 grid gap-4 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+      <div className="mt-2 grid gap-3 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
       <aside className="hidden gap-5 lg:col-start-2 lg:row-start-1 lg:grid">
         <div className="lg:sticky lg:top-6">
           <LazyShopMap mobileMode="hidden" shops={visibleShops} userLocation={userLocation} />
@@ -159,7 +159,7 @@ export default function SearchResultsView({
         </div>
       </aside>
 
-      <div className="grid gap-5 lg:col-start-1 lg:row-start-1">
+      <div className="grid gap-3 md:gap-5 lg:col-start-1 lg:row-start-1">
         <div className="hidden md:block">
           <DisclaimerNotice />
         </div>
@@ -182,8 +182,8 @@ export default function SearchResultsView({
           </p>
         ) : null}
 
-        <div className="flex flex-col gap-3 rounded-lg border border-line bg-white p-3 sm:flex-row sm:items-center sm:justify-between md:p-4">
-          <p className="text-sm text-muted">
+        <div className="flex flex-col gap-1.5 rounded-lg border border-line bg-white px-3 py-2 sm:flex-row sm:items-center sm:justify-between md:gap-3 md:p-4">
+          <p className="text-xs leading-5 text-muted md:text-sm">
             {totalResults > 0 ? (
               <>
                 Showing <strong className="text-ink">{firstResultNumber}-{lastResultNumber}</strong> of{" "}
@@ -197,13 +197,7 @@ export default function SearchResultsView({
             )}
           </p>
           {activeFilterLabels.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5 md:hidden" aria-label="Active filters">
-              {activeFilterLabels.map((label) => (
-                <span key={label} className="rounded-md bg-paper px-2 py-1 text-xs font-semibold text-muted">
-                  {label}
-                </span>
-              ))}
-            </div>
+            <p className="text-[11px] font-semibold text-muted md:hidden">{activeFilterLabels.length} active filters</p>
           ) : null}
           {showPerPageControl ? (
             <label className="hidden flex-col gap-1 text-xs font-bold uppercase text-muted sm:min-w-40 md:flex">
@@ -236,7 +230,7 @@ export default function SearchResultsView({
           </div>
         ) : null}
 
-        <div className={mobileMapOpen ? "hidden lg:grid lg:gap-5" : "grid gap-5"}>
+        <div className={mobileMapOpen ? "hidden lg:grid lg:gap-5" : "grid gap-3 md:gap-5"}>
           {paginated.items.map((shop, index) => (
             <div key={shop.slug} className="grid gap-5">
               <ShopCard shop={shop} origin={userLocation} showLiveStatus />
@@ -380,8 +374,8 @@ function MobileSearchControls({
   }
 
   return (
-    <div className="sticky top-0 z-30 -mx-4 border-b border-line bg-white/95 px-4 py-2 shadow-sm backdrop-blur md:hidden">
-      <form className="flex items-center gap-2" onSubmit={handleSearchSubmit} role="search">
+    <div className="sticky top-0 z-30 -mx-4 border-b border-line bg-white/95 px-4 py-1.5 shadow-sm backdrop-blur md:hidden">
+      <form className="flex items-center gap-1.5" onSubmit={handleSearchSubmit} role="search">
         <label className="sr-only" htmlFor="mobile-shop-search">
           Search by area, postal code, street, or neighborhood
         </label>
@@ -393,7 +387,7 @@ function MobileSearchControls({
           />
           <input
             id="mobile-shop-search"
-            className="focus-ring min-h-11 w-full rounded-lg border border-line bg-white py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted"
+            className="focus-ring min-h-10 w-full rounded-lg border border-line bg-white py-2 pl-9 pr-3 text-sm text-ink placeholder:text-muted"
             onChange={(event) => setMobileQuery(event.target.value)}
             placeholder="Area, postal code, street"
             type="search"
@@ -402,14 +396,14 @@ function MobileSearchControls({
         </div>
         <button
           aria-label="Search"
-          className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg bg-teal text-white"
+          className="focus-ring inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-teal text-white"
           type="submit"
         >
           <Search aria-hidden="true" size={18} />
         </button>
         <button
           aria-label="Use my location"
-          className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-line bg-white text-ink"
+          className="focus-ring inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-line bg-white text-ink"
           onClick={handleCurrentLocation}
           type="button"
         >
@@ -417,10 +411,10 @@ function MobileSearchControls({
         </button>
       </form>
 
-      <div className="mt-2 grid grid-cols-2 gap-2">
+      <div className="mt-1.5 grid grid-cols-2 gap-1.5">
         <button
           aria-expanded={filtersOpen}
-          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-sm font-bold text-ink"
+          className="focus-ring inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg border border-line bg-white px-3 py-1.5 text-xs font-bold text-ink"
           onClick={() => setFiltersOpen((current) => !current)}
           type="button"
         >
@@ -431,7 +425,7 @@ function MobileSearchControls({
           ) : null}
         </button>
         <button
-          className="focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-ink px-3 py-2 text-sm font-bold text-white"
+          className="focus-ring inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg bg-ink px-3 py-1.5 text-xs font-bold text-white"
           onClick={onMapToggle}
           type="button"
         >

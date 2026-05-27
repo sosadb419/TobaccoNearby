@@ -123,7 +123,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : "No shops found for this search. Try another neighborhood, postal code, or nearby area.";
 
   return (
-    <section className="container-shell py-3 md:py-8">
+    <section className="container-shell py-0 md:py-8">
       <div className="md:mb-6">
         <p className="hidden text-sm font-bold uppercase text-teal md:block">Amsterdam search</p>
         <h1 className="sr-only md:not-sr-only md:mt-3 md:block md:text-3xl md:font-bold md:text-ink lg:text-4xl">
