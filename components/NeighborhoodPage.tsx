@@ -3,6 +3,7 @@ import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import FAQSection, { FAQItem } from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
+import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
@@ -154,23 +155,12 @@ export default function NeighborhoodPage({
         </div>
       </section>
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">Related practical search pages</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Browse neutral search pages for broader Amsterdam location information in Dutch and English.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {primarySeoLandingPages.map((page) => (
-            <Link
-              key={page.href}
-              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={page.href}
-            >
-              {page.label}
-            </Link>
-          ))}
-        </div>
-      </section>
+      <RelatedPagesSection
+        className="mt-8"
+        intro="A compact set of neutral search pages for broader Amsterdam location information."
+        links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+        title="Related Amsterdam pages"
+      />
 
       <FAQSection
         className="mt-8"

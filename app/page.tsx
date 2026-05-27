@@ -4,6 +4,7 @@ import { ArrowRight, Clock, Map, Navigation, ShieldCheck } from "lucide-react";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import FAQSection from "@/components/FAQSection";
 import HomeQuickActions from "@/components/HomeQuickActions";
+import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
@@ -164,39 +165,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="container-shell py-5 md:py-8" aria-labelledby="key-amsterdam-pages-heading">
-        <div className="rounded-lg border border-line bg-white p-5 shadow-sm md:p-6">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 id="key-amsterdam-pages-heading" className="text-xl font-bold text-ink md:text-2xl">
-                Key Amsterdam pages
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Start with search or browse neutral location pages for Amsterdam listings, addresses, opening hours
-                and directions.
-              </p>
-            </div>
-            <Link
-              className="focus-ring inline-flex rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
-              href="/search"
-            >
-              Search
-            </Link>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {primarySeoLandingPages.map((page) => (
-              <Link
-                key={page.href}
-                className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-                href={page.href}
-              >
-                {page.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="container-shell py-5 md:py-8">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-6">
           <div>
@@ -237,6 +205,14 @@ export default async function HomePage() {
 
       <div className="container-shell py-4 md:hidden">
         <DisclaimerNotice />
+      </div>
+
+      <div className="container-shell py-5 md:py-8">
+        <RelatedPagesSection
+          intro="A compact set of useful Amsterdam pages for practical location information."
+          links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+          title="Related Amsterdam pages"
+        />
       </div>
 
       <div className="container-shell py-5 md:py-8">

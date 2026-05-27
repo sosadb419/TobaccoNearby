@@ -3,6 +3,7 @@ import AdSlot from "@/components/AdSlot";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import FAQSection from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
+import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { getSeoPageUiLabels, SeoLandingPageDefinition } from "@/data/seo-pages";
@@ -114,21 +115,13 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
         </section>
       ) : null}
 
-      <section className="mt-8 rounded-lg border border-line bg-white p-5">
-        <h2 className="text-lg font-bold text-ink">{labels.relatedHeading}</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">{labels.relatedIntro}</p>
-        <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {page.relatedLinks.map((relatedPage) => (
-            <Link
-              key={relatedPage.href}
-              className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={relatedPage.href}
-            >
-              {relatedPage.label}
-            </Link>
-          ))}
-        </div>
-      </section>
+      <RelatedPagesSection
+        className="mt-8"
+        intro={labels.relatedIntro}
+        language={page.language}
+        links={page.relatedLinks}
+        title={labels.relatedHeading}
+      />
 
       <FAQSection
         className="mt-8"

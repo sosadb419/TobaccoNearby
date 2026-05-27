@@ -786,9 +786,9 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
     en: [
       { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
       { href: "/amsterdam/buy-cigarettes", label: "Buy cigarettes Amsterdam" },
+      { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Cigarettes near Amsterdam Central Station" },
       { href: "/amsterdam/where-to-buy-cigarettes-north-amsterdam", label: "Where to buy cigarettes North Amsterdam" },
       { href: "/amsterdam/where-to-buy-cigarettes-bijlmer", label: "Where to buy cigarettes Bijlmer" },
-      { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Cigarettes near Amsterdam Central Station" },
       { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" }
     ],
     de: [
@@ -803,8 +803,8 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
       { href: "/fr/amsterdam/ou-acheter-cigarettes", label: "Où acheter cigarettes Amsterdam" },
       { href: "/fr/amsterdam/acheter-cigarettes-amsterdam-nord", label: "Acheter cigarettes Amsterdam Nord" },
       { href: "/fr/amsterdam/acheter-cigarettes-bijlmer", label: "Acheter cigarettes Bijlmer" },
-      { href: "/fr/amsterdam/acheter-cigarettes-gare-centrale", label: "Cigarettes près de la gare centrale" },
-      { href: "/fr/amsterdam/bureau-de-tabac-amsterdam", label: "Bureau de tabac Amsterdam" }
+      { href: "/fr/amsterdam/bureau-de-tabac-amsterdam", label: "Bureau de tabac Amsterdam" },
+      { href: "/fr/amsterdam/acheter-cigarettes-gare-centrale", label: "Cigarettes près de la gare centrale" }
     ]
   };
 
@@ -819,7 +819,302 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
     { href: "/amsterdam/near-central-station", label: "Amsterdam Central Station" }
   ];
 
-  return [...languageLinks[seed.language], ...areaLinks].filter((link) => link.href !== seed.href);
+  const orderedLinks =
+    seed.areaSlug === "amsterdam"
+      ? [...languageLinks[seed.language], ...areaLinks]
+      : [...getContextualRelatedLinks(seed), ...languageLinks[seed.language], ...areaLinks];
+
+  return uniqueRelatedLinks(orderedLinks).filter((link) => link.href !== seed.href);
+}
+
+function getContextualRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
+  const areaLinkLabels = getAreaLinkLabels(seed.language);
+  const generalLink = getGeneralAmsterdamLink(seed.language);
+  const centralStationLink = getSeoAreaLink(seed.language, seed.intent, "central-station");
+  const currentSeoLink = getSeoAreaLink(seed.language, seed.intent, seed.areaSlug);
+  const currentAreaLink = getPublicAreaLink(seed.areaSlug, areaLinkLabels);
+
+  if (seed.areaSlug === "bijlmer") {
+    return [
+      currentSeoLink,
+      { href: "/amsterdam/zuidoost", label: areaLinkLabels.zuidoost },
+      getSeoAreaLink(seed.language, seed.intent, "zuidoost"),
+      generalLink,
+      centralStationLink
+    ].filter(Boolean) as SeoRelatedLink[];
+  }
+
+  if (seed.areaSlug === "noord") {
+    return [
+      currentSeoLink,
+      { href: "/amsterdam/noord", label: areaLinkLabels.noord },
+      generalLink,
+      centralStationLink,
+      getSeoAreaLink(seed.language, seed.intent, "bijlmer")
+    ].filter(Boolean) as SeoRelatedLink[];
+  }
+
+  if (seed.areaSlug === "central-station") {
+    return [
+      currentSeoLink,
+      { href: "/amsterdam/near-central-station", label: areaLinkLabels["central-station"] },
+      { href: "/amsterdam/centrum", label: areaLinkLabels.centrum },
+      { href: "/amsterdam/de-wallen", label: areaLinkLabels["de-wallen"] },
+      generalLink
+    ].filter(Boolean) as SeoRelatedLink[];
+  }
+
+  return [currentSeoLink, currentAreaLink, generalLink, centralStationLink, getSeoAreaLink(seed.language, seed.intent, "bijlmer")].filter(
+    Boolean
+  ) as SeoRelatedLink[];
+}
+
+function getGeneralAmsterdamLink(language: SeoLanguage): SeoRelatedLink {
+  if (language === "nl") {
+    return { href: "/amsterdam/sigaretten-kopen", label: "Sigaretten kopen Amsterdam" };
+  }
+
+  if (language === "de") {
+    return { href: "/de/amsterdam/zigaretten-kaufen", label: "Zigaretten kaufen Amsterdam" };
+  }
+
+  if (language === "fr") {
+    return { href: "/fr/amsterdam/acheter-cigarettes", label: "Acheter cigarettes Amsterdam" };
+  }
+
+  return { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" };
+}
+
+function getSeoAreaLink(language: SeoLanguage, intent: SeoIntent, areaSlug: SeoAreaSlug): SeoRelatedLink | null {
+  const slugByLanguage: Record<SeoLanguage, Partial<Record<SeoAreaSlug, string>>> = {
+    nl: {
+      amsterdam: "",
+      centrum: "centrum",
+      "de-pijp": "de-pijp",
+      jordaan: "jordaan",
+      "de-wallen": "de-wallen",
+      west: "west",
+      "nieuw-west": "nieuw-west",
+      oost: "oost",
+      noord: "noord",
+      zuid: "zuid",
+      zuidoost: "zuidoost",
+      bijlmer: "bijlmer",
+      diemen: "diemen",
+      "central-station": "amsterdam-centraal"
+    },
+    en: {
+      amsterdam: "",
+      centrum: "centrum",
+      "de-pijp": "de-pijp",
+      jordaan: "jordaan",
+      "de-wallen": "de-wallen",
+      west: "west",
+      "nieuw-west": "nieuw-west",
+      oost: "oost",
+      noord: "north-amsterdam",
+      zuid: "zuid",
+      zuidoost: "zuidoost",
+      bijlmer: "bijlmer",
+      diemen: "diemen",
+      "central-station": "central-station"
+    },
+    de: {
+      amsterdam: "",
+      centrum: "zentrum",
+      "de-pijp": "de-pijp",
+      jordaan: "jordaan",
+      "de-wallen": "de-wallen",
+      west: "west",
+      "nieuw-west": "neu-west",
+      oost: "ost",
+      noord: "amsterdam-nord",
+      zuid: "sued",
+      zuidoost: "suedost",
+      bijlmer: "bijlmer",
+      diemen: "diemen",
+      "central-station": "amsterdam-centraal"
+    },
+    fr: {
+      amsterdam: "",
+      centrum: "centre",
+      "de-pijp": "de-pijp",
+      jordaan: "jordaan",
+      "de-wallen": "de-wallen",
+      west: "ouest",
+      "nieuw-west": "nieuw-west",
+      oost: "est",
+      noord: "amsterdam-nord",
+      zuid: "sud",
+      zuidoost: "sud-est",
+      bijlmer: "bijlmer",
+      diemen: "diemen",
+      "central-station": "gare-centrale"
+    }
+  };
+  const slug = slugByLanguage[language][areaSlug];
+
+  if (slug === undefined) {
+    return null;
+  }
+
+  if (language === "nl") {
+    return {
+      href: slug ? `/amsterdam/sigaretten-kopen-${slug}` : "/amsterdam/sigaretten-kopen",
+      label: slug ? `Sigaretten kopen ${getAreaLinkLabels(language)[areaSlug]}` : "Sigaretten kopen Amsterdam"
+    };
+  }
+
+  if (language === "de") {
+    const usesTobaccoPath = intent === "tobacco" && (areaSlug === "amsterdam" || areaSlug === "noord" || areaSlug === "bijlmer");
+
+    return {
+      href: usesTobaccoPath
+        ? `/de/amsterdam/tabakladen-${slug || "amsterdam"}`
+        : slug
+          ? `/de/amsterdam/zigaretten-kaufen-${slug}`
+          : "/de/amsterdam/zigaretten-kaufen",
+      label: usesTobaccoPath
+        ? `Tabakladen ${getAreaLinkLabels(language)[areaSlug]}`
+        : `Zigaretten kaufen ${getAreaLinkLabels(language)[areaSlug]}`
+    };
+  }
+
+  if (language === "fr") {
+    const usesTobaccoPath = intent === "tobacco" && (areaSlug === "amsterdam" || areaSlug === "noord" || areaSlug === "bijlmer");
+
+    return {
+      href: usesTobaccoPath
+        ? `/fr/amsterdam/bureau-de-tabac-${slug || "amsterdam"}`
+        : slug
+          ? `/fr/amsterdam/acheter-cigarettes-${slug}`
+          : "/fr/amsterdam/acheter-cigarettes",
+      label: usesTobaccoPath
+        ? `Bureau de tabac ${getAreaLinkLabels(language)[areaSlug]}`
+        : `Acheter cigarettes ${getAreaLinkLabels(language)[areaSlug]}`
+    };
+  }
+
+  if (intent === "tobacco" && (areaSlug === "amsterdam" || areaSlug === "noord" || areaSlug === "bijlmer" || areaSlug === "central-station")) {
+    return {
+      href: slug ? `/amsterdam/tobacco-shops-${slug}` : "/amsterdam/tobacco-shops",
+      label: slug ? `Tobacco shops ${getAreaLinkLabels(language)[areaSlug]}` : "Tobacco shops Amsterdam"
+    };
+  }
+
+  return {
+    href: slug ? `/amsterdam/where-to-buy-cigarettes-${slug}` : "/amsterdam/where-to-buy-cigarettes",
+    label: slug ? `Where to buy cigarettes ${getAreaLinkLabels(language)[areaSlug]}` : "Where to buy cigarettes Amsterdam"
+  };
+}
+
+function getPublicAreaLink(areaSlug: SeoAreaSlug, labels: Record<SeoAreaSlug, string>): SeoRelatedLink | null {
+  const hrefs: Partial<Record<SeoAreaSlug, string>> = {
+    centrum: "/amsterdam/centrum",
+    "de-pijp": "/amsterdam/de-pijp",
+    jordaan: "/amsterdam/jordaan",
+    "de-wallen": "/amsterdam/de-wallen",
+    west: "/amsterdam/west",
+    "nieuw-west": "/amsterdam/nieuw-west",
+    oost: "/amsterdam/oost",
+    noord: "/amsterdam/noord",
+    zuid: "/amsterdam/zuid",
+    zuidoost: "/amsterdam/zuidoost",
+    diemen: "/amsterdam/diemen",
+    "central-station": "/amsterdam/near-central-station"
+  };
+  const href = hrefs[areaSlug];
+
+  return href ? { href, label: labels[areaSlug] } : null;
+}
+
+function getAreaLinkLabels(language: SeoLanguage): Record<SeoAreaSlug, string> {
+  if (language === "de") {
+    return {
+      amsterdam: "Amsterdam",
+      centrum: "Amsterdam Zentrum",
+      "de-pijp": "De Pijp",
+      jordaan: "Jordaan",
+      "de-wallen": "De Wallen",
+      west: "Amsterdam West",
+      "nieuw-west": "Amsterdam Neu-West",
+      oost: "Amsterdam Ost",
+      noord: "Amsterdam Nord",
+      zuid: "Amsterdam Süd",
+      zuidoost: "Amsterdam Südost",
+      bijlmer: "Bijlmer",
+      diemen: "Diemen",
+      "central-station": "Amsterdam Centraal"
+    };
+  }
+
+  if (language === "fr") {
+    return {
+      amsterdam: "Amsterdam",
+      centrum: "Amsterdam Centre",
+      "de-pijp": "De Pijp",
+      jordaan: "Jordaan",
+      "de-wallen": "De Wallen",
+      west: "Amsterdam Ouest",
+      "nieuw-west": "Amsterdam Nieuw-West",
+      oost: "Amsterdam Est",
+      noord: "Amsterdam Nord",
+      zuid: "Amsterdam Sud",
+      zuidoost: "Amsterdam Sud-Est",
+      bijlmer: "Bijlmer",
+      diemen: "Diemen",
+      "central-station": "Gare centrale"
+    };
+  }
+
+  if (language === "nl") {
+    return {
+      amsterdam: "Amsterdam",
+      centrum: "Amsterdam Centrum",
+      "de-pijp": "De Pijp",
+      jordaan: "Jordaan",
+      "de-wallen": "De Wallen",
+      west: "Amsterdam West",
+      "nieuw-west": "Amsterdam Nieuw-West",
+      oost: "Amsterdam Oost",
+      noord: "Amsterdam Noord",
+      zuid: "Amsterdam Zuid",
+      zuidoost: "Amsterdam Zuidoost",
+      bijlmer: "Bijlmer",
+      diemen: "Diemen",
+      "central-station": "Amsterdam Centraal"
+    };
+  }
+
+  return {
+    amsterdam: "Amsterdam",
+    centrum: "Amsterdam Centrum",
+    "de-pijp": "De Pijp",
+    jordaan: "Jordaan",
+    "de-wallen": "De Wallen",
+    west: "Amsterdam West",
+    "nieuw-west": "Amsterdam Nieuw-West",
+    oost: "Amsterdam Oost",
+    noord: "North Amsterdam",
+    zuid: "Amsterdam Zuid",
+    zuidoost: "Amsterdam Zuidoost",
+    bijlmer: "Bijlmer",
+    diemen: "Diemen",
+    "central-station": "Amsterdam Central Station"
+  };
+}
+
+function uniqueRelatedLinks(links: SeoRelatedLink[]) {
+  const seen = new Set<string>();
+
+  return links.filter((link) => {
+    if (seen.has(link.href)) {
+      return false;
+    }
+
+    seen.add(link.href);
+    return true;
+  });
 }
 
 function getSeoHreflangLinks(page: SeoLandingPageDefinition) {

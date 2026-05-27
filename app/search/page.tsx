@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import FAQSection from "@/components/FAQSection";
+import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
 import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
@@ -273,18 +274,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </TrackedNeighborhoodLink>
           ))}
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {primarySeoLandingPages.map((page) => (
-            <Link
-              key={page.href}
-              className="focus-ring rounded-lg border border-line bg-paper px-3 py-2 text-sm font-semibold text-muted transition hover:border-teal hover:text-teal"
-              href={page.href}
-            >
-              {page.label}
-            </Link>
-          ))}
-        </div>
       </section>
+
+      <RelatedPagesSection
+        className="mt-6 md:mt-8"
+        intro="A compact set of related pages for practical Amsterdam location information."
+        links={primarySeoLandingPages.map((page) => ({ href: page.href, label: page.label }))}
+        title="Related Amsterdam pages"
+      />
 
       <FAQSection
         className="mt-6 md:mt-8"
