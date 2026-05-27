@@ -110,8 +110,8 @@ textarea {
 .tn-user-location-marker .tn-user-marker-svg {
   display: block;
   filter: drop-shadow(0 5px 8px rgba(31, 36, 40, 0.28));
-  height: 42px;
-  width: 42px;
+  height: 56px;
+  width: 44px;
 }
 
 .tn-user-marker-halo-fill {
@@ -140,6 +140,15 @@ textarea {
   stroke-width: 3.4;
 }
 
+.tn-user-marker-head-fill {
+  fill: rgba(255, 255, 255, 0.98);
+}
+
+.tn-user-marker-face {
+  fill: #111827;
+  stroke: none;
+}
+
 .tn-map-legend-marker .tn-marker-svg {
   display: block;
   filter: drop-shadow(0 2px 3px rgba(31, 36, 40, 0.18));
@@ -151,7 +160,7 @@ textarea {
   display: block;
   filter: drop-shadow(0 2px 3px rgba(31, 36, 40, 0.2));
   height: 19px;
-  width: 19px;
+  width: 15px;
 }
 
 .tn-map-card-popup .leaflet-popup-content-wrapper {

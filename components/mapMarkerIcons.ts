@@ -70,20 +70,34 @@ export function createPlaceTypeMarkerSvg(placeType?: string) {
 }
 
 export function createUserLocationMarkerSvg() {
-  return `<svg class="tn-user-marker-svg" viewBox="0 0 64 64" role="img" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
-  <ellipse class="tn-user-marker-halo-fill" cx="32" cy="55" rx="21" ry="7"/>
-  <ellipse class="tn-user-marker-halo-ring" cx="32" cy="55" rx="21" ry="7"/>
+  return `<svg class="tn-user-marker-svg" viewBox="0 0 72 92" role="img" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+  <ellipse class="tn-user-marker-halo-fill" cx="35" cy="84" rx="24" ry="7.5"/>
+  <ellipse class="tn-user-marker-halo-ring" cx="35" cy="84" rx="24" ry="7.5"/>
+  <circle class="tn-user-marker-head-fill" cx="31.5" cy="24" r="15"/>
   <g class="tn-user-marker-outline">
-    <circle cx="32" cy="18" r="10"/>
-    <path d="M32 28v18M32 34l-14 8M32 35l15-6M32 46l-13 12M32 46l13 12"/>
-    <path d="M42 27l8-2M49 25c4-3 2-6-1-8M50 19c5-4 5-8 1-12"/>
-    <path d="M26 16h.1M36 16h.1M27 23c3 2 7 2 10-.4"/>
+    <circle cx="31.5" cy="24" r="15"/>
+    <path d="M21 10c3.6-4 8.4-3.4 11.2 1.7M32.5 9.4c4-2 8.1-.7 10.2 3.1"/>
+    <path d="M31 39c-.6 7.5-1.4 14.7 1.5 22.2M31.5 41 16 56M32.8 60l-14.2 24M33 60 53.5 84"/>
+    <path d="M37 40 51 56M51 56 45 33M45 33l11.8-2.5"/>
+    <path d="M44.2 29.4 56.5 32M49.5 30.5l-2.8 6.3M56.5 32c3.6 1.2 5.5-3.1 2.1-5.2"/>
+    <path d="M58 25c6.5-7.5-5.2-9.7 3.4-18M58.2 31c8.1-7.2 6.4-13.9 1.6-18.5"/>
+    <path d="M23 22.5c-1.5.5-2.6 1.7-3.2 3M32 18.5c4.5-2.6 8-1.4 10.4 2.2M21 32.8c7.8-.8 16-3.5 21.2-.8"/>
   </g>
   <g class="tn-user-marker-line">
-    <circle cx="32" cy="18" r="10"/>
-    <path d="M32 28v18M32 34l-14 8M32 35l15-6M32 46l-13 12M32 46l13 12"/>
-    <path d="M42 27l8-2M49 25c4-3 2-6-1-8M50 19c5-4 5-8 1-12"/>
-    <path d="M26 16h.1M36 16h.1M27 23c3 2 7 2 10-.4"/>
+    <circle cx="31.5" cy="24" r="15"/>
+    <path d="M21 10c3.6-4 8.4-3.4 11.2 1.7M32.5 9.4c4-2 8.1-.7 10.2 3.1"/>
+    <path d="M31 39c-.6 7.5-1.4 14.7 1.5 22.2M31.5 41 16 56M32.8 60l-14.2 24M33 60 53.5 84"/>
+    <path d="M37 40 51 56M51 56 45 33M45 33l11.8-2.5"/>
+    <path d="M44.2 29.4 56.5 32M49.5 30.5l-2.8 6.3M56.5 32c3.6 1.2 5.5-3.1 2.1-5.2"/>
+    <path d="M58 25c6.5-7.5-5.2-9.7 3.4-18M58.2 31c8.1-7.2 6.4-13.9 1.6-18.5"/>
+    <path d="M23 22.5c-1.5.5-2.6 1.7-3.2 3M32 18.5c4.5-2.6 8-1.4 10.4 2.2M21 32.8c7.8-.8 16-3.5 21.2-.8"/>
+  </g>
+  <g class="tn-user-marker-face">
+    <ellipse cx="26" cy="24" rx="1.8" ry="3.4"/>
+    <ellipse cx="34.3" cy="23.4" rx="1.8" ry="3.4"/>
+    <path d="M23 33.4c6.7-.8 13-3.1 18.2-1.4l-5.9 3.6z"/>
+    <path d="M44.7 29.9 57.2 32.6 54.7 36.7 42.5 32.6z"/>
+    <circle cx="58" cy="32.6" r="2.2"/>
   </g>
 </svg>`;
 }

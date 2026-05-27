@@ -221,9 +221,9 @@ function getUserLocationIcon(leaflet: LeafletLike) {
   return leaflet.divIcon({
     className: "tn-map-marker tn-user-location-marker",
     html: createUserLocationMarkerSvg(),
-    iconAnchor: [21, 42],
-    iconSize: [42, 42],
-    popupAnchor: [0, -40]
+    iconAnchor: [22, 54],
+    iconSize: [44, 56],
+    popupAnchor: [0, -52]
   });
 }
 
