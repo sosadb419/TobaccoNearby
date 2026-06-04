@@ -11,11 +11,11 @@ const siteUrl = "https://tobacconearby.com";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "TobaccoNearby | Find Tobacco Shops Near You in Amsterdam",
+    default: "TobaccoNearby | Amsterdam Tobacco Shops Map & Directions",
     template: "%s | TobaccoNearby"
   },
   description:
-    "Search for practical information about tobacco shop locations in Amsterdam, including addresses, opening hours, directions and accessibility details. Adults 18+ only.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam, including map directions, opening hours and nearby locations. Adults 18+ only.",
   keywords: [
     "tobacco shops Amsterdam",
     "Amsterdam tobacconist locations",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "TobaccoNearby",
     description:
-      "Find practical location information for tobacco shops in Amsterdam. Adults aged 18+ only.",
+      "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam, including map directions and opening hours. Adults 18+ only.",
     url: siteUrl,
     siteName: "TobaccoNearby",
     locale: "en_US",

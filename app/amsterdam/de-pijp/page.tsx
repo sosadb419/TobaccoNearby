@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in De Pijp Amsterdam | TobaccoNearby"
+    absolute: "Tobacco Shops in De Pijp Amsterdam | Map, Opening Hours & Directions"
   },
   description:
-    "View listed tobacco shops in De Pijp, Amsterdam with practical information such as address, opening hours, directions, and contact details.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in De Pijp Amsterdam, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/de-pijp"
   }

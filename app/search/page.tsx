@@ -65,10 +65,10 @@ const searchFaqs = [
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Search Tobacco Shops in Amsterdam | TobaccoNearby"
+    absolute: "Search Amsterdam Tobacco Shops | Map, Opening Hours & Directions"
   },
   description:
-    "Search listed tobacco shops in Amsterdam by neighborhood, postal code, opening hours, accessibility details, and available contact information.",
+    "Search tobacco shops, kiosks and gas stations in Amsterdam by area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/search"
   }

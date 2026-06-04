@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in Diemen | TobaccoNearby"
+    absolute: "Tobacco Shops in Diemen | Map, Opening Hours & Directions"
   },
   description:
-    "View listed tobacco shops in Diemen with practical information such as addresses, opening hours, directions and available contact details.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Diemen, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/diemen"
   }

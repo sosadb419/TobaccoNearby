@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in Amsterdam Centrum | TobaccoNearby"
+    absolute: "Tobacco Shops in Amsterdam Centrum | Map, Opening Hours & Directions"
   },
   description:
-    "Find practical information about tobacco shops in Amsterdam Centrum, including addresses, opening hours, directions, and contact details. Adults 18+ only.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam Centrum, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/centrum"
   }

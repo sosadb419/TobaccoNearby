@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops near Amsterdam Central Station | TobaccoNearby"
+    absolute: "Tobacco Shops near Amsterdam Central Station | Map & Directions"
   },
   description:
-    "Search tobacco shops near Amsterdam Central Station with address details, opening hours, directions, and practical travel information.",
+    "Find practical location information for tobacco shops, kiosks and gas stations near Amsterdam Central Station, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/near-central-station"
   }

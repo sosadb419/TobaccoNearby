@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in Amsterdam West | TobaccoNearby"
+    absolute: "Tobacco Shops in Amsterdam West | Map, Opening Hours & Directions"
   },
   description:
-    "Search listed tobacco shops in Amsterdam West by location, opening hours, directions, and available contact information.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam West, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/west"
   }

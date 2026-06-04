@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops near De Wallen Amsterdam | TobaccoNearby"
+    absolute: "Tobacco Shops near De Wallen Amsterdam | Map, Opening Hours & Directions"
   },
   description:
-    "Find practical information about tobacco shop locations near De Wallen in Amsterdam, including addresses, opening hours, and directions. Adults 18+ only.",
+    "Find practical location information for tobacco shops, kiosks and gas stations near De Wallen Amsterdam, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/de-wallen"
   }

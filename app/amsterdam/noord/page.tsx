@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in Amsterdam Noord | TobaccoNearby"
+    absolute: "Tobacco Shops in Amsterdam Noord | Map, Opening Hours & Directions"
   },
   description:
-    "View tobacco shop listings in Amsterdam Noord with address details, opening hours, map directions, and contact information where available.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam Noord, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/noord"
   }

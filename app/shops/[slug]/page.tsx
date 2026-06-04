@@ -44,9 +44,9 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
 
   return {
     title: {
-      absolute: `${shop.name} Amsterdam | Address, Opening Hours & Directions`
+      absolute: `${shop.name} ${shop.city || "Amsterdam"} | Map, Opening Hours & Directions`
     },
-    description: `View practical information for ${shop.name} in Amsterdam, including address, opening hours, directions, contact details and neighborhood information. Adults 18+ only.`,
+    description: `View practical location information for ${shop.name} in ${shop.city || "Amsterdam"}, including map directions, opening hours, contact details and nearby locations. Adults 18+ only.`,
     alternates: {
       canonical: `/shops/${shop.slug}`
     }

@@ -7,10 +7,10 @@ export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Tobacco Shops in Amsterdam Nieuw-West | TobaccoNearby"
+    absolute: "Tobacco Shops in Amsterdam Nieuw-West | Map, Opening Hours & Directions"
   },
   description:
-    "Find listed tobacco shops in Amsterdam Nieuw-West, including Osdorp, Slotervaart, Slotermeer and nearby areas, with practical address, opening hour and direction information.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam Nieuw-West, including opening hours, directions and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/amsterdam/nieuw-west"
   }

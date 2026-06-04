@@ -19,10 +19,10 @@ const siteUrl = "https://tobacconearby.com";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "TobaccoNearby | Find Tobacco Shops Near You in Amsterdam"
+    absolute: "TobaccoNearby | Amsterdam Tobacco Shops Map & Directions"
   },
   description:
-    "Search for practical information about tobacco shops in Amsterdam, including addresses, opening hours, directions, accessibility notes, and contact details.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam, including map directions, opening hours and nearby locations. Adults 18+ only.",
   alternates: {
     canonical: "/"
   }

@@ -133,9 +133,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     intent: "buy",
     translationKey: "buy-amsterdam",
     searchIntentKeywords: ["sigaretten kopen Amsterdam", "tabakswinkel Amsterdam", "tabakszaak Amsterdam"],
-    seoTitle: "Sigaretten kopen in Amsterdam | Praktische locatie-informatie",
-    metaDescription:
-      "Zoek praktische informatie over locaties in Amsterdam waar volwassenen tabakswinkels kunnen vinden, inclusief adressen, openingstijden en route-informatie. Alleen voor volwassenen van 18+.",
     h1: "Sigaretten kopen in Amsterdam",
     isPrimary: true
   },
@@ -148,9 +145,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     intent: "where",
     translationKey: "where-amsterdam",
     searchIntentKeywords: ["waar sigaretten kopen Amsterdam", "waar kan ik sigaretten kopen"],
-    seoTitle: "Waar sigaretten kopen in Amsterdam? | TobaccoNearby",
-    metaDescription:
-      "Bekijk waar volwassenen in Amsterdam praktische informatie kunnen vinden over tabakswinkels, openingstijden, adressen en route-informatie. Alleen bedoeld voor 18+.",
     h1: "Waar sigaretten kopen in Amsterdam?",
     isPrimary: true
   },
@@ -166,17 +160,11 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     isPrimary: slug === "bijlmer" || slug === "north-amsterdam" || slug === "amsterdam-centraal",
     ...(slug === "bijlmer"
       ? {
-          seoTitle: "Sigaretten kopen in Bijlmer | Praktische locatie-informatie",
-          metaDescription:
-            "Bekijk praktische locatie-informatie voor volwassenen van 18+ over tabakswinkels, kiosken en tankstations rond Bijlmer en Amsterdam Zuidoost, inclusief adressen, openingstijden en routes.",
           h1: "Sigaretten kopen in Bijlmer"
         }
       : {}),
     ...(slug === "north-amsterdam"
       ? {
-          seoTitle: "Sigaretten kopen in North Amsterdam | TobaccoNearby",
-          metaDescription:
-            "Bekijk praktische locatie-informatie voor volwassenen van 18+ over tabakswinkels, kiosken en tankstations in North Amsterdam en Amsterdam Noord, inclusief adressen, openingstijden en routes.",
           h1: "Sigaretten kopen in North Amsterdam"
         }
       : {})
@@ -190,9 +178,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     intent: "buy",
     translationKey: "buy-amsterdam",
     searchIntentKeywords: ["buy cigarettes Amsterdam", "cigarettes Amsterdam"],
-    seoTitle: "Buy Cigarettes in Amsterdam? Practical Location Information | TobaccoNearby",
-    metaDescription:
-      "Find neutral, practical location information about tobacco shops in Amsterdam, including addresses, opening hours and directions. Adults aged 18+ only.",
     h1: "Buy Cigarettes in Amsterdam?",
     isPrimary: true
   },
@@ -205,9 +190,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     intent: "where",
     translationKey: "where-amsterdam",
     searchIntentKeywords: ["where to buy cigarettes Amsterdam", "where to buy cigarettes in Amsterdam"],
-    seoTitle: "Where to Buy Cigarettes in Amsterdam | Practical Shop Information",
-    metaDescription:
-      "Find practical information about listed tobacco shops in Amsterdam, including addresses, opening hours, directions and contact details. Adults 18+ only.",
     h1: "Where to Buy Cigarettes in Amsterdam",
     isPrimary: true
   },
@@ -223,9 +205,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     isPrimary: slug === "north-amsterdam" || slug === "bijlmer" || slug === "central-station",
     ...(slug === "north-amsterdam"
       ? {
-          seoTitle: "Where to Buy Cigarettes in North Amsterdam | TobaccoNearby",
-          metaDescription:
-            "Find neutral practical location information for adults aged 18+ about tobacco shops, kiosks and gas stations in North Amsterdam, including addresses, opening hours and directions.",
           h1: "Where to Buy Cigarettes in North Amsterdam"
         }
       : {})
@@ -239,9 +218,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     intent: "tobacco",
     translationKey: "tobacco-amsterdam",
     searchIntentKeywords: ["tobacco shop Amsterdam", "tobacco shops near me Amsterdam"],
-    seoTitle: "Tobacco Shops in Amsterdam | TobaccoNearby",
-    metaDescription:
-      "Search listed tobacco shops in Amsterdam with practical information such as addresses, opening hours, directions, place type and contact details. Adults 18+ only.",
     h1: "Tobacco Shops in Amsterdam",
     isPrimary: true
   },
@@ -283,9 +259,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     isPrimary: slug === "amsterdam-nord" || slug === "bijlmer" || slug === "amsterdam-centraal",
     ...(slug === "amsterdam-nord"
       ? {
-          seoTitle: "Zigaretten kaufen in Amsterdam Nord | TobaccoNearby",
-          metaDescription:
-            "Finden Sie neutrale Standortinformationen zu Tabakgeschäften, Kiosken und Tankstellen in Amsterdam Nord, einschließlich Adressen, Öffnungszeiten und Wegbeschreibungen.",
           h1: "Zigaretten kaufen in Amsterdam Nord"
         }
       : {})
@@ -339,9 +312,6 @@ const seoRouteSeeds: SeoRouteSeed[] = [
     isPrimary: slug === "amsterdam-nord" || slug === "bijlmer" || slug === "gare-centrale",
     ...(slug === "amsterdam-nord"
       ? {
-          seoTitle: "Acheter des cigarettes à Amsterdam Nord | TobaccoNearby",
-          metaDescription:
-            "Trouvez des informations pratiques et neutres sur les bureaux de tabac, kiosques et stations-service à Amsterdam Nord, avec adresses, horaires et itinéraires.",
           h1: "Acheter des cigarettes à Amsterdam Nord"
         }
       : {})
@@ -390,8 +360,8 @@ export function getSeoPageUiLabels(language: SeoLanguage) {
 
 function createSeoLandingPage(seed: SeoRouteSeed): SeoLandingPageDefinition {
   const labels = uiLabels[seed.language];
-  const seoTitle = seed.seoTitle ?? getSeoTitle(seed);
-  const metaDescription = seed.metaDescription ?? getMetaDescription(seed);
+  const seoTitle = getSeoTitle(seed);
+  const metaDescription = getMetaDescription(seed);
   const h1 = seed.h1 ?? getH1(seed);
   const introCopy = getIntro(seed);
   const faqItems = getFaqItems(seed);
@@ -416,47 +386,99 @@ function createSeoLandingPage(seed: SeoRouteSeed): SeoLandingPageDefinition {
 }
 
 function getSeoTitle(seed: SeoRouteSeed) {
+  const area = getMetadataAreaDisplayName(seed);
+
   if (seed.language === "nl") {
+    const suffix = seed.areaSlug === "amsterdam" ? "Kaart, Openingstijden & Routes" : "Kaart, Openingstijden & Route";
+
     return seed.intent === "where"
-      ? `Waar sigaretten kopen in ${seed.areaDisplayName}? | TobaccoNearby`
-      : `Sigaretten kopen in ${seed.areaDisplayName} | Praktische locatie-informatie`;
+      ? `Waar sigaretten kopen in ${area} | ${suffix}`
+      : `Sigaretten kopen in ${area} | ${suffix}`;
   }
 
   if (seed.language === "de") {
+    const suffix = seed.areaSlug === "amsterdam" ? "Karte & Wegbeschreibung" : "Karte, Öffnungszeiten & Route";
+
     return seed.intent === "tobacco"
-      ? `Tabakladen in ${seed.areaDisplayName} | TobaccoNearby`
-      : `Zigaretten kaufen in ${seed.areaDisplayName} | TobaccoNearby`;
+      ? `Tabakladen in ${area} | ${suffix}`
+      : `Zigaretten kaufen in ${area} | ${suffix}`;
   }
 
   if (seed.language === "fr") {
+    const suffix = seed.areaSlug === "amsterdam" ? "Carte et itinéraires" : "Carte, horaires et itinéraires";
+
     if (seed.intent === "where") {
-      return `Où acheter des cigarettes à ${seed.areaDisplayName} | TobaccoNearby`;
+      return `Où acheter des cigarettes à ${area} | ${suffix}`;
     }
 
     return seed.intent === "tobacco"
-      ? `Bureaux de tabac à ${seed.areaDisplayName} | TobaccoNearby`
-      : `Acheter des cigarettes à ${seed.areaDisplayName} | TobaccoNearby`;
+      ? `Bureau de tabac à ${area} | ${suffix}`
+      : `Acheter des cigarettes à ${area} | ${suffix}`;
+  }
+
+  const suffix = seed.areaSlug === "amsterdam" ? "Map & Directions" : "Map, Opening Hours & Directions";
+
+  if (seed.intent === "buy") {
+    return `Buy Cigarettes in ${area} | ${suffix}`;
   }
 
   return seed.intent === "tobacco"
-    ? `Tobacco Shops in ${seed.areaDisplayName} | TobaccoNearby`
-    : `Where to Buy Cigarettes in ${seed.areaDisplayName} | TobaccoNearby`;
+    ? `Tobacco Shops in ${area} | ${suffix}`
+    : `Where to Buy Cigarettes in ${area} | ${suffix}`;
 }
 
 function getMetaDescription(seed: SeoRouteSeed) {
+  const area = getMetadataAreaDisplayName(seed);
+
   if (seed.language === "nl") {
-    return `Bekijk praktische locatie-informatie voor volwassenen van 18+ over tabakswinkels, kiosken en tankstations in ${seed.areaDisplayName}, inclusief adressen, openingstijden en route-informatie.`;
+    if (seed.intent === "where") {
+      return `Bekijk waar volwassenen praktische locatie-informatie vinden voor tabakswinkels, kiosken en tankstations in ${area}, met routes en openingstijden. Alleen 18+.`;
+    }
+
+    return `Bekijk tabakswinkels, kiosken en tankstations in ${area} met openingstijden, routes en locaties in de buurt. Alleen voor volwassenen van 18+.`;
   }
 
   if (seed.language === "de") {
-    return `Finden Sie neutrale Standortinformationen zu Tabakgeschäften, Kiosken und Tankstellen in ${seed.areaDisplayName}, einschließlich Adressen, Öffnungszeiten und Wegbeschreibungen.`;
+    if (seed.intent === "tobacco") {
+      return `Sehen Sie Tabakläden, Kioske und Tankstellen in ${area} mit Karte, Öffnungszeiten und Wegbeschreibungen. Nur ab 18 Jahren.`;
+    }
+
+    return `Finden Sie praktische Standortinformationen zu Tabakgeschäften, Kiosken und Tankstellen in ${area}, einschließlich Öffnungszeiten und Wegbeschreibungen. Nur ab 18 Jahren.`;
   }
 
   if (seed.language === "fr") {
-    return `Trouvez des informations pratiques et neutres sur les bureaux de tabac, kiosques et stations-service à ${seed.areaDisplayName}, avec adresses, horaires et itinéraires.`;
+    if (seed.intent === "tobacco") {
+      return `Consultez les bureaux de tabac, kiosques et stations-service à ${area}, avec carte, horaires et itinéraires. Réservé aux adultes de 18 ans et plus.`;
+    }
+
+    return `Trouvez des informations pratiques sur les bureaux de tabac, kiosques et stations-service à ${area}, avec horaires et itinéraires. Réservé aux adultes de 18 ans et plus.`;
   }
 
-  return `Find neutral practical location information for adults aged 18+ about tobacco shops, kiosks and gas stations in ${seed.areaDisplayName}, including addresses, opening hours and directions.`;
+  if (seed.intent === "tobacco") {
+    return `View tobacco shops, kiosks and gas stations in ${area} with map directions, opening hours and nearby locations. Adults 18+ only.`;
+  }
+
+  if (seed.intent === "buy") {
+    return `Use the map to find practical location information for tobacco shops, kiosks and gas stations in ${area}, including directions and nearby locations. Adults 18+ only.`;
+  }
+
+  return `Find practical location information for tobacco shops, kiosks and gas stations in ${area}, including opening hours, directions and nearby locations. Adults 18+ only.`;
+}
+
+function getMetadataAreaDisplayName(seed: SeoRouteSeed) {
+  if (
+    seed.href.includes("sigaretten-kopen-noord") ||
+    seed.href.includes("zigaretten-kaufen-nord") ||
+    seed.href.includes("acheter-cigarettes-nord")
+  ) {
+    return seed.language === "nl" ? "Noord Amsterdam" : "Amsterdam Nord";
+  }
+
+  if (seed.href.includes("amsterdam-noord") || seed.href.includes("amsterdam-nord")) {
+    return seed.language === "nl" ? "Amsterdam-Noord" : "Amsterdam-Nord";
+  }
+
+  return seed.areaDisplayName;
 }
 
 function getH1(seed: SeoRouteSeed) {
