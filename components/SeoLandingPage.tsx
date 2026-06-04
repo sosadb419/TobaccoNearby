@@ -20,7 +20,7 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
   const listingLimit = page.listingLimit ?? 10;
   const visibleShops = shops.slice(0, listingLimit);
   const hasMoreListings = shops.length > visibleShops.length;
-  const searchCopy = getSearchCopy(page.language);
+  const searchCopy = getSearchCopy(page);
 
   return (
     <section className="container-shell py-6 md:py-8" lang={labels.htmlLang}>
@@ -38,6 +38,9 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
               helperText={searchCopy.helperText}
               placeholder={searchCopy.placeholder}
             />
+            {page.intent === "near-me" ? (
+              <p className="mt-3 text-sm leading-6 text-muted">{searchCopy.locationNote}</p>
+            ) : null}
           </div>
         </div>
         <aside className="grid gap-5">
@@ -134,22 +137,46 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
   );
 }
 
-function getSearchCopy(language: SeoLandingPageDefinition["language"]) {
-  if (language === "nl") {
+type SeoSearchCopy = {
+  helperText: string;
+  locationNote?: string;
+  placeholder: string;
+};
+
+function getSearchCopy(page: SeoLandingPageDefinition): SeoSearchCopy {
+  if (page.intent === "near-me" && page.language === "nl") {
+    return {
+      helperText: "Gebruik mijn locatie is optioneel. Je kunt ook zoeken op buurt, straat of postcode.",
+      locationNote:
+        "Als je locatie deelt, wordt deze alleen in je browser gebruikt om locaties op afstand te sorteren. Je kunt de site ook gebruiken zonder locatie te delen.",
+      placeholder: "Zoek op buurt, straat, postcode of gebied"
+    };
+  }
+
+  if (page.intent === "near-me") {
+    return {
+      helperText: "Use my location is optional. You can also search by neighborhood, street, or postal code.",
+      locationNote:
+        "If you share location access, it is used only in your browser to sort nearby listings. You can still search manually without sharing location.",
+      placeholder: "Search by neighborhood, street, postal code, or area"
+    };
+  }
+
+  if (page.language === "nl") {
     return {
       helperText: "Zoek op gebied, postcode, straat, station of buurt.",
       placeholder: "Zoek op gebied, postcode, straat of buurt"
     };
   }
 
-  if (language === "de") {
+  if (page.language === "de") {
     return {
       helperText: "Suchen Sie nach Gebiet, Postleitzahl, Straße, Bahnhof oder Stadtteil.",
       placeholder: "Gebiet, Postleitzahl, Straße oder Stadtteil"
     };
   }
 
-  if (language === "fr") {
+  if (page.language === "fr") {
     return {
       helperText: "Recherchez par zone, code postal, rue, gare ou quartier.",
       placeholder: "Zone, code postal, rue ou quartier"

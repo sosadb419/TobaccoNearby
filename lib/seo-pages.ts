@@ -3,7 +3,7 @@ import type { FAQItem } from "@/components/FAQSection";
 import type { SeoAreaSlug } from "@/lib/seo-areas";
 
 export type SeoLanguage = "nl" | "en" | "de" | "fr";
-export type SeoIntent = "buy" | "where" | "tobacco";
+export type SeoIntent = "buy" | "where" | "tobacco" | "near-me";
 
 export type SeoRelatedLink = {
   href: string;
@@ -16,6 +16,7 @@ export type SeoLandingPageDefinition = {
   label: string;
   areaSlug: SeoAreaSlug;
   areaDisplayName: string;
+  intent: SeoIntent;
   seoTitle: string;
   metaDescription: string;
   metadataTitle: string;
@@ -123,7 +124,152 @@ const frenchAreaRoutes: Array<[string, SeoAreaSlug, string, string]> = [
   ["gare-centrale", "central-station", "la gare centrale d’Amsterdam", "Gare centrale"]
 ];
 
+const nearMeSeoRoutes: SeoRouteSeed[] = [
+  {
+    language: "en",
+    href: "/amsterdam/tobacco-shop-near-me",
+    label: "Tobacco shop near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-tobacco-shop",
+    searchIntentKeywords: ["tobacco shop near me", "tobacco shop near me Amsterdam"],
+    seoTitle: "Tobacco Shop Near Me in Amsterdam | Map, Opening Hours & Directions",
+    metaDescription:
+      "Find practical location information for tobacco shops, kiosks and gas stations near you in Amsterdam, including opening hours, directions and map view. Adults 18+ only.",
+    h1: "Tobacco Shop Near Me in Amsterdam",
+    isPrimary: true
+  },
+  {
+    language: "en",
+    href: "/amsterdam/tabak-shop-near-me",
+    label: "Tabak shop near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-tabak-shop",
+    searchIntentKeywords: ["tabak shop near me", "tabak shop Amsterdam"],
+    seoTitle: "Tabak Shop Near Me in Amsterdam | Map & Directions",
+    metaDescription:
+      "Find practical location information for tabak shops, kiosks and gas stations near you in Amsterdam, including opening hours, directions and map view. Adults 18+ only.",
+    h1: "Tabak Shop Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/tobacco-store-near-me",
+    label: "Tobacco store near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-tobacco-store",
+    searchIntentKeywords: ["tobacco store near me", "tobacco store Amsterdam"],
+    seoTitle: "Tobacco Store Near Me in Amsterdam | Map, Opening Hours & Directions",
+    metaDescription:
+      "Find practical location information for tobacco stores, kiosks and gas stations near you in Amsterdam, including opening hours, directions and nearby locations. Adults 18+ only.",
+    h1: "Tobacco Store Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/cigarette-shop-near-me",
+    label: "Cigarette shop near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-cigarette-shop",
+    searchIntentKeywords: ["cigarette shop near me", "cigarette shop Amsterdam"],
+    seoTitle: "Cigarette Shop Near Me in Amsterdam | Map, Opening Hours & Directions",
+    metaDescription:
+      "Find practical location information for cigarette shop searches in Amsterdam, including nearby listings, opening hours, map view and directions. Adults 18+ only.",
+    h1: "Cigarette Shop Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/cigarettes-near-me",
+    label: "Cigarettes near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-cigarettes",
+    searchIntentKeywords: ["cigarettes near me", "cigarettes near me Amsterdam"],
+    seoTitle: "Cigarettes Near Me in Amsterdam | Map, Opening Hours & Directions",
+    metaDescription:
+      "Find practical location information for tobacco shops, kiosks and gas stations near you in Amsterdam, including opening hours, directions and map view. Adults 18+ only.",
+    h1: "Cigarettes Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/tabac-near-me",
+    label: "Tabac near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-tabac",
+    searchIntentKeywords: ["tabac near me", "tabac shop near me", "tabac Amsterdam"],
+    seoTitle: "Tabac Near Me in Amsterdam | Map, Opening Hours & Directions",
+    metaDescription:
+      "Find practical location information for tabac and tobacco shop searches in Amsterdam, including nearby locations, opening hours and directions. Adults 18+ only.",
+    h1: "Tabac Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/buy-cigarettes-near-me",
+    label: "Buy cigarettes near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-buy-cigarettes",
+    searchIntentKeywords: ["buy cigarettes near me", "buy cigarettes near me Amsterdam"],
+    seoTitle: "Buy Cigarettes Near Me in Amsterdam | Map & Directions",
+    metaDescription:
+      "Find practical location information for tobacco shops, kiosks and gas stations near you in Amsterdam, including opening hours, directions and map view. Adults 18+ only.",
+    h1: "Buy Cigarettes Near Me in Amsterdam"
+  },
+  {
+    language: "en",
+    href: "/amsterdam/where-to-buy-cigarettes-near-me",
+    label: "Where to buy cigarettes near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-where-cigarettes",
+    searchIntentKeywords: ["where to buy cigarettes near me", "where to buy cigarettes near me Amsterdam"],
+    seoTitle: "Where to Buy Cigarettes Near Me in Amsterdam | Map & Directions",
+    metaDescription:
+      "Find practical location information for tobacco shops, kiosks and gas stations near you in Amsterdam, including opening hours, directions and nearby locations. Adults 18+ only.",
+    h1: "Where to Buy Cigarettes Near Me in Amsterdam"
+  },
+  {
+    language: "nl",
+    href: "/amsterdam/sigaretten-kopen-in-de-buurt",
+    label: "Sigaretten kopen in de buurt",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-sigaretten-buurt",
+    searchIntentKeywords: ["sigaretten kopen in de buurt", "sigaretten kopen in de buurt mijn locatie"],
+    seoTitle: "Sigaretten kopen in de buurt | Kaart, Openingstijden & Route",
+    metaDescription:
+      "Bekijk praktische locatie-informatie voor tabakswinkels, kiosken en tankstations in de buurt in Amsterdam, inclusief openingstijden, routes en kaartweergave. Alleen voor volwassenen van 18+.",
+    h1: "Sigaretten kopen in de buurt"
+  },
+  {
+    language: "nl",
+    href: "/amsterdam/sigaretten-kopen-near-me",
+    label: "Sigaretten kopen near me",
+    areaSlug: "amsterdam",
+    areaDisplayName: "Amsterdam",
+    intent: "near-me",
+    translationKey: "near-me-sigaretten-near-me",
+    searchIntentKeywords: ["sigaretten kopen near me", "sigaretten kopen Amsterdam near me"],
+    seoTitle: "Sigaretten kopen near me in Amsterdam | Kaart, Openingstijden & Route",
+    metaDescription:
+      "Bekijk praktische locatie-informatie voor tabakswinkels, kiosken en tankstations near me in Amsterdam, inclusief openingstijden, routes en kaartweergave. Alleen voor volwassenen van 18+.",
+    h1: "Sigaretten kopen near me in Amsterdam"
+  }
+];
+
 const seoRouteSeeds: SeoRouteSeed[] = [
+  ...nearMeSeoRoutes,
   {
     language: "nl",
     href: "/amsterdam/sigaretten-kopen",
@@ -360,8 +506,8 @@ export function getSeoPageUiLabels(language: SeoLanguage) {
 
 function createSeoLandingPage(seed: SeoRouteSeed): SeoLandingPageDefinition {
   const labels = uiLabels[seed.language];
-  const seoTitle = getSeoTitle(seed);
-  const metaDescription = getMetaDescription(seed);
+  const seoTitle = seed.seoTitle ?? getSeoTitle(seed);
+  const metaDescription = seed.metaDescription ?? getMetaDescription(seed);
   const h1 = seed.h1 ?? getH1(seed);
   const introCopy = getIntro(seed);
   const faqItems = getFaqItems(seed);
@@ -510,6 +656,14 @@ function getIntro(seed: SeoRouteSeed) {
   const areaContext = getAreaContext(seed.language, seed.areaSlug, area);
   const compliance = getComplianceSentence(seed.language);
 
+  if (seed.intent === "near-me") {
+    if (seed.language === "nl") {
+      return `Deze pagina helpt volwassenen van 18+ met praktische locatie-informatie voor tabakswinkels, kiosken en tankstations in de buurt in Amsterdam. Je kunt zoeken per gebied of “Gebruik mijn locatie” gebruiken om locaties in de buurt te bekijken; locatie delen is optioneel en wordt alleen in je browser gebruikt om te sorteren. ${areaContext} ${compliance}`;
+    }
+
+    return `This page helps adults aged 18+ find practical location information for tobacco shops, kiosks and gas stations near them in Amsterdam. You can use the map, search by area, or choose “Use my location” to sort nearby listings; location access is optional and only used in your browser for this search. ${areaContext} ${compliance}`;
+  }
+
   if (seed.language === "nl") {
     const opening =
       seed.intent === "where"
@@ -655,6 +809,66 @@ function getAreaContext(language: SeoLanguage, areaSlug: SeoAreaSlug, areaDispla
 function getFaqItems(seed: SeoRouteSeed): FAQItem[] {
   const areaDisplayName = seed.areaDisplayName;
 
+  if (seed.intent === "near-me") {
+    if (seed.language === "nl") {
+      return [
+        {
+          question: "Hoe vind ik een tabakswinkel in de buurt?",
+          answer:
+            "Gebruik de zoekbalk, kaart of de knop “Gebruik mijn locatie” om praktische locatie-informatie in Amsterdam te bekijken. Controleer details altijd voordat je vertrekt."
+        },
+        {
+          question: "Gebruikt TobaccoNearby mijn exacte locatie?",
+          answer:
+            "Locatie delen is optioneel. Als je toestemming geeft, wordt je locatie alleen in je browser gebruikt om resultaten op afstand te sorteren."
+        },
+        {
+          question: "Kan ik zoeken zonder mijn locatie te delen?",
+          answer:
+            "Ja. Je kunt zoeken op buurt, straat, postcode of gebied, zoals Centrum, Noord, Bijlmer of Amsterdam Centraal."
+        },
+        {
+          question: "Zijn openingstijden altijd actueel?",
+          answer:
+            "Openingstijden kunnen veranderen door feestdagen, tijdelijke sluitingen of lokale wijzigingen. Controleer gegevens altijd voordat je een locatie bezoekt."
+        },
+        {
+          question: "Verkoopt TobaccoNearby sigaretten?",
+          answer:
+            "Nee. TobaccoNearby verkoopt geen tabaksproducten en verwerkt geen bestellingen. De website biedt alleen praktische locatie-informatie voor volwassenen van 18+."
+        }
+      ];
+    }
+
+    return [
+      {
+        question: "How can I find a tobacco shop near me in Amsterdam?",
+        answer:
+          "Use the search bar, map, or “Use my location” button to view practical Amsterdam location information. Please verify details before visiting."
+      },
+      {
+        question: "Does TobaccoNearby use my exact location?",
+        answer:
+          "Location access is optional. If you allow it, your location is used only in your browser to sort listings by distance."
+      },
+      {
+        question: "Can I search without sharing my location?",
+        answer:
+          "Yes. You can search by neighborhood, street, postal code or area, including Centrum, Noord, Bijlmer and Amsterdam Central Station."
+      },
+      {
+        question: "Are opening hours always accurate?",
+        answer:
+          "Opening hours may change due to holidays, temporary closures or local updates. Please verify details before visiting."
+      },
+      {
+        question: "Does TobaccoNearby sell cigarettes?",
+        answer:
+          "No. TobaccoNearby does not sell tobacco products, process orders or promote smoking. It only provides practical location information for adults aged 18+."
+      }
+    ];
+  }
+
   if (seed.language === "nl") {
     return [
       {
@@ -795,6 +1009,28 @@ function getFaqItems(seed: SeoRouteSeed): FAQItem[] {
 }
 
 function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
+  if (seed.intent === "near-me") {
+    return uniqueRelatedLinks([
+      { href: "/search", label: seed.language === "nl" ? "Zoeken op locatie" : "Search Amsterdam listings" },
+      { href: "/amsterdam/tobacco-shops", label: seed.language === "nl" ? "Tabakswinkels Amsterdam" : "Tobacco shops Amsterdam" },
+      {
+        href: "/amsterdam/where-to-buy-cigarettes",
+        label: seed.language === "nl" ? "Where to buy cigarettes Amsterdam" : "Where to buy cigarettes Amsterdam"
+      },
+      { href: "/amsterdam/sigaretten-kopen", label: "Sigaretten kopen Amsterdam" },
+      {
+        href: "/amsterdam/near-central-station",
+        label: seed.language === "nl" ? "Amsterdam Centraal" : "Amsterdam Central Station"
+      },
+      { href: "/amsterdam/centrum", label: "Amsterdam Centrum" },
+      { href: "/amsterdam/zuidoost", label: "Amsterdam Zuidoost" },
+      { href: "/amsterdam/noord", label: "Amsterdam Noord" },
+      { href: "/amsterdam/tobacco-shop-near-me", label: "Tobacco shop near me" },
+      { href: "/amsterdam/cigarettes-near-me", label: "Cigarettes near me" },
+      { href: "/amsterdam/sigaretten-kopen-in-de-buurt", label: "Sigaretten kopen in de buurt" }
+    ]).filter((link) => link.href !== seed.href);
+  }
+
   const languageLinks: Record<SeoLanguage, SeoRelatedLink[]> = {
     nl: [
       { href: "/amsterdam/sigaretten-kopen", label: "Sigaretten kopen Amsterdam" },

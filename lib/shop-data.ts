@@ -209,8 +209,13 @@ function getSearchAliasTargets(value: string) {
 
 function isGeneralAmsterdamSearch(value: string) {
   const hasAmsterdam = value.includes("amsterdam");
+  const hasNearMeIntent =
+    value.includes("near me") ||
+    value.includes("in de buurt") ||
+    value.includes("mijn locatie") ||
+    value.includes("nearby");
 
-  if (!hasAmsterdam) {
+  if (!hasAmsterdam && !hasNearMeIntent) {
     return false;
   }
 
