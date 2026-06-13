@@ -11,6 +11,16 @@ const validDays = new Set<DayName>([
   "Sunday"
 ]);
 
+const dayAbbreviations: Record<DayName, string> = {
+  Monday: "Mo",
+  Tuesday: "Tu",
+  Wednesday: "We",
+  Thursday: "Th",
+  Friday: "Fr",
+  Saturday: "Sa",
+  Sunday: "Su"
+};
+
 export function generateLocalBusinessJsonLd(shop: Shop) {
   if (shop.status && shop.status !== "published") {
     return null;
@@ -53,12 +63,27 @@ export function generateLocalBusinessJsonLd(shop: Shop) {
   }
 
   const openingHoursSpecification = getOpeningHoursSpecificationJsonLd(shop.openingHours);
+  const openingHours = getOpeningHoursJsonLd(shop.openingHours);
 
   if (openingHoursSpecification.length > 0) {
     schema.openingHoursSpecification = openingHoursSpecification;
   }
 
+  if (openingHours.length > 0) {
+    schema.openingHours = openingHours;
+  }
+
   return schema;
+}
+
+function getOpeningHoursJsonLd(slots: OpeningHoursSlot[]) {
+  return slots.flatMap((slot) => {
+    if (!isValidOpeningHoursSlot(slot)) {
+      return [];
+    }
+
+    return slot.days.map((day) => `${dayAbbreviations[day]} ${slot.opens}-${slot.closes}`);
+  });
 }
 
 function getOpeningHoursSpecificationJsonLd(slots: OpeningHoursSlot[]) {
@@ -80,12 +105,19 @@ function getOpeningHoursSpecificationJsonLd(slots: OpeningHoursSlot[]) {
 
 function isValidOpeningHoursSlot(slot: OpeningHoursSlot) {
   return (
+    !isClosedOpeningHoursSlot(slot) &&
     slot.days.length > 0 &&
     slot.days.every((day) => validDays.has(day)) &&
     isValidTime(slot.opens) &&
     isValidTime(slot.closes) &&
     slot.opens !== slot.closes
   );
+}
+
+function isClosedOpeningHoursSlot(slot: OpeningHoursSlot) {
+  const note = slot.note?.trim().toLowerCase();
+
+  return note === "closed" || note === "gesloten";
 }
 
 function isValidTime(value: string) {
