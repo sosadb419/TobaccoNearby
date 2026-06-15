@@ -57,6 +57,7 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
       {page.intent === "near-me" ? (
         <>
           <NearMeGuide page={page} />
+          {page.href === "/sigaretten-kopen-in-de-buurt" ? <DutchProximityVariants /> : null}
           <FeaturedNearMeLinks language={page.language} />
         </>
       ) : null}
@@ -294,23 +295,167 @@ function FeaturedNearMeLinks({ language }: { language: SeoLandingPageDefinition[
   );
 }
 
+function DutchProximityVariants() {
+  const links = [
+    { href: "/sigaretten-dichtbij", label: "sigaretten dichtbij" },
+    { href: "/sigaretten-vlakbij", label: "sigaretten vlakbij" },
+    { href: "/tabakswinkel-dichtbij", label: "tabakswinkel dichtbij" },
+    { href: "/tabak-dichtbij", label: "tabak dichtbij" },
+    { href: "/sigaretten-in-de-omgeving", label: "sigaretten in de omgeving" }
+  ];
+
+  return (
+    <section className="mt-8 rounded-lg border border-line bg-white p-5" aria-labelledby="dutch-proximity-variants-heading">
+      <h2 id="dutch-proximity-variants-heading" className="text-2xl font-bold text-ink">
+        Andere manieren waarop mensen dichtbij zoeken
+      </h2>
+      <p className="mt-3 text-sm leading-6 text-muted">
+        Mensen zoeken niet alleen op termen zoals "sigaretten kopen in de buurt", maar ook op zoekopdrachten zoals
+        "sigaretten dichtbij", "tabakswinkel dichtbij", "tabak vlakbij" of "sigaretten in de omgeving". Deze pagina
+        helpt volwassenen van 18+ met praktische locatie-informatie voor locaties in Amsterdam waar dergelijke
+        informatie beschikbaar is.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            className="focus-ring rounded-lg border border-line bg-paper px-3 py-2 text-sm font-semibold text-ink hover:border-teal hover:text-teal"
+            href={link.href}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+type DutchNearMeGuideDetail = {
+  mainPhrase: string;
+  secondaryPhrase: string;
+  searchSituation: string;
+  locationPhrase: string;
+  scanAdvice: string;
+  neighborhoodAngle: string;
+  relatedPhrase: string;
+};
+
+const dutchNearMeGuideDetails: Record<string, DutchNearMeGuideDetail> = {
+  "/sigaretten-dichtbij": {
+    mainPhrase: "sigaretten dichtbij",
+    secondaryPhrase: "sigaretten kopen dichtbij",
+    searchSituation: "wanneer je vooral wilt weten welke dichtstbijzijnde locatie praktisch bereikbaar is",
+    locationPhrase: "dichtbij je huidige route, hotel, werkplek of buurt",
+    scanAdvice: "vergelijk eerst de afstand, daarna de openingstijden en pas daarna de routeknop",
+    neighborhoodAngle: "Centrum, De Pijp, Jordaan, Noord, Oost, Zuid en Bijlmer",
+    relatedPhrase: "dichtstbijzijnde locatie"
+  },
+  "/tabakswinkel-dichtbij": {
+    mainPhrase: "tabakswinkel dichtbij",
+    secondaryPhrase: "dichtstbijzijnde tabakswinkel",
+    searchSituation: "wanneer je specifiek naar een tabakswinkel zoekt en minder naar algemene buurtresultaten",
+    locationPhrase: "dichtbij een straat, station, tramhalte of bekende Amsterdamse buurt",
+    scanAdvice: "let op het plaats-type label, omdat sommige vermeldingen kiosken, tankstations of convenience stores kunnen zijn",
+    neighborhoodAngle: "Amsterdam Centrum, De Wallen, Jordaan, West, Noord en Zuidoost",
+    relatedPhrase: "tabakszaak dichtbij"
+  },
+  "/tabak-dichtbij": {
+    mainPhrase: "tabak dichtbij",
+    secondaryPhrase: "tabak shop dichtbij",
+    searchSituation: "wanneer je een korte brede zoekterm gebruikt en daarna wilt filteren op type locatie",
+    locationPhrase: "dichtbij de plek waar je al bent of de buurt waar je later naartoe gaat",
+    scanAdvice: "gebruik de kaart en filters om tabakswinkels, kiosken, tankstations en andere locatie-types uit elkaar te houden",
+    neighborhoodAngle: "Centrum, Amsterdam Oost, Amsterdam West, Diemen en Bijlmer",
+    relatedPhrase: "tabak locatie dichtbij"
+  },
+  "/sigaretten-vlakbij": {
+    mainPhrase: "sigaretten vlakbij",
+    secondaryPhrase: "sigaretten kopen vlakbij",
+    searchSituation: "wanneer je snel een praktische locatie vlakbij wilt vinden zonder eerst een exacte buurtnaam te kiezen",
+    locationPhrase: "vlakbij een metrostation, winkelstraat, hotelgebied of woonbuurt",
+    scanAdvice: "controleer of de vermelding actuele openingstijden, een kaartmarkering en een routeknop heeft",
+    neighborhoodAngle: "De Pijp, Oost, Noord, Zuid, Zuidoost en Amsterdam Centraal",
+    relatedPhrase: "locatie vlakbij"
+  },
+  "/tabakswinkel-vlakbij": {
+    mainPhrase: "tabakswinkel vlakbij",
+    secondaryPhrase: "dichtstbijzijnde tabakswinkel",
+    searchSituation: "wanneer je een concrete tabakswinkel vlakbij zoekt en de resultaten op afstand wilt beoordelen",
+    locationPhrase: "vlakbij je route door Amsterdam of vlakbij een specifieke buurtpagina",
+    scanAdvice: "bekijk naast afstand ook contactgegevens, toegankelijkheid en de laatste update van de vermelding",
+    neighborhoodAngle: "Centrum, Jordaan, Amsterdam Noord, Amsterdam Zuid en Amsterdam Zuidoost",
+    relatedPhrase: "tabakszaak vlakbij"
+  },
+  "/sigaretten-in-de-omgeving": {
+    mainPhrase: "sigaretten in de omgeving",
+    secondaryPhrase: "sigaretten kopen in de omgeving",
+    searchSituation: "wanneer je niet alleen de aller-dichtste locatie wilt zien, maar ook opties in dezelfde omgeving",
+    locationPhrase: "in de omgeving van een buurt, station, winkelstraat of stadsdeel",
+    scanAdvice: "gebruik buurtlinks om te zien of een nabij gebied zoals Centrum, Oost, Noord of Zuidoost beter past",
+    neighborhoodAngle: "Amsterdam Centrum, De Pijp, Jordaan, Oost, Noord, Zuid en Diemen",
+    relatedPhrase: "locaties in de omgeving"
+  },
+  "/tabak-in-de-omgeving": {
+    mainPhrase: "tabak in de omgeving",
+    secondaryPhrase: "tabakswinkel in de omgeving",
+    searchSituation: "wanneer je een brede oriëntatie wilt op tabakswinkels, kiosken en andere locatie-types in de omgeving",
+    locationPhrase: "in de omgeving van je bestemming, overstappunt of huidige Amsterdamse buurt",
+    scanAdvice: "combineer de kaart met plaats-type labels om praktische locaties te scannen zonder promotionele informatie",
+    neighborhoodAngle: "Amsterdam West, Nieuw-West, Oost, Zuidoost, Diemen en Amsterdam Centraal",
+    relatedPhrase: "tabak locatie in de omgeving"
+  },
+  "/sigaretten-kopen-in-de-buurt": {
+    mainPhrase: "sigaretten kopen in de buurt",
+    secondaryPhrase: "sigaretten dichtbij",
+    searchSituation: "wanneer je in gewone taal zoekt naar praktische locaties in de buurt",
+    locationPhrase: "in de buurt van een straat, postcode, station of Amsterdamse wijk",
+    scanAdvice: "gebruik locatie delen alleen als je resultaten op afstand wilt sorteren; handmatig zoeken kan ook",
+    neighborhoodAngle: "Centrum, De Pijp, Jordaan, Noord, Oost, Zuid en Bijlmer",
+    relatedPhrase: "sigaretten in de omgeving"
+  },
+  "/tabakswinkel-in-de-buurt": {
+    mainPhrase: "tabakswinkel in de buurt",
+    secondaryPhrase: "tabakswinkel dichtbij",
+    searchSituation: "wanneer je zoekt naar een tabakswinkel en praktische gegevens per buurt wilt vergelijken",
+    locationPhrase: "in de buurt van je route, hotel, woonadres of overstappunt",
+    scanAdvice: "controleer altijd openingstijden, contactgegevens en route-informatie voordat je vertrekt",
+    neighborhoodAngle: "Amsterdam Centrum, Jordaan, Noord, Oost, Zuid en Zuidoost",
+    relatedPhrase: "dichtstbijzijnde tabakswinkel"
+  },
+  "/tabak-in-de-buurt": {
+    mainPhrase: "tabak in de buurt",
+    secondaryPhrase: "tabak dichtbij",
+    searchSituation: "wanneer je breed zoekt naar locatie-informatie zonder direct een winkeltype te kiezen",
+    locationPhrase: "in de buurt van een Amsterdamse wijk of bekende plek",
+    scanAdvice: "gebruik filters om telefoonnummer, website, toegankelijkheid en plaats-type te vergelijken",
+    neighborhoodAngle: "Centrum, West, Nieuw-West, Oost, Zuid en Diemen",
+    relatedPhrase: "tabak in de omgeving"
+  }
+};
+
+function getDutchNearMeGuideCopy(page: SeoLandingPageDefinition) {
+  const detail = dutchNearMeGuideDetails[page.href] ?? dutchNearMeGuideDetails["/sigaretten-kopen-in-de-buurt"];
+
+  return {
+    heading: `Praktische informatie voor ${detail.mainPhrase}`,
+    paragraphs: [
+      `${page.h1} is een zoekopdracht die vaak wordt gebruikt ${detail.searchSituation}. TobaccoNearby helpt volwassenen van 18+ om neutrale locatie-informatie te bekijken voor tabakswinkels, kiosken, convenience stores en tankstations waar gegevens beschikbaar zijn. De website verkoopt geen tabaksproducten, verwerkt geen bestellingen en moedigt roken niet aan. De pagina is bedoeld als praktisch startpunt voor adressen, openingstijden, route-informatie, kaartweergave en links naar relevante Amsterdamse gebieden.`,
+      `Mensen gebruiken verschillende woorden voor dezelfde nabijheidsvraag. De ene gebruiker zoekt op "${detail.mainPhrase}", terwijl een ander juist "${detail.secondaryPhrase}", "${detail.relatedPhrase}" of "dichtstbijzijnde locatie" intypt. Deze pagina gebruikt die taal op een natuurlijke manier, zonder prijzen, merken, aanbiedingen of productadvies te tonen. Het doel is om duidelijk te maken waar praktische locatie-informatie beschikbaar is en welke vaste pagina's het meest nuttig zijn om verder te klikken.`,
+      `Je kunt zoeken ${detail.locationPhrase}. De zoekbalk ondersteunt buurten, straten, postcodes, stations en bekende gebiedsnamen. Wie locatie delen toestaat, kan de browser laten helpen met sorteren op afstand; die locatie wordt alleen tijdelijk in de browser gebruikt voor de zoekactie. Je kunt dezelfde informatie ook zonder locatie delen bekijken door handmatig een buurt of straat in te voeren. Dat is handig voor bezoekers, expats, toeristen en bewoners die vooraf willen plannen.`,
+      `Openingstijden zijn belangrijk bij zoekopdrachten zoals ${detail.mainPhrase}, maar ze kunnen veranderen door feestdagen, tijdelijke sluitingen, personeelsbezetting of lokale updates. Daarom toont TobaccoNearby openingstijden waar beschikbaar en vraagt de site gebruikers om gegevens te controleren voordat ze vertrekken. Sommige vermeldingen kunnen een telefoonnummer, website, toegankelijkheidsinformatie of routeknop bevatten. Als gegevens ontbreken, blijft de vermelding bruikbaar als locatieverwijzing, maar de details moeten extra worden geverifieerd.`,
+      `Niet elke vermelding is hetzelfde type plek. Sommige locaties zijn tabakswinkels, terwijl andere als kiosk, tankstation, convenience store, night shop of andere locatie kunnen zijn opgenomen. Voor ${detail.mainPhrase} is het daarom verstandig om het plaats-type label te bekijken en niet alleen naar de naam te kijken. ${detail.scanAdvice}. Zo blijft de pagina nuttig als neutrale directory en wordt de inhoud geen verkoop- of aanbevelingspagina.`,
+      `Voor betere oriëntatie kun je ook via stadspagina's en buurtpagina's navigeren. Amsterdam is opgedeeld in gebieden zoals ${detail.neighborhoodAngle}. Zoeken per buurt werkt vaak sneller dan alleen zoeken op "dichtbij" of "vlakbij", omdat je dan een vaste, indexeerbare pagina met lokale context opent. Deze pagina verwijst daarom naar Amsterdamse buurtpagina's, algemene near-me pagina's en relevante shopdetailpagina's waar individuele vermeldingen meer informatie tonen.`,
+      "De uitgelichte steden laten zien hoe de directory later kan groeien. Amsterdam is nu de belangrijkste stad met gepubliceerde gegevens, terwijl Utrecht, Rotterdam, Den Haag en Eindhoven als toekomstige uitbreidingsrichting zichtbaar zijn. Dit voorkomt dat de pagina doet alsof er al landelijke dekking is, maar maakt wel duidelijk dat de structuur is voorbereid op meer steden. Voor nu zijn de Amsterdamse stadspagina, buurtpagina's en shopdetailpagina's de belangrijkste plekken om actuele, indexeerbare informatie te vinden.",
+      `Wanneer je een specifieke locatie bekijkt, helpt de shopdetailpagina met extra context zoals het adres, de buurt, openingstijden, routeknoppen, kaartmarkering, nabijgelegen vermeldingen en datum van de laatste update. Die detailpagina's zijn nuttiger dan tijdelijke zoek-URL's, omdat ze een vaste URL hebben en meer unieke informatie bevatten. Gebruik de volledige zoekpagina voor alle Amsterdamse resultaten en filters zoals open nu, telefoonnummer, website, toegankelijkheid en kaartweergave. Controleer altijd openingstijden, contactgegevens, route-informatie en beschikbaarheid voordat je een locatie bezoekt.`
+    ]
+  };
+}
+
 function getNearMeGuideCopy(page: SeoLandingPageDefinition) {
   const topic = page.h1;
 
   if (page.language === "nl") {
-    return {
-      heading: "Zo zoeken naar locaties in de buurt werkt",
-      paragraphs: [
-        `${topic} is een zoekopdracht die vaak wordt gebruikt wanneer iemand snel praktische informatie nodig heeft, maar niet precies weet welke buurt, straat of postcode het handigst is. TobaccoNearby helpt volwassenen van 18+ om neutrale locatie-informatie te bekijken voor tabakswinkels, kiosken, convenience stores en tankstations waar gegevens beschikbaar zijn. De website verkoopt geen tabaksproducten, verwerkt geen bestellingen en moedigt roken niet aan. De pagina is bedoeld als startpunt voor adressen, openingstijden, route-informatie, kaartweergave en links naar relevante Amsterdamse gebieden.`,
-        "Je kunt op meerdere manieren zoeken. De zoekbalk werkt voor buurten, straten, postcodes, stations en bekende gebiedsnamen. Wie locatie delen toestaat, kan de browser laten helpen met sorteren op afstand; die locatie wordt alleen tijdelijk in de browser gebruikt voor de zoekactie. Je kunt dezelfde informatie ook zonder locatie delen bekijken door handmatig een buurt of straat in te voeren. Dat is handig voor bezoekers die onderweg zijn, expats die de stad nog leren kennen of bewoners die liever op gebied zoeken.",
-        "Openingstijden zijn belangrijk bij zoekopdrachten in de buurt, maar ze kunnen veranderen door feestdagen, tijdelijke sluitingen, personeelsbezetting of lokale wijzigingen. Daarom toont TobaccoNearby openingstijden waar beschikbaar, maar vraagt de site gebruikers om gegevens te controleren voordat ze vertrekken. Sommige vermeldingen kunnen een telefoonnummer, website, toegankelijkheidsinformatie of routeknop bevatten. Als gegevens ontbreken, blijft de vermelding bruikbaar als locatieverwijzing, maar de details moeten extra worden geverifieerd.",
-        "Niet elke locatie is hetzelfde type plek. Sommige vermeldingen zijn tabakswinkels, terwijl andere als kiosk, tankstation, convenience store, night shop of andere locatie kunnen zijn opgenomen. Het type label helpt om de kaart en resultaten praktischer te scannen zonder iets aan te prijzen. De website toont geen prijzen, aanbiedingen, merken of productaanbevelingen. De bedoeling is alleen om volwassenen van 18+ te helpen begrijpen waar praktische locatie-informatie beschikbaar is.",
-        "Voor betere oriëntatie kun je ook via stadspagina’s en buurtpagina’s navigeren. Amsterdam is opgedeeld in gebieden zoals Centrum, De Pijp, Jordaan, Noord, Oost, Zuid en Bijlmer/Zuidoost. Zoeken per buurt werkt vaak sneller dan zoeken op heel Nederland of alleen op “in de buurt”. Deze pagina toont ook belangrijke Amsterdam-links, zodat zoekmachines en gebruikers gemakkelijk naar de meest nuttige, indexeerbare pagina’s kunnen gaan in plaats van naar tijdelijke filter-URL’s.",
-        "De uitgelichte steden laten zien hoe de directory later kan groeien. Amsterdam is nu de belangrijkste stad met gepubliceerde gegevens, terwijl Utrecht, Rotterdam, Den Haag en Eindhoven als toekomstige uitbreidingsrichting zichtbaar zijn. Dit voorkomt dat de pagina doet alsof er al landelijke dekking is, maar maakt wel duidelijk dat de structuur is voorbereid op meer steden. Voor nu zijn de Amsterdamse stadspagina, buurtpagina’s en shopdetailpagina’s de belangrijkste plekken om actuele, indexeerbare informatie te vinden.",
-        "Wanneer je een specifieke locatie bekijkt, helpt de shopdetailpagina met extra context zoals het adres, de buurt, openingstijden, routeknoppen, kaartmarkering, nabijgelegen vermeldingen en datum van de laatste update. Die detailpagina’s zijn nuttiger dan tijdelijke zoek-URL’s, omdat ze een vaste URL hebben en meer unieke informatie bevatten. Daarom verwijst TobaccoNearby vanuit deze pagina naar buurtpagina’s en afzonderlijke vermeldingen, terwijl dynamische zoekfilters bedoeld blijven voor gebruiksgemak en niet als belangrijkste indexeerbare pagina’s.",
-        "De weergegeven locaties zijn een beperkte selectie gepubliceerde vermeldingen. Gebruik de volledige zoekpagina voor alle Amsterdamse resultaten, filters zoals open nu, telefoonnummer, website, toegankelijkheid en kaartweergave. Controleer altijd openingstijden, contactgegevens, route-informatie en beschikbaarheid voordat je een locatie bezoekt. TobaccoNearby blijft een neutrale informatieve directory en geen verkoopkanaal."
-      ]
-    };
+    return getDutchNearMeGuideCopy(page);
   }
 
   if (page.language === "de") {
