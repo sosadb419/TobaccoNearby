@@ -8,13 +8,14 @@ import DisclaimerNotice from "@/components/DisclaimerNotice";
 import LazyShopMap from "@/components/LazyShopMap";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
-import { areaDefinitions } from "@/data/areas";
-import { Coordinates, Shop, getDistanceKm, placeTypes } from "@/data/shops";
+import { cityDefinitions, getCityDefinition, type CitySlug } from "@/data/cities";
+import { Coordinates, Shop, getDistanceKm, getOpeningStatusRank, placeTypes } from "@/data/shops";
 import { classifySearchType, trackSearchSubmitted, trackUseLocationClicked } from "@/lib/analytics";
 
 type SearchFilterState = {
   openNow: boolean;
   sortNearest: boolean;
+  selectedCity: CitySlug | "";
   selectedNeighborhood: string;
   selectedPlaceType: string;
   hasPhone: boolean;
@@ -24,14 +25,21 @@ type SearchFilterState = {
 
 type SearchResultsViewProps = {
   activeFilterLabels: string[];
+  defaultCitySlug: CitySlug;
   emptyStateMessage: string;
   filterState: SearchFilterState;
   hasActiveFilters: boolean;
   initialPerPage: 10 | 20;
+  neighborhoodOptions: FilterOption[];
   query: string;
   requestLocation: boolean;
   shops: Shop[];
   sortNearest: boolean;
+};
+
+type FilterOption = {
+  label: string;
+  value: string;
 };
 
 const locationDeniedMessage =
@@ -39,10 +47,12 @@ const locationDeniedMessage =
 const locationFailedMessage = "Your location could not be detected. You can still search manually.";
 export default function SearchResultsView({
   activeFilterLabels,
+  defaultCitySlug,
   emptyStateMessage,
   filterState,
   hasActiveFilters,
   initialPerPage,
+  neighborhoodOptions,
   query,
   requestLocation,
   shops,
@@ -90,8 +100,10 @@ export default function SearchResultsView({
 
     return [...shops].sort(
       (a, b) =>
+        getOpeningStatusRank(a) -
+        getOpeningStatusRank(b) ||
         getDistanceKm(a, { latitude: userLocation.latitude, longitude: userLocation.longitude }) -
-        getDistanceKm(b, { latitude: userLocation.latitude, longitude: userLocation.longitude })
+          getDistanceKm(b, { latitude: userLocation.latitude, longitude: userLocation.longitude })
     );
   }, [shops, sortNearest, userLocation]);
 
@@ -123,6 +135,7 @@ export default function SearchResultsView({
         filterState={filterState}
         locationMessage={locationMessage}
         mobileMapOpen={mobileMapOpen}
+        neighborhoodOptions={neighborhoodOptions}
         onLocationMessage={setLocationMessage}
         onMapToggle={() => setMobileMapOpen((current) => !current)}
         onPerPageChange={(nextPerPage) => {
@@ -137,21 +150,21 @@ export default function SearchResultsView({
       <div className="mt-2 grid gap-3 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
       <aside className="hidden gap-5 lg:col-start-2 lg:row-start-1 lg:grid">
         <div className="lg:sticky lg:top-6">
-          <LazyShopMap mobileMode="hidden" shops={visibleShops} userLocation={userLocation} />
+          <LazyShopMap defaultCitySlug={defaultCitySlug} mobileMode="hidden" shops={visibleShops} userLocation={userLocation} />
         </div>
         <div className="grid gap-5">
           <AdSlot placement="sidebar" />
           <div className="rounded-lg border border-line bg-white p-5">
-            <h2 className="text-lg font-bold text-ink">Amsterdam neighborhoods</h2>
+            <h2 className="text-lg font-bold text-ink">Supported cities</h2>
             <div className="mt-4 grid gap-2 text-sm">
-              {areaDefinitions.map((neighborhood) => (
+              {cityDefinitions.map((city) => (
                 <TrackedNeighborhoodLink
-                  key={neighborhood.href}
+                  key={city.slug}
                   className="focus-ring rounded-md py-1 text-muted hover:text-teal"
-                  href={neighborhood.href}
-                  neighborhood={neighborhood.label}
+                  href={city.href}
+                  neighborhood={city.name}
                 >
-                  {neighborhood.label}
+                  {city.name}
                 </TrackedNeighborhoodLink>
               ))}
             </div>
@@ -226,7 +239,7 @@ export default function SearchResultsView({
 
         {mobileMapOpen ? (
           <div className="lg:hidden">
-            <LazyShopMap mobileMode="visible" shops={visibleShops} userLocation={userLocation} />
+            <LazyShopMap defaultCitySlug={defaultCitySlug} mobileMode="visible" shops={visibleShops} userLocation={userLocation} />
           </div>
         ) : null}
 
@@ -273,6 +286,7 @@ function MobileSearchControls({
   filterState,
   locationMessage,
   mobileMapOpen,
+  neighborhoodOptions,
   onLocationMessage,
   onMapToggle,
   onPerPageChange,
@@ -284,6 +298,7 @@ function MobileSearchControls({
   filterState: SearchFilterState;
   locationMessage: string;
   mobileMapOpen: boolean;
+  neighborhoodOptions: FilterOption[];
   onLocationMessage: (message: string) => void;
   onMapToggle: () => void;
   onPerPageChange: (perPage: 10 | 20) => void;
@@ -327,6 +342,7 @@ function MobileSearchControls({
     const clearedFilters: SearchFilterState = {
       openNow: false,
       sortNearest: false,
+      selectedCity: "",
       selectedNeighborhood: "",
       selectedPlaceType: "",
       hasPhone: false,
@@ -467,8 +483,33 @@ function MobileSearchControls({
             </div>
 
             <div className="grid gap-2">
+              <label className="text-xs font-bold uppercase text-muted" htmlFor="mobile-city">
+                City
+              </label>
+              <select
+                className="focus-ring min-h-10 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
+                id="mobile-city"
+                onChange={(event) =>
+                  setPendingFilters((current) => ({
+                    ...current,
+                    selectedCity: getValidCitySlug(event.target.value),
+                    selectedNeighborhood: ""
+                  }))
+                }
+                value={pendingFilters.selectedCity}
+              >
+                <option value="">All supported cities</option>
+                {cityDefinitions.map((city) => (
+                  <option key={city.slug} value={city.slug}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid gap-2">
               <label className="text-xs font-bold uppercase text-muted" htmlFor="mobile-neighborhood">
-                Area
+                Area / neighborhood
               </label>
               <select
                 className="focus-ring min-h-10 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
@@ -479,8 +520,8 @@ function MobileSearchControls({
                 value={pendingFilters.selectedNeighborhood}
               >
                 <option value="">All areas</option>
-                {areaDefinitions.map((area) => (
-                  <option key={area.slug} value={area.slug}>
+                {neighborhoodOptions.map((area) => (
+                  <option key={area.value} value={area.value}>
                     {area.label}
                   </option>
                 ))}
@@ -578,6 +619,7 @@ function buildSearchHref(query: string, filters: SearchFilterState, perPage: 10 
   const params = new URLSearchParams();
 
   if (query) params.set("q", query);
+  if (filters.selectedCity) params.set("city", filters.selectedCity);
   if (filters.openNow) params.set("openNow", "true");
   if (filters.sortNearest) {
     params.set("sort", "nearest");
@@ -593,6 +635,10 @@ function buildSearchHref(query: string, filters: SearchFilterState, perPage: 10 
   const serialized = params.toString();
 
   return `/search${serialized ? `?${serialized}` : ""}`;
+}
+
+function getValidCitySlug(value: string): CitySlug | "" {
+  return getCityDefinition(value)?.slug ?? "";
 }
 
 function paginateResults(results: Shop[], currentPage: number, perPage: 10 | 20) {

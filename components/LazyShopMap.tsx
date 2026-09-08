@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useId, useState } from "react";
+import type { CitySlug } from "@/data/cities";
 import type { Coordinates, Shop } from "@/data/shops";
 
 const DynamicShopMap = dynamic(() => import("@/components/ShopMap"), {
@@ -10,12 +11,13 @@ const DynamicShopMap = dynamic(() => import("@/components/ShopMap"), {
 });
 
 type LazyShopMapProps = {
+  defaultCitySlug?: CitySlug;
   mobileMode?: "hidden" | "toggle" | "visible";
   shops: Shop[];
   userLocation?: Coordinates;
 };
 
-export default function LazyShopMap({ mobileMode = "toggle", shops, userLocation }: LazyShopMapProps) {
+export default function LazyShopMap({ defaultCitySlug, mobileMode = "toggle", shops, userLocation }: LazyShopMapProps) {
   const [loadDesktopMap, setLoadDesktopMap] = useState(false);
 
   useEffect(() => {
@@ -32,20 +34,20 @@ export default function LazyShopMap({ mobileMode = "toggle", shops, userLocation
     <>
       <div className="hidden lg:block">
         {loadDesktopMap ? (
-          <DynamicShopMap shops={shops} userLocation={userLocation} />
+          <DynamicShopMap defaultCitySlug={defaultCitySlug} shops={shops} userLocation={userLocation} />
         ) : (
           <MapLoadingPlaceholder />
         )}
       </div>
       <div className="lg:hidden">
-        {mobileMode === "toggle" ? <MobileMapToggle shops={shops} userLocation={userLocation} /> : null}
-        {mobileMode === "visible" ? <DynamicShopMap shops={shops} userLocation={userLocation} /> : null}
+        {mobileMode === "toggle" ? <MobileMapToggle defaultCitySlug={defaultCitySlug} shops={shops} userLocation={userLocation} /> : null}
+        {mobileMode === "visible" ? <DynamicShopMap defaultCitySlug={defaultCitySlug} shops={shops} userLocation={userLocation} /> : null}
       </div>
     </>
   );
 }
 
-function MobileMapToggle({ shops, userLocation }: LazyShopMapProps) {
+function MobileMapToggle({ defaultCitySlug, shops, userLocation }: LazyShopMapProps) {
   const [isMapVisible, setIsMapVisible] = useState(false);
   const mapRegionId = useId();
 
@@ -63,7 +65,7 @@ function MobileMapToggle({ shops, userLocation }: LazyShopMapProps) {
       </button>
       {isMapVisible ? (
         <div id={mapRegionId}>
-          <DynamicShopMap shops={shops} userLocation={userLocation} />
+          <DynamicShopMap defaultCitySlug={defaultCitySlug} shops={shops} userLocation={userLocation} />
         </div>
       ) : null}
     </div>

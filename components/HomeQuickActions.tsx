@@ -48,9 +48,9 @@ export default function HomeQuickActions({ className = "" }: HomeQuickActionsPro
     );
   }
 
-  function revealNeighborhoods() {
-    const section = document.getElementById("amsterdam-neighborhoods");
-    const heading = document.getElementById("amsterdam-neighborhoods-heading");
+  function revealBrowseSection() {
+    const section = document.getElementById("supported-cities");
+    const heading = document.getElementById("supported-cities-heading");
 
     heading?.focus({ preventScroll: true });
     section?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -83,16 +83,16 @@ export default function HomeQuickActions({ className = "" }: HomeQuickActionsPro
           className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
         >
           <Train aria-hidden="true" className="text-teal" size={18} />
-          Near Central Station
+          Near Amsterdam Centraal
         </TrackedNeighborhoodLink>
         <button
           type="button"
-          onClick={revealNeighborhoods}
-          aria-label="View Amsterdam neighborhood links"
+          onClick={revealBrowseSection}
+          aria-label="View supported city links"
           className="focus-ring flex min-h-14 items-center gap-2 rounded-lg border border-line bg-white px-3 py-2 text-left text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:min-h-20 md:flex-col md:items-start md:justify-center md:py-3"
         >
           <MapPin aria-hidden="true" className="text-teal" size={18} />
-          Browse neighborhoods
+          Browse cities
         </button>
       </div>
       {locationStatus ? (

@@ -4,10 +4,10 @@ import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "About TobaccoNearby | Amsterdam Tobacco Shop Directory"
+    absolute: "About TobaccoNearby | Netherlands Tobacco Shop Directory"
   },
   description:
-    "Learn about TobaccoNearby, a neutral English-language directory for adults looking for practical tobacco shop location information in Amsterdam.",
+    "Learn about TobaccoNearby, a neutral English-language directory for adults looking for practical tobacco shop location information in supported Dutch cities.",
   alternates: {
     canonical: "/about"
   }
@@ -19,11 +19,12 @@ export default function AboutPage() {
       <div className="grid gap-8 lg:grid-cols-[1fr_300px] lg:items-start">
         <article className="rounded-lg border border-line bg-white p-6 shadow-sm">
           <p className="text-sm font-bold uppercase text-teal">About TobaccoNearby</p>
-          <h1 className="mt-3 text-3xl font-bold text-ink">Neutral Amsterdam shop information for adults</h1>
+          <h1 className="mt-3 text-3xl font-bold text-ink">Neutral shop location information for adults</h1>
           <p className="mt-5 text-sm leading-6 text-muted">
             TobaccoNearby is an English-language directory for adults aged 18+ looking for practical location
-            information about tobacco shops in Amsterdam. The site focuses on addresses, opening hours, directions,
-            accessibility notes, nearby public transport, and contact details.
+            information about tobacco shops in supported Dutch cities, including Amsterdam and Utrecht. The site
+            focuses on addresses, opening hours, directions, accessibility notes, nearby public transport, and contact
+            details.
           </p>
           <p className="mt-4 text-sm leading-6 text-muted">
             TobaccoNearby does not sell tobacco products, process orders, display product prices, or encourage tobacco
@@ -31,7 +32,7 @@ export default function AboutPage() {
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Info title="Amsterdam first" text="The first version focuses on Amsterdam neighborhoods and transit-oriented location pages." />
+            <Info title="Supported cities" text="The current directory supports Amsterdam and Utrecht, with a city structure that can expand later." />
             <Info title="Verification focused" text="Each shop record includes a last updated date and a reminder to verify details before visiting." />
             <Info title="Scalable structure" text="Country, city, neighborhood, and shop routes are designed for later Dutch city expansion." />
           </div>
@@ -40,7 +41,7 @@ export default function AboutPage() {
             className="focus-ring mt-8 inline-flex rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white hover:bg-teal"
             href="/search"
           >
-            Search Amsterdam listings
+            Search listings
           </Link>
         </article>
         <aside className="grid gap-5">

@@ -6,6 +6,7 @@ import { LocateFixed, Search } from "lucide-react";
 import { classifySearchType, trackSearchSubmitted, trackUseLocationClicked } from "@/lib/analytics";
 
 type SearchBarProps = {
+  citySlug?: string;
   initialQuery?: string;
   compact?: boolean;
   helperText?: string | null;
@@ -19,9 +20,10 @@ const locationDeniedMessage =
 const locationFailedMessage = "Your location could not be detected. You can still search manually.";
 
 export default function SearchBar({
+  citySlug,
   initialQuery = "",
   compact = false,
-  helperText = "Examples: De Pijp, Bijlmer, 1012, Amsterdam Centraal",
+  helperText = "Examples: De Pijp, Bijlmer, Utrecht, Overvecht, 1012, 3511",
   placeholder = "Search by area, postal code, street, or neighborhood",
   showLocationButton = true,
   submitLabel = "Search"
@@ -38,6 +40,9 @@ export default function SearchBar({
 
     if (trimmed) {
       params.set("q", trimmed);
+    }
+    if (citySlug) {
+      params.set("city", citySlug);
     }
 
     trackSearchSubmitted(classifySearchType(trimmed));
@@ -63,6 +68,9 @@ export default function SearchBar({
 
         if (trimmed) {
           params.set("q", trimmed);
+        }
+        if (citySlug) {
+          params.set("city", citySlug);
         }
 
         router.push(`/search?${params.toString()}`);

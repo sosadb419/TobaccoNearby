@@ -63,7 +63,7 @@ export default function NeighborhoodPage({
             This website is intended for adults aged 18+.
           </p>
           <div className="mt-6">
-            <SearchBar compact />
+            <SearchBar citySlug="amsterdam" compact />
           </div>
         </div>
         <aside className="grid gap-5">
@@ -123,7 +123,7 @@ export default function NeighborhoodPage({
               Map markers are approximate and are provided for practical location reference only.
             </p>
           </div>
-          <LazyShopMap shops={shops} />
+          <LazyShopMap defaultCitySlug="amsterdam" shops={shops} />
         </section>
       ) : null}
 
@@ -202,7 +202,7 @@ function getNeighborhoodRelatedLinks(areaName: string) {
     { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
     { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
     { href: "/amsterdam/where-to-buy-cigarettes-central-station", label: "Where to buy cigarettes Central Station" },
-    { href: "/search", label: "Search Amsterdam listings" },
+    { href: "/search", label: "Search listings" },
     ...areaLinks,
     ...englishPrimaryLinks
   ]);

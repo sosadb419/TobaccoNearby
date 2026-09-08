@@ -46,6 +46,8 @@ export type Coordinates = {
   longitude: number;
 };
 
+export type OpeningStatus = "open" | "closed" | "unknown";
+
 export const amsterdamCentralStation: Coordinates = {
   latitude: 52.379128,
   longitude: 4.900272
@@ -341,6 +343,10 @@ export function getDirectionsUrl(
 }
 
 export function getDistanceKm(shop: Pick<Shop, "latitude" | "longitude">, origin: Coordinates) {
+  if (!hasValidCoordinates(shop) || !hasValidCoordinates(origin)) {
+    return Number.POSITIVE_INFINITY;
+  }
+
   const earthRadiusKm = 6371;
   const dLat = toRadians(shop.latitude - origin.latitude);
   const dLon = toRadians(shop.longitude - origin.longitude);
@@ -356,6 +362,10 @@ export function getDistanceKm(shop: Pick<Shop, "latitude" | "longitude">, origin
 }
 
 export function formatDistance(distanceKm: number) {
+  if (!Number.isFinite(distanceKm)) {
+    return "";
+  }
+
   if (distanceKm < 1) {
     return `${Math.round(distanceKm * 1000)} m`;
   }
@@ -425,11 +435,42 @@ export function isOpenNow(shop: Shop, date = new Date()) {
 }
 
 export function getOpeningStatusLabel(shop: Shop, date = new Date()) {
-  if (getTodayOpeningHours(shop, date) === "Opening hours not available") {
+  const status = getOpeningStatus(shop, date);
+
+  if (status === "unknown") {
     return "Opening hours not available";
   }
 
-  return isOpenNow(shop, date) ? "Open now" : "Closed now";
+  return status === "open" ? "Open now" : "Closed now";
+}
+
+export function getOpeningStatus(shop: Shop, date = new Date()): OpeningStatus {
+  if (getTodayOpeningHours(shop, date) === "Opening hours not available") {
+    return "unknown";
+  }
+
+  return isOpenNow(shop, date) ? "open" : "closed";
+}
+
+export function getOpeningStatusRank(shop: Shop, date = new Date()) {
+  const status = getOpeningStatus(shop, date);
+
+  if (status === "open") {
+    return 0;
+  }
+
+  if (status === "closed") {
+    return 1;
+  }
+
+  return 2;
+}
+
+export function sortShopsByOpeningStatus<T extends Shop>(shopList: T[], date = new Date()) {
+  return shopList
+    .map((shop, index) => ({ shop, index, statusRank: getOpeningStatusRank(shop, date) }))
+    .sort((a, b) => a.statusRank - b.statusRank || a.index - b.index)
+    .map(({ shop }) => shop);
 }
 
 export function getOpeningHoursSpecification(shop: Shop) {
@@ -488,11 +529,15 @@ function getAmsterdamDayAndMinutes(date: Date) {
 function parseTime(value: string) {
   const [hour, minute] = value.split(":").map(Number);
 
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) {
+  if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
     return null;
   }
 
   return hour * 60 + minute;
+}
+
+export function hasValidCoordinates(value: Pick<Shop, "latitude" | "longitude"> | Coordinates) {
+  return Number.isFinite(value.latitude) && Number.isFinite(value.longitude);
 }
 
 function toRadians(value: number) {

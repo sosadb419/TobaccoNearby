@@ -34,6 +34,7 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
           </p>
           <div className="mt-6">
             <SearchBar
+              citySlug="amsterdam"
               compact
               helperText={searchCopy.helperText}
               placeholder={searchCopy.placeholder}
@@ -122,7 +123,7 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">{labels.mapIntro}</p>
           </div>
-          <LazyShopMap shops={visibleShops} />
+          <LazyShopMap defaultCitySlug="amsterdam" shops={visibleShops} />
         </section>
       ) : null}
 
@@ -236,7 +237,7 @@ function FeaturedNearMeLinks({ language }: { language: SeoLandingPageDefinition[
   const copy = getFeaturedLinksCopy(language);
   const cities = [
     { label: "Amsterdam", href: "/amsterdam/tobacco-shops" },
-    { label: "Utrecht" },
+    { label: "Utrecht", href: "/utrecht" },
     { label: "Rotterdam" },
     { label: "Den Haag" },
     { label: "Eindhoven" }
@@ -445,8 +446,8 @@ function getDutchNearMeGuideCopy(page: SeoLandingPageDefinition) {
       `Openingstijden zijn belangrijk bij zoekopdrachten zoals ${detail.mainPhrase}, maar ze kunnen veranderen door feestdagen, tijdelijke sluitingen, personeelsbezetting of lokale updates. Daarom toont TobaccoNearby openingstijden waar beschikbaar en vraagt de site gebruikers om gegevens te controleren voordat ze vertrekken. Sommige vermeldingen kunnen een telefoonnummer, website, toegankelijkheidsinformatie of routeknop bevatten. Als gegevens ontbreken, blijft de vermelding bruikbaar als locatieverwijzing, maar de details moeten extra worden geverifieerd.`,
       `Niet elke vermelding is hetzelfde type plek. Sommige locaties zijn tabakswinkels, terwijl andere als kiosk, tankstation, convenience store, night shop of andere locatie kunnen zijn opgenomen. Voor ${detail.mainPhrase} is het daarom verstandig om het plaats-type label te bekijken en niet alleen naar de naam te kijken. ${detail.scanAdvice}. Zo blijft de pagina nuttig als neutrale directory en wordt de inhoud geen verkoop- of aanbevelingspagina.`,
       `Voor betere oriëntatie kun je ook via stadspagina's en buurtpagina's navigeren. Amsterdam is opgedeeld in gebieden zoals ${detail.neighborhoodAngle}. Zoeken per buurt werkt vaak sneller dan alleen zoeken op "dichtbij" of "vlakbij", omdat je dan een vaste, indexeerbare pagina met lokale context opent. Deze pagina verwijst daarom naar Amsterdamse buurtpagina's, algemene near-me pagina's en relevante shopdetailpagina's waar individuele vermeldingen meer informatie tonen.`,
-      "De uitgelichte steden laten zien hoe de directory later kan groeien. Amsterdam is nu de belangrijkste stad met gepubliceerde gegevens, terwijl Utrecht, Rotterdam, Den Haag en Eindhoven als toekomstige uitbreidingsrichting zichtbaar zijn. Dit voorkomt dat de pagina doet alsof er al landelijke dekking is, maar maakt wel duidelijk dat de structuur is voorbereid op meer steden. Voor nu zijn de Amsterdamse stadspagina, buurtpagina's en shopdetailpagina's de belangrijkste plekken om actuele, indexeerbare informatie te vinden.",
-      `Wanneer je een specifieke locatie bekijkt, helpt de shopdetailpagina met extra context zoals het adres, de buurt, openingstijden, routeknoppen, kaartmarkering, nabijgelegen vermeldingen en datum van de laatste update. Die detailpagina's zijn nuttiger dan tijdelijke zoek-URL's, omdat ze een vaste URL hebben en meer unieke informatie bevatten. Gebruik de volledige zoekpagina voor alle Amsterdamse resultaten en filters zoals open nu, telefoonnummer, website, toegankelijkheid en kaartweergave. Controleer altijd openingstijden, contactgegevens, route-informatie en beschikbaarheid voordat je een locatie bezoekt.`
+      "De uitgelichte steden laten zien hoe de directory later kan groeien. Amsterdam en Utrecht hebben nu gepubliceerde gegevens, terwijl Rotterdam, Den Haag en Eindhoven mogelijke uitbreidingsrichtingen blijven. Dit voorkomt dat de pagina doet alsof er al volledige landelijke dekking is, maar maakt wel duidelijk dat de structuur is voorbereid op meer steden. Voor nu zijn de stadspagina's, buurtpagina's en shopdetailpagina's de belangrijkste plekken om actuele, indexeerbare informatie te vinden.",
+      `Wanneer je een specifieke locatie bekijkt, helpt de shopdetailpagina met extra context zoals het adres, de buurt, openingstijden, routeknoppen, kaartmarkering, nabijgelegen vermeldingen en datum van de laatste update. Die detailpagina's zijn nuttiger dan tijdelijke zoek-URL's, omdat ze een vaste URL hebben en meer unieke informatie bevatten. Gebruik de volledige zoekpagina voor alle gepubliceerde resultaten en filters zoals open nu, telefoonnummer, website, toegankelijkheid en kaartweergave. Controleer altijd openingstijden, contactgegevens, route-informatie en beschikbaarheid voordat je een locatie bezoekt.`
     ]
   };
 }
@@ -467,9 +468,9 @@ function getNearMeGuideCopy(page: SeoLandingPageDefinition) {
         "Öffnungszeiten sind bei einer Suche in der Nähe besonders wichtig, können sich aber durch Feiertage, vorübergehende Schließungen oder lokale Änderungen ändern. Deshalb zeigt TobaccoNearby Öffnungszeiten nur als praktische Information an und bittet Nutzer, Details vor dem Besuch zu prüfen. Manche Einträge enthalten zusätzlich Telefonnummern, Websites, Hinweise zur Barrierefreiheit oder Links zu Google Maps. Wenn Angaben fehlen, bleibt die Seite als Orientierung hilfreich, sollte aber besonders sorgfältig überprüft werden.",
         "Nicht jeder gelistete Ort ist derselbe Typ von Standort. Einige Einträge sind Tabakgeschäfte, andere können Kioske, Tankstellen, Convenience Stores, Night Shops oder sonstige Standorte sein. Das Typ-Label hilft, Karte und Ergebnisliste schneller zu verstehen, ohne Produkte oder Konsum zu bewerben. TobaccoNearby zeigt keine Preise, Rabatte, Marken oder Produktempfehlungen. Die Seite bleibt bewusst neutral und auf praktische Standortinformationen beschränkt.",
         "Für eine bessere Orientierung verweist die Seite auch auf Stadt- und Stadtteilseiten. Amsterdam ist kompakt, aber stark in Viertel gegliedert: Centrum, De Pijp, Jordaan, Noord, Oost, Zuid und Bijlmer/Zuidoost sind häufig genutzte Einstiege. Die Navigation über diese Seiten hilft Suchmaschinen und Nutzern, wichtige indexierbare Inhalte zu finden, statt unnötig viele temporäre Such- und Filter-URLs aufzurufen.",
-        "Die aufgeführten Städte zeigen, wie das Verzeichnis später erweitert werden kann. Amsterdam ist derzeit die wichtigste Stadt mit veröffentlichten Daten, während Utrecht, Rotterdam, Den Haag und Eindhoven als mögliche zukünftige Erweiterungen sichtbar sind. So entsteht kein Eindruck einer bereits vollständigen landesweiten Abdeckung, aber die Seitenstruktur bleibt skalierbar. Für aktuelle Inhalte sind momentan die Amsterdamer Stadtseite, die Stadtteilseiten und die einzelnen Detailseiten der gelisteten Standorte am wichtigsten.",
+        "Die aufgeführten Städte zeigen, wie das Verzeichnis später erweitert werden kann. Amsterdam und Utrecht haben jetzt veröffentlichte Daten, während Rotterdam, Den Haag und Eindhoven mögliche spätere Erweiterungen bleiben. So entsteht kein Eindruck einer bereits vollständigen landesweiten Abdeckung, aber die Seitenstruktur bleibt skalierbar. Für aktuelle Inhalte sind die Stadtseiten, Stadtteilseiten und einzelnen Detailseiten der gelisteten Standorte am wichtigsten.",
         "Wenn Sie einen einzelnen Eintrag öffnen, finden Sie dort mehr Kontext als in einer temporären Suche: Adresse, Stadtteil, Öffnungszeiten, Wegbeschreibung, Kartenmarkierung, nahe gelegene gelistete Standorte und das letzte Aktualisierungsdatum. Diese Detailseiten haben feste URLs und enthalten mehr eigene Informationen. Deshalb verlinkt TobaccoNearby von dieser Seite auf wichtige Stadtteile und Einträge, während dynamische Suchfilter vor allem der Nutzung dienen und nicht der wichtigste Inhalt für die Indexierung sein sollen.",
-        "Die sichtbaren Einträge sind eine begrenzte Auswahl veröffentlichter Standorte. Für alle Amsterdamer Ergebnisse können Sie die vollständige Suche mit Filtern wie geöffnet, Telefonnummer vorhanden, Website vorhanden, Barrierefreiheit und Kartenansicht nutzen. Bitte prüfen Sie Öffnungszeiten, Kontaktdaten, Wegbeschreibung und Verfügbarkeit immer vor einem Besuch. TobaccoNearby ist eine neutrale Informationsseite für Erwachsene ab 18 Jahren."
+        "Die sichtbaren Einträge sind eine begrenzte Auswahl veröffentlichter Standorte. Für alle veröffentlichten Ergebnisse können Sie die vollständige Suche mit Filtern wie geöffnet, Telefonnummer vorhanden, Website vorhanden, Barrierefreiheit und Kartenansicht nutzen. Bitte prüfen Sie Öffnungszeiten, Kontaktdaten, Wegbeschreibung und Verfügbarkeit immer vor einem Besuch. TobaccoNearby ist eine neutrale Informationsseite für Erwachsene ab 18 Jahren."
       ]
     };
   }
@@ -483,9 +484,9 @@ function getNearMeGuideCopy(page: SeoLandingPageDefinition) {
         "Les horaires sont importants pour une recherche près de soi, mais ils peuvent changer à cause des jours fériés, de fermetures temporaires ou de mises à jour locales. TobaccoNearby affiche les horaires disponibles comme information pratique, tout en invitant les utilisateurs à vérifier les détails avant de se déplacer. Certaines fiches peuvent inclure un numéro de téléphone, un site web, des informations d’accessibilité ou un lien d’itinéraire. Si une donnée manque, la fiche doit être vérifiée avec encore plus d’attention.",
         "Tous les lieux listés ne sont pas du même type. Certains peuvent être des bureaux de tabac, tandis que d’autres sont des kiosques, stations-service, commerces de proximité, night shops ou autres lieux. Le libellé du type aide à lire la carte et les résultats sans recommander de produits. Le site n’affiche pas de prix, promotions, marques ou conseils d’achat. L’objectif reste strictement informatif et destiné aux adultes de 18 ans et plus.",
         "Pour mieux s’orienter, vous pouvez aussi utiliser les pages par ville et par quartier. Amsterdam est compacte mais très organisée par zones, notamment Centrum, De Pijp, Jordaan, Noord, Oost, Zuid et Bijlmer/Zuidoost. Ces liens aident les visiteurs et les moteurs de recherche à accéder aux pages importantes et indexables, plutôt qu’à de nombreuses URL temporaires de recherche ou de filtre.",
-        "Les villes mises en avant montrent comment l’annuaire pourra évoluer. Amsterdam est actuellement la ville principale avec des données publiées, tandis qu’Utrecht, Rotterdam, Den Haag et Eindhoven sont présentées comme pistes d’extension future. Cela évite de laisser penser que la couverture nationale est déjà complète, tout en gardant une structure prête pour d’autres villes. Pour l’instant, les pages les plus utiles sont les pages d’Amsterdam, les pages de quartiers et les fiches détaillées de lieux listés.",
+        "Les villes mises en avant montrent comment l’annuaire pourra évoluer. Amsterdam et Utrecht disposent maintenant de données publiées, tandis que Rotterdam, Den Haag et Eindhoven restent des pistes d’extension future. Cela évite de laisser penser que la couverture nationale est déjà complète, tout en gardant une structure prête pour d’autres villes. Pour l’instant, les pages les plus utiles sont les pages de ville, les pages de quartiers et les fiches détaillées de lieux listés.",
         "En ouvrant une fiche détaillée, vous trouverez plus de contexte que dans une recherche temporaire: adresse, quartier, horaires, itinéraire, carte, lieux listés à proximité et date de dernière mise à jour. Ces pages ont des URL stables et contiennent davantage d’informations uniques. C’est pourquoi TobaccoNearby relie cette page aux quartiers importants et aux fiches individuelles, tandis que les filtres de recherche restent surtout destinés à l’usage pratique et non à l’indexation principale.",
-        "Les lieux visibles sur cette page représentent une sélection limitée de fiches publiées. Pour parcourir tous les résultats à Amsterdam, utilisez la page de recherche complète avec les filtres comme ouvert maintenant, téléphone disponible, site web disponible, accessibilité et vue carte. Vérifiez toujours les horaires, coordonnées, itinéraires et disponibilités avant de vous déplacer. TobaccoNearby reste un annuaire neutre, pas un service de vente."
+        "Les lieux visibles sur cette page représentent une sélection limitée de fiches publiées. Pour parcourir tous les résultats publiés, utilisez la page de recherche complète avec les filtres comme ouvert maintenant, téléphone disponible, site web disponible, accessibilité et vue carte. Vérifiez toujours les horaires, coordonnées, itinéraires et disponibilités avant de vous déplacer. TobaccoNearby reste un annuaire neutre, pas un service de vente."
       ]
     };
   }
@@ -498,9 +499,9 @@ function getNearMeGuideCopy(page: SeoLandingPageDefinition) {
       "Opening hours are one of the most important details for near-me searches, but they can change because of holidays, temporary closures, staffing or local updates. TobaccoNearby shows opening hours where available and asks users to verify details before visiting. Some listings may also include phone numbers, websites, accessibility information and Google Maps directions. When data is missing, the listing can still help with orientation, but the missing details should be checked directly.",
       "Nearby searches can include different kinds of places. Some listings are tobacco shops, while others may be kiosks, gas stations, convenience stores, night shops or other locations. Place-type labels help users scan the map and result cards without turning the page into a sales page. TobaccoNearby does not show prices, deals, brands, discounts or product recommendations. The goal is simply to make practical location information easier to find for adults aged 18+.",
       "City pages and neighborhood pages make the directory easier to browse. Amsterdam is compact but very neighborhood-based, so searches for Centrum, De Pijp, Jordaan, Noord, Oost, Zuid or Bijlmer can be more useful than a broad country-level search. These internal links also help users and search engines reach important indexable pages instead of spending time on temporary filtered search URLs.",
-      "Featured cities show how the directory can expand over time. Amsterdam is currently the main city with published listing data, while Utrecht, Rotterdam, Den Haag and Eindhoven are shown as future expansion areas. This keeps the page honest about current coverage while making the structure ready for more Dutch cities later. For now, the strongest indexable paths are the Amsterdam city page, Amsterdam neighborhood pages and individual shop detail pages.",
+      "Featured cities show how the directory can expand over time. Amsterdam and Utrecht now have published listing data, while Rotterdam, Den Haag and Eindhoven remain future expansion examples. This keeps the page honest about current coverage while making the structure ready for more Dutch cities later. For now, the strongest indexable paths are city pages, Amsterdam neighborhood pages and individual shop detail pages.",
       "When you open a shop detail page, you get more context than a temporary search result URL can provide: address, neighborhood, opening hours, directions, map location, nearby listed shops and last updated information. Those pages have stable URLs and more unique content, which makes them better for users and search engines. That is why this page links to neighborhood pages and listing pages, while dynamic search filters stay useful for browsing but are kept out of the main indexing path.",
-      "The listings shown here are a limited set of published locations. Use the full search page to browse all Amsterdam listings, use filters such as open now, has phone number, has website and wheelchair accessible, or switch to the map view. Always verify opening hours, contact details, directions and availability before visiting. TobaccoNearby remains a neutral informational directory and is intended only for adults aged 18+."
+      "The listings shown here are a limited set of published locations. Use the full search page to browse all published listings, use filters such as open now, has phone number, has website and wheelchair accessible, or switch to the map view. Always verify opening hours, contact details, directions and availability before visiting. TobaccoNearby remains a neutral informational directory and is intended only for adults aged 18+."
     ]
   };
 }
@@ -509,7 +510,7 @@ function getFeaturedLinksCopy(language: SeoLandingPageDefinition["language"]) {
   if (language === "nl") {
     return {
       cityHeading: "Uitgelichte steden",
-      cityIntro: "Amsterdam is momenteel de belangrijkste stad in de directory. Andere steden staan klaar voor latere uitbreiding.",
+      cityIntro: "Amsterdam en Utrecht hebben momenteel gepubliceerde vermeldingen. Andere steden kunnen later worden toegevoegd.",
       neighborhoodHeading: "Uitgelichte Amsterdamse buurten",
       neighborhoodIntro: "Gebruik buurtpagina’s om sneller praktische locatie-informatie in Amsterdam te vinden."
     };
@@ -518,7 +519,7 @@ function getFeaturedLinksCopy(language: SeoLandingPageDefinition["language"]) {
   if (language === "de") {
     return {
       cityHeading: "Ausgewählte Städte",
-      cityIntro: "Amsterdam ist derzeit die wichtigste Stadt im Verzeichnis. Weitere Städte sind für spätere Erweiterungen vorgesehen.",
+      cityIntro: "Amsterdam und Utrecht haben derzeit veröffentlichte Einträge. Weitere Städte können später ergänzt werden.",
       neighborhoodHeading: "Ausgewählte Stadtteile in Amsterdam",
       neighborhoodIntro: "Nutzen Sie Stadtteilseiten, um praktische Standortinformationen in Amsterdam schneller zu finden."
     };
@@ -527,7 +528,7 @@ function getFeaturedLinksCopy(language: SeoLandingPageDefinition["language"]) {
   if (language === "fr") {
     return {
       cityHeading: "Villes mises en avant",
-      cityIntro: "Amsterdam est actuellement la ville principale de l’annuaire. D’autres villes sont prévues pour une extension future.",
+      cityIntro: "Amsterdam et Utrecht disposent actuellement de fiches publiées. D’autres villes pourront être ajoutées plus tard.",
       neighborhoodHeading: "Quartiers d’Amsterdam",
       neighborhoodIntro: "Utilisez les pages de quartiers pour trouver plus rapidement des informations pratiques à Amsterdam."
     };
@@ -535,7 +536,7 @@ function getFeaturedLinksCopy(language: SeoLandingPageDefinition["language"]) {
 
   return {
     cityHeading: "Featured cities",
-    cityIntro: "Amsterdam is currently the main city in the directory. Other cities are prepared for future expansion.",
+    cityIntro: "Amsterdam and Utrecht currently have published listings. Other cities can be added later.",
     neighborhoodHeading: "Featured Amsterdam neighborhoods",
     neighborhoodIntro: "Use neighborhood pages to find practical Amsterdam location information faster."
   };

@@ -8,6 +8,7 @@ const siteUrl = "https://tobacconearby.com";
 const staticRoutes = [
   "",
   "/search",
+  "/utrecht",
   "/forum",
   "/about",
   "/contact",
@@ -26,7 +27,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${siteUrl}${route}`,
     lastModified: now,
     changeFrequency: route === "" || route === "/search" ? "daily" : "weekly",
-    priority: route === "" ? 1 : route.startsWith("/amsterdam") ? 0.8 : 0.6
+    priority: route === "" ? 1 : route.startsWith("/amsterdam") || route === "/utrecht" ? 0.8 : 0.6
   })) satisfies MetadataRoute.Sitemap;
 
   const shopEntries = shops.map((shop) => ({
