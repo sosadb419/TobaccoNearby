@@ -1,5 +1,5 @@
 import { AreaSlug, getAreaDisplayName, normalizeAreaSlug } from "@/data/areas";
-import { amsterdamCentralStation, getDistanceKm, normalize, Shop } from "@/data/shops";
+import { amsterdamCentralStation, getDistanceKm, normalize, Shop, sortShopsByOpeningStatus } from "@/data/shops";
 import { filterShopsForArea, normalizeAreaText } from "@/lib/shop-data";
 
 export type SeoAreaSlug = "amsterdam" | AreaSlug | "bijlmer";
@@ -71,15 +71,15 @@ export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
   const publicShops = shopList.filter(isPublicShop);
 
   if (areaSlug === "amsterdam") {
-    return publicShops.filter((shop) => {
+    return sortShopsByOpeningStatus(publicShops.filter((shop) => {
       const city = normalizeAreaText(shop.city);
 
       return !city || city.includes("amsterdam");
-    });
+    }));
   }
 
   if (areaSlug === "bijlmer") {
-    return sortWithPriorityTerms(filterShopsForArea(publicShops, "zuidoost"), bijlmerTerms);
+    return sortShopsByOpeningStatus(sortWithPriorityTerms(filterShopsForArea(publicShops, "zuidoost"), bijlmerTerms));
   }
 
   if (areaSlug === "central-station") {
@@ -88,10 +88,12 @@ export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
     const mergedMatches = uniqueShops([...exactMatches, ...termMatches]);
     const fallbackMatches = mergedMatches.length > 0 ? mergedMatches : filterShopsForArea(publicShops, "centrum");
 
-    return fallbackMatches
-      .map((shop) => ({ shop, distance: getDistanceKm(shop, amsterdamCentralStation) }))
-      .sort((a, b) => a.distance - b.distance)
-      .map(({ shop }) => shop);
+    return sortShopsByOpeningStatus(
+      fallbackMatches
+        .map((shop) => ({ shop, distance: getDistanceKm(shop, amsterdamCentralStation) }))
+        .sort((a, b) => a.distance - b.distance)
+        .map(({ shop }) => shop)
+    );
   }
 
   if (areaSlug === "de-wallen") {
@@ -99,7 +101,9 @@ export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
     const termMatches = publicShops.filter((shop) => shopMatchesTerms(shop, deWallenTerms));
     const mergedMatches = uniqueShops([...exactMatches, ...termMatches]);
 
-    return mergedMatches.length > 0 ? sortWithPriorityTerms(mergedMatches, deWallenTerms) : filterShopsForArea(publicShops, "centrum");
+    return mergedMatches.length > 0
+      ? sortShopsByOpeningStatus(sortWithPriorityTerms(mergedMatches, deWallenTerms))
+      : filterShopsForArea(publicShops, "centrum");
   }
 
   return filterShopsForArea(publicShops, areaSlug);

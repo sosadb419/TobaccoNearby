@@ -7,6 +7,7 @@ import {
   createUserLocationMarkerSvg,
   normalizeMarkerPlaceType
 } from "@/components/mapMarkerIcons";
+import { getCityDefinition, getDominantCitySlugForShops, type CitySlug } from "@/data/cities";
 import {
   getDirectionsUrl,
   getOpeningStatusLabel,
@@ -18,6 +19,7 @@ import {
 import { trackDirectionsClicked, trackShopDetailsClicked } from "@/lib/analytics";
 
 type ShopMapProps = {
+  defaultCitySlug?: CitySlug;
   shops: Shop[];
   userLocation?: Coordinates;
 };
@@ -58,11 +60,10 @@ declare global {
   }
 }
 
-const amsterdamCenter: [number, number] = [52.3676, 4.9041];
 const leafletCssUrl = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
 const leafletScriptUrl = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 
-export default function ShopMap({ shops, userLocation }: ShopMapProps) {
+export default function ShopMap({ defaultCitySlug, shops, userLocation }: ShopMapProps) {
   const [leaflet, setLeaflet] = useState<LeafletLike | null>(null);
   const [loadError, setLoadError] = useState(false);
   const mapElementRef = useRef<HTMLDivElement | null>(null);
@@ -174,9 +175,9 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
     } else if (bounds.length === 1) {
       map.setView(bounds[0], 14);
     } else {
-      map.setView(amsterdamCenter, 12);
+      map.setView(getFallbackMapCenter(defaultCitySlug, shops), 12);
     }
-  }, [leaflet, visibleShops, userLocation]);
+  }, [defaultCitySlug, leaflet, shops, visibleShops, userLocation]);
 
   return (
     <section className="rounded-lg border border-line bg-white p-3 shadow-sm" aria-label="Map of shop locations">
@@ -203,6 +204,13 @@ export default function ShopMap({ shops, userLocation }: ShopMapProps) {
 
 function hasValidCoordinates(shop: Shop) {
   return Number.isFinite(shop.latitude) && Number.isFinite(shop.longitude);
+}
+
+function getFallbackMapCenter(defaultCitySlug: CitySlug | undefined, shops: Shop[]): [number, number] {
+  const citySlug = defaultCitySlug ?? getDominantCitySlugForShops(shops);
+  const city = getCityDefinition(citySlug) ?? getCityDefinition("amsterdam");
+
+  return city ? [city.center.latitude, city.center.longitude] : [52.3676, 4.9041];
 }
 
 function getMarkerIcon(leaflet: LeafletLike, placeType?: string) {

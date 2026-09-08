@@ -3,7 +3,7 @@ import AdSlot from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Contact TobaccoNearby | Amsterdam Directory Support"
+    absolute: "Contact TobaccoNearby | Directory Support"
   },
   description:
     "Contact TobaccoNearby for questions, corrections, listing updates, privacy requests, or removal requests.",

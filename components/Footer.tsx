@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
 import { areaDefinitions } from "@/data/areas";
+import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
 
 const siteLinks = [
@@ -29,20 +30,26 @@ export default function Footer() {
             <p className="text-lg font-bold text-ink">TobaccoNearby</p>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
               A neutral, English-language directory for adults aged 18+ looking for practical location information
-              about tobacco shops in Amsterdam. TobaccoNearby does not sell tobacco products and does not encourage
-              tobacco use.
+              about tobacco shops in supported Dutch cities, including Amsterdam and Utrecht. TobaccoNearby does not
+              sell tobacco products and does not encourage tobacco use.
             </p>
             <p className="mt-3 text-sm leading-6 text-muted">
               TobaccoNearby is an informational directory for adults aged 18+. Shop details may change. Please verify
               information before visiting.
             </p>
           </div>
-          <div className="grid gap-6 sm:grid-cols-3">
-            <FooterLinkGroup label="Website" links={siteLinks} />
-            <FooterLinkGroup
-              label="Amsterdam pages"
-              links={footerAmsterdamLinks}
-            />
+          <div className="grid gap-6">
+            <div className="grid gap-6 sm:grid-cols-3">
+              <FooterLinkGroup label="Website" links={siteLinks} />
+              <FooterLinkGroup
+                label="Supported cities"
+                links={cityDefinitions.map((city) => ({ href: city.href, label: city.name }))}
+              />
+              <FooterLinkGroup
+                label="Amsterdam pages"
+                links={footerAmsterdamLinks}
+              />
+            </div>
             <FooterLinkGroup
               label="Amsterdam areas"
               links={areaDefinitions.map((area) => ({ href: area.href, label: area.label }))}

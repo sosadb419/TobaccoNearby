@@ -1,7 +1,7 @@
 import { Accessibility, ExternalLink, MapPin, Phone, Route, ShieldCheck } from "lucide-react";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
+import { getCityReferenceLabelForShop, getCityReferencePointForShop } from "@/data/cities";
 import {
-  amsterdamCentralStation,
   Coordinates,
   formatDistance,
   formatOpeningHours,
@@ -10,6 +10,7 @@ import {
   getOpeningStatusLabel,
   getPlaceTypeLabel,
   getTodayOpeningHours,
+  hasValidCoordinates,
   isOpenNow,
   Shop
 } from "@/data/shops";
@@ -22,15 +23,14 @@ type ShopCardProps = {
 };
 
 export default function ShopCard({ shop, origin, showLiveStatus = false, priorityLabel }: ShopCardProps) {
-  const distanceOrigin = origin ?? amsterdamCentralStation;
-  const distance = formatDistance(getDistanceKm(shop, distanceOrigin));
-  const distanceContext = origin ? "from your location" : "from Amsterdam Central";
-  const accessible =
-    shop.wheelchairAccessible === undefined ? "Unknown" : shop.wheelchairAccessible ? "Yes" : "No";
+  const distanceOrigin = origin ?? getCityReferencePointForShop(shop);
+  const distance = hasValidCoordinates(shop) ? formatDistance(getDistanceKm(shop, distanceOrigin)) : "";
+  const distanceContext = origin ? "from your location" : `from ${getCityReferenceLabelForShop(shop)}`;
   const openNow = showLiveStatus ? isOpenNow(shop) : null;
   const openingStatusLabel = showLiveStatus ? getOpeningStatusLabel(shop) : "";
   const todayOpeningHours = showLiveStatus ? getTodayOpeningHours(shop) : "";
   const directionsUrl = getDirectionsUrl(shop);
+  const hasAccessibilityInfo = typeof shop.wheelchairAccessible === "boolean";
 
   return (
     <article className="rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -66,9 +66,11 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
             </span>
           </p>
         </div>
-        <div className="rounded-lg bg-paper px-3 py-2 text-sm font-semibold text-ink">
-          {distance} <span className="font-normal text-muted">{distanceContext}</span>
-        </div>
+        {distance ? (
+          <div className="rounded-lg bg-paper px-3 py-2 text-sm font-semibold text-ink">
+            {distance} <span className="font-normal text-muted">{distanceContext}</span>
+          </div>
+        ) : null}
       </div>
 
       <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
@@ -105,13 +107,15 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
           <dt className="font-semibold text-ink">Phone</dt>
           <dd className="mt-1 text-muted">{shop.phone ?? "Not available"}</dd>
         </div>
-        <div>
-          <dt className="flex items-center gap-2 font-semibold text-ink">
-            <Accessibility aria-hidden="true" size={16} />
-            Wheelchair accessible
-          </dt>
-          <dd className="mt-1 text-muted">{accessible}</dd>
-        </div>
+        {hasAccessibilityInfo ? (
+          <div>
+            <dt className="flex items-center gap-2 font-semibold text-ink">
+              <Accessibility aria-hidden="true" size={16} />
+              Wheelchair accessible
+            </dt>
+            <dd className="mt-1 text-muted">{shop.wheelchairAccessible ? "Yes" : "No"}</dd>
+          </div>
+        ) : null}
       </dl>
 
       <div className="mt-5 flex flex-wrap gap-3">

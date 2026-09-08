@@ -9,6 +9,7 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
+import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
 import { getAllShops } from "@/lib/shop-data";
 
@@ -19,10 +20,10 @@ const siteUrl = "https://tobacconearby.com";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "TobaccoNearby | Amsterdam Tobacco Shops Map & Directions"
+    absolute: "TobaccoNearby | Netherlands Tobacco Shop Map & Directions"
   },
   description:
-    "Find practical location information for tobacco shops, kiosks and gas stations in Amsterdam, including map directions, opening hours and nearby locations. Adults 18+ only.",
+    "Find practical location information for tobacco shops, kiosks and gas stations in supported Dutch cities, including Amsterdam and Utrecht. Adults 18+ only.",
   alternates: {
     canonical: "/"
   }
@@ -32,7 +33,7 @@ const homepageFaqs = [
   {
     question: "What is TobaccoNearby?",
     answer:
-      "TobaccoNearby is a neutral English-language directory that provides practical location information for listed tobacco shops in Amsterdam."
+      "TobaccoNearby is a neutral English-language directory that provides practical location information for listed tobacco shops in supported Dutch cities."
   },
   {
     question: "Is this website intended for adults aged 18+?",
@@ -45,9 +46,9 @@ const homepageFaqs = [
       "No. TobaccoNearby does not sell tobacco products, process orders or promote smoking. The website only provides practical shop location information."
   },
   {
-    question: "How can I search for tobacco shops in Amsterdam?",
+    question: "How can I search for tobacco shops in Amsterdam or Utrecht?",
     answer:
-      "Use the search bar to search by area, postal code, street or neighborhood, then review addresses, opening hours and directions where available."
+      "Use the search bar to search by city, area, postal code, street or neighborhood, then review addresses, opening hours and directions where available."
   },
   {
     question: "Can I use my current location?",
@@ -56,9 +57,12 @@ const homepageFaqs = [
   }
 ];
 
-const homepageRelatedLinks = primarySeoLandingPages
-  .filter((page) => page.language === "en")
-  .map((page) => ({ href: page.href, label: page.label }));
+const homepageRelatedLinks = [
+  { href: "/utrecht", label: "Tobacco shops Utrecht" },
+  ...primarySeoLandingPages
+    .filter((page) => page.language === "en")
+    .map((page) => ({ href: page.href, label: page.label }))
+];
 
 export default async function HomePage() {
   const shops = await getAllShops();
@@ -88,11 +92,12 @@ export default async function HomePage() {
           <div className="grid gap-3 md:block">
             <p className="hidden text-sm font-bold uppercase text-teal md:block">TobaccoNearby</p>
             <h1 className="sr-only md:not-sr-only md:mt-3 md:max-w-3xl md:text-5xl md:font-bold md:leading-tight md:text-ink">
-              Find Tobacco Shops Near You in Amsterdam
+              Find Tobacco Shops Near You in the Netherlands
             </h1>
             <p className="hidden max-w-2xl text-base leading-7 text-muted md:mt-5 md:block md:text-lg">
-              Search by area, postal code, or neighborhood to find practical information such as shop locations,
-              opening hours, directions, accessibility notes, and contact details.
+              Search by city, area, postal code, or neighborhood to find practical information such as shop locations,
+              opening hours, directions, accessibility notes, and contact details. Amsterdam and Utrecht are currently
+              supported.
             </p>
             <p className="hidden rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink md:mt-4 md:block">
               This website is intended for adults aged 18+.
@@ -100,7 +105,7 @@ export default async function HomePage() {
             <div className="order-1 md:mt-7">
               <SearchBar
                 helperText={null}
-                placeholder="Search by area, postal code, or neighborhood"
+                placeholder="Search by city, area, postal code, or neighborhood"
                 showLocationButton={false}
                 submitLabel="Find shops"
               />
@@ -117,10 +122,10 @@ export default async function HomePage() {
             <div className="absolute left-8 top-8 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-bold text-ink">
                 <Map aria-hidden="true" size={18} />
-                Amsterdam only
+                Amsterdam and Utrecht
               </div>
               <p className="mt-2 max-w-[14rem] text-sm leading-5 text-muted">
-                Built for Amsterdam first, structured to support more Dutch cities later.
+                A Netherlands directory with two supported cities and a reusable city structure for later expansion.
               </p>
             </div>
             <div className="absolute bottom-8 right-8 w-[min(78%,22rem)] rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -144,11 +149,36 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section id="supported-cities" className="container-shell scroll-mt-6 py-5 md:py-8" aria-labelledby="supported-cities-heading">
+        <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-6">
+          <div>
+            <h2 id="supported-cities-heading" tabIndex={-1} className="focus-ring rounded-md text-xl font-bold text-ink md:text-2xl">
+              Browse supported cities
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted">
+              TobaccoNearby currently has published coverage for Amsterdam and Utrecht.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
+            {cityDefinitions.map((city) => (
+              <TrackedNeighborhoodLink
+                key={city.slug}
+                className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal md:px-4 md:py-3"
+                href={city.href}
+                neighborhood={city.name}
+              >
+                {city.name}
+              </TrackedNeighborhoodLink>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="amsterdam-neighborhoods" className="container-shell scroll-mt-6 py-5 md:py-8" aria-labelledby="amsterdam-neighborhoods-heading">
         <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-6">
           <div>
             <h2 id="amsterdam-neighborhoods-heading" tabIndex={-1} className="focus-ring rounded-md text-xl font-bold text-ink md:text-2xl">
-              Browse Amsterdam neighborhoods
+              Browse Amsterdam areas
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
               Use neighborhood pages to narrow results before checking shop details and directions.
@@ -172,7 +202,7 @@ export default async function HomePage() {
       <section className="container-shell py-5 md:py-8">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-6">
           <div>
-            <h2 className="text-xl font-bold text-ink md:text-2xl">Recently updated Amsterdam listings</h2>
+            <h2 className="text-xl font-bold text-ink md:text-2xl">Recently updated listings</h2>
             <p className="mt-2 text-sm leading-6 text-muted">
               Published listings are loaded from Supabase, with local fallback records used only if the service is
               unavailable.
@@ -213,7 +243,7 @@ export default async function HomePage() {
 
       <div className="container-shell py-5 md:py-8">
         <RelatedPagesSection
-          intro="A small set of useful Amsterdam pages for practical location information."
+          intro="A small set of useful city and Amsterdam pages for practical location information."
           links={homepageRelatedLinks}
           title="Related pages"
         />
@@ -223,7 +253,7 @@ export default async function HomePage() {
         <FAQSection
           id="homepage-faq"
           items={homepageFaqs}
-          intro="General answers about using TobaccoNearby as a practical Amsterdam directory."
+          intro="General answers about using TobaccoNearby as a practical supported-city directory."
         />
       </div>
 

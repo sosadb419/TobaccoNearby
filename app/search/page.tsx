@@ -8,19 +8,28 @@ import SearchResultsView from "@/components/SearchResultsView";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition } from "@/data/areas";
 import {
+  cityDefinitions,
+  cityMatchesShop,
+  getCityDefinition,
+  getDominantCitySlugForShops,
+  getSearchCityTargets,
+  type CitySlug
+} from "@/data/cities";
+import {
   Shop,
   getPlaceTypeLabel,
   isOpenNow,
   normalize,
-  placeTypes
+  placeTypes,
+  sortShopsByOpeningStatus
 } from "@/data/shops";
-import { filterShopsForArea, getAllShops, searchShops } from "@/lib/shop-data";
+import { filterShopsForArea, getAllShops, normalizeAreaText, searchShopList } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const quickSearches = areaDefinitions.map((area) => area.searchLabel);
 const searchRelatedLinks = [
+  { href: "/utrecht", label: "Tobacco shops Utrecht" },
   { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
   { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
   { href: "/amsterdam/buy-cigarettes", label: "Buy cigarettes Amsterdam" },
@@ -32,14 +41,14 @@ const searchRelatedLinks = [
 
 const searchFaqs = [
   {
-    question: "How can I search for tobacco shops in Amsterdam?",
+    question: "How can I search for tobacco shops in Amsterdam or Utrecht?",
     answer:
-      "Enter an area, postal code, street, station name or neighborhood. Search results show practical listing details where available."
+      "Enter a city, area, postal code, street, station name or neighborhood. Search results show practical listing details where available."
   },
   {
     question: "Can I search by neighborhood or postal code?",
     answer:
-      "Yes. The search page supports neighborhood names such as De Pijp or Noord, area aliases such as Bijlmer, and postal codes such as 1012."
+      "Yes. The search page supports neighborhood names such as De Pijp, Overvecht or Noord, area aliases such as Bijlmer, and postal codes such as 1012 or 3511."
   },
   {
     question: "Can I filter by open now?",
@@ -75,6 +84,7 @@ type SearchPageProps = {
     hasWebsite?: string;
     placeType?: string;
     perPage?: string;
+    city?: string;
   }>;
 };
 
@@ -84,10 +94,10 @@ export async function generateMetadata({ searchParams }: Pick<SearchPageProps, "
 
   return {
     title: {
-      absolute: "Search Amsterdam Tobacco Shops | Map, Opening Hours & Directions"
+      absolute: "Search Tobacco Shops in Amsterdam and Utrecht | Map & Directions"
     },
     description:
-      "Search tobacco shops, kiosks and gas stations in Amsterdam by area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
+      "Search tobacco shops, kiosks and gas stations in Amsterdam and Utrecht by city, area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
     alternates: {
       canonical: "/search"
     },
@@ -106,23 +116,29 @@ export async function generateMetadata({ searchParams }: Pick<SearchPageProps, "
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = (params.q ?? "").trim();
-  const selectedNeighborhood = getSelectedAreaSlug(params.neighborhood);
+  const selectedCity = getSelectedCitySlug(params.city);
+  const selectedNeighborhood = getSelectedNeighborhoodFilter(params.neighborhood);
   const selectedPlaceType = getValidPlaceType(params.placeType);
   const wantsNearest = params.sort === "nearest";
   const shouldRequestLocation = params.locate === "true";
   const initialPerPage = params.perPage === "20" ? 20 : 10;
 
-  const baseResults = query ? await searchShops(query) : await getAllShops();
+  const allShops = await getAllShops();
+  const baseResults = query ? searchShopList(allShops, query) : allShops;
   const filters: ShopFilters = {
     openNow: params.openNow === "true",
     sortNearest: wantsNearest,
+    selectedCity,
     selectedNeighborhood,
     selectedPlaceType,
     hasPhone: params.hasPhone === "true",
     hasWebsite: params.hasWebsite === "true",
     wheelchairAccessible: params.accessible === "true"
   };
-  const results = applyShopFilters(baseResults, filters);
+  const results = sortShopsForSearch(applyShopFilters(baseResults, filters));
+  const defaultCitySlug = selectedCity || getSearchCityTargets(query)[0] || getDominantCitySlugForShops(results);
+  const neighborhoodOptions = getNeighborhoodFilterOptions(allShops, selectedCity);
+  const quickSearches = getQuickSearchLinks(allShops, selectedCity);
   const activeFilterLabels = getActiveFilterLabels(filters);
   const hasActiveFilters = activeFilterLabels.length > 0;
 
@@ -134,6 +150,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (params.accessible) filterParams.set("accessible", params.accessible);
   if (params.hasPhone) filterParams.set("hasPhone", params.hasPhone);
   if (params.hasWebsite) filterParams.set("hasWebsite", params.hasWebsite);
+  if (selectedCity) filterParams.set("city", selectedCity);
   if (selectedNeighborhood) filterParams.set("neighborhood", selectedNeighborhood);
   if (selectedPlaceType) filterParams.set("placeType", selectedPlaceType);
   if (initialPerPage === 20) filterParams.set("perPage", "20");
@@ -148,9 +165,9 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <section className="container-shell py-0 md:py-8">
       <div className="md:mb-6">
-        <p className="hidden text-sm font-bold uppercase text-teal md:block">Amsterdam search</p>
+        <p className="hidden text-sm font-bold uppercase text-teal md:block">Supported city search</p>
         <h1 className="sr-only md:not-sr-only md:mt-3 md:block md:text-3xl md:font-bold md:text-ink lg:text-4xl">
-          Tobacco shops near you in Amsterdam
+          Tobacco shops near you in Amsterdam and Utrecht
         </h1>
         <p className="mt-3 hidden max-w-3xl text-sm leading-6 text-muted md:block">
           Use filters for practical information only. Listings are neutral and should be verified before visiting.
@@ -158,24 +175,24 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </div>
 
       <div className="mt-6 hidden rounded-lg border border-line bg-white p-4 shadow-sm md:block">
-        <SearchBar initialQuery={query} compact />
+        <SearchBar citySlug={selectedCity} initialQuery={query} compact />
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-sm font-bold text-ink">Quick searches</span>
           {quickSearches.map((item) => {
-            const isActive = normalize(query) === normalize(item);
+            const isActive = normalize(query) === normalize(item.label) || normalize(query) === normalize(item.query);
 
             return (
               <TrackedNeighborhoodLink
-                key={item}
+                key={item.href}
                 className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
                   isActive
                     ? "border-teal bg-teal text-white"
                     : "border-line bg-white text-muted hover:border-teal hover:text-teal"
                 }`}
-                href={`/search?q=${encodeURIComponent(item)}`}
-                neighborhood={item}
+                href={item.href}
+                neighborhood={item.label}
               >
-                {item}
+                {item.label}
               </TrackedNeighborhoodLink>
             );
           })}
@@ -204,7 +221,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               Clear filters
             </Link>
           </div>
-          <form className="mt-4 grid max-w-2xl gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end" action="/search">
+          <form className="mt-4 grid max-w-4xl gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-end" action="/search">
             {query ? <input type="hidden" name="q" value={query} /> : null}
             {params.sort ? <input type="hidden" name="sort" value={params.sort} /> : null}
             {shouldRequestLocation ? <input type="hidden" name="locate" value="true" /> : null}
@@ -213,8 +230,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {params.hasPhone ? <input type="hidden" name="hasPhone" value={params.hasPhone} /> : null}
             {params.hasWebsite ? <input type="hidden" name="hasWebsite" value={params.hasWebsite} /> : null}
             <div className="grid gap-1">
+              <label className="text-xs font-bold uppercase text-muted" htmlFor="city">
+                City
+              </label>
+              <select
+                className="focus-ring min-h-11 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
+                id="city"
+                name="city"
+                defaultValue={selectedCity}
+              >
+                <option value="">All supported cities</option>
+                {cityDefinitions.map((city) => (
+                  <option key={city.slug} value={city.slug}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="grid gap-1">
               <label className="text-xs font-bold uppercase text-muted" htmlFor="neighborhood">
-                Area
+                Area / neighborhood
               </label>
               <select
                 className="focus-ring min-h-11 rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink"
@@ -223,8 +258,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 defaultValue={selectedNeighborhood}
               >
                 <option value="">All areas</option>
-                {areaDefinitions.map((area) => (
-                  <option key={area.slug} value={area.slug}>
+                {neighborhoodOptions.map((area) => (
+                  <option key={area.value} value={area.value}>
                     {area.label}
                   </option>
                 ))}
@@ -269,8 +304,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         activeFilterLabels={activeFilterLabels}
         emptyStateMessage={emptyStateMessage}
         filterState={filters}
+        defaultCitySlug={defaultCitySlug}
         hasActiveFilters={hasActiveFilters}
         initialPerPage={initialPerPage}
+        neighborhoodOptions={neighborhoodOptions}
         query={query}
         requestLocation={shouldRequestLocation}
         shops={results}
@@ -279,7 +316,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <RelatedPagesSection
         className="mt-6 md:mt-8"
-        intro="A small set of related Amsterdam pages for practical location information."
+        intro="A small set of related city and Amsterdam pages for practical location information."
         links={searchRelatedLinks}
         title="Related pages"
       />
@@ -297,6 +334,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 type ShopFilters = {
   openNow: boolean;
   sortNearest: boolean;
+  selectedCity: CitySlug | "";
   selectedNeighborhood: string;
   selectedPlaceType: string;
   hasPhone: boolean;
@@ -307,8 +345,14 @@ type ShopFilters = {
 function applyShopFilters(shops: Shop[], filters: ShopFilters) {
   let filteredShops = [...shops];
 
+  if (filters.selectedCity) {
+    filteredShops = filteredShops.filter((shop) => cityMatchesShop(shop, filters.selectedCity));
+  }
+
   if (filters.selectedNeighborhood) {
-    filteredShops = filterShopsForArea(filteredShops, filters.selectedNeighborhood);
+    filteredShops = getAreaDefinition(filters.selectedNeighborhood)
+      ? filterShopsForArea(filteredShops, filters.selectedNeighborhood)
+      : filteredShops.filter((shop) => matchesNeighborhoodFilter(shop, filters.selectedNeighborhood));
   }
 
   if (filters.selectedPlaceType) {
@@ -348,7 +392,11 @@ function getNormalizedPlaceType(placeType?: string) {
   return placeTypes.some((item) => item.value === value) ? value : "tobacco_shop";
 }
 
-function getSelectedAreaSlug(area?: string) {
+function getSelectedCitySlug(city?: string): CitySlug | "" {
+  return getCityDefinition(city)?.slug ?? "";
+}
+
+function getSelectedNeighborhoodFilter(area?: string) {
   if (!area) {
     return "";
   }
@@ -362,7 +410,7 @@ function getSelectedAreaSlug(area?: string) {
       item.fallbackTerms.some((term) => normalize(term) === normalizedArea)
   );
 
-  return areaDefinition?.slug ?? "";
+  return areaDefinition?.slug ?? area.trim();
 }
 
 function getValidPlaceType(placeType?: string) {
@@ -376,6 +424,7 @@ function getActiveFilterLabels(filters: ShopFilters) {
 
   if (filters.openNow) labels.push("Open now");
   if (filters.sortNearest) labels.push("Nearest");
+  if (filters.selectedCity) labels.push(getCityDefinition(filters.selectedCity)?.name ?? filters.selectedCity);
   if (filters.selectedNeighborhood) labels.push(getAreaDefinition(filters.selectedNeighborhood)?.label ?? filters.selectedNeighborhood);
   if (filters.selectedPlaceType) labels.push(getPlaceTypeLabel(filters.selectedPlaceType));
   if (filters.hasPhone) labels.push("Has phone number");
@@ -383,6 +432,133 @@ function getActiveFilterLabels(filters: ShopFilters) {
   if (filters.wheelchairAccessible) labels.push("Wheelchair accessible");
 
   return labels;
+}
+
+type FilterOption = {
+  label: string;
+  value: string;
+};
+
+type QuickSearchLink = {
+  href: string;
+  label: string;
+  query: string;
+};
+
+function sortShopsForSearch(shopList: Shop[]) {
+  return sortShopsByOpeningStatus(shopList);
+}
+
+function matchesNeighborhoodFilter(shop: Shop, filterValue: string) {
+  const normalizedFilter = normalizeAreaText(filterValue);
+
+  if (!normalizedFilter) {
+    return true;
+  }
+
+  const searchable = normalizeAreaText(
+    [shop.neighborhood, shop.address, shop.postalCode, shop.city, shop.nearbyPublicTransport].join(" ")
+  );
+
+  return searchable.includes(normalizedFilter);
+}
+
+function getNeighborhoodFilterOptions(shopList: Shop[], selectedCity: CitySlug | ""): FilterOption[] {
+  if (selectedCity === "utrecht") {
+    return getDynamicNeighborhoodOptions(shopList.filter((shop) => cityMatchesShop(shop, "utrecht")));
+  }
+
+  if (selectedCity === "amsterdam") {
+    return areaDefinitions.map((area) => ({ label: area.label, value: area.slug }));
+  }
+
+  return uniqueOptions([
+    ...areaDefinitions.map((area) => ({ label: area.label, value: area.slug })),
+    ...getDynamicNeighborhoodOptions(shopList.filter((shop) => cityMatchesShop(shop, "utrecht"))).map((option) => ({
+      label: `Utrecht: ${option.label}`,
+      value: option.value
+    }))
+  ]);
+}
+
+function getDynamicNeighborhoodOptions(shopList: Shop[]): FilterOption[] {
+  const counts = new Map<string, { label: string; count: number }>();
+
+  shopList.forEach((shop) => {
+    const label = shop.neighborhood?.trim();
+
+    if (!label) {
+      return;
+    }
+
+    const key = normalizeAreaText(label);
+    const current = counts.get(key);
+
+    counts.set(key, { label, count: (current?.count ?? 0) + 1 });
+  });
+
+  return [...counts.values()]
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+    .slice(0, 12)
+    .map((item) => ({ label: item.label, value: item.label }));
+}
+
+function getQuickSearchLinks(shopList: Shop[], selectedCity: CitySlug | ""): QuickSearchLink[] {
+  if (selectedCity === "amsterdam") {
+    const city = getCityDefinition("amsterdam");
+
+    return (
+      city?.quickSearches.map((item) => ({
+        href: buildQuickSearchHref(item.query, "amsterdam", item.areaSlug),
+        label: item.label,
+        query: item.query
+      })) ?? []
+    );
+  }
+
+  if (selectedCity === "utrecht") {
+    const dynamicAreas = getDynamicNeighborhoodOptions(shopList.filter((shop) => cityMatchesShop(shop, "utrecht"))).slice(0, 9);
+
+    return [
+      { href: buildQuickSearchHref("Utrecht", "utrecht"), label: "Utrecht", query: "Utrecht" },
+      ...dynamicAreas.map((area) => ({
+        href: buildQuickSearchHref(area.label, "utrecht", area.value),
+        label: area.label,
+        query: area.label
+      }))
+    ];
+  }
+
+  return cityDefinitions.map((city) => ({
+    href: `/search?city=${city.slug}&q=${encodeURIComponent(city.name)}`,
+    label: city.name,
+    query: city.name
+  }));
+}
+
+function buildQuickSearchHref(query: string, citySlug?: CitySlug, areaFilter?: string) {
+  const params = new URLSearchParams();
+
+  if (query) params.set("q", query);
+  if (citySlug) params.set("city", citySlug);
+  if (areaFilter) params.set("neighborhood", areaFilter);
+
+  return `/search?${params.toString()}`;
+}
+
+function uniqueOptions(options: FilterOption[]) {
+  const seen = new Set<string>();
+
+  return options.filter((option) => {
+    const key = normalizeAreaText(option.value);
+
+    if (!key || seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
 }
 
 function FilterLink({
@@ -402,8 +578,14 @@ function FilterLink({
 
   if (active) {
     nextParams.delete(name);
+    if (name === "sort") {
+      nextParams.delete("locate");
+    }
   } else {
     nextParams.set(name, value);
+    if (name === "sort" && value === "nearest") {
+      nextParams.set("locate", "true");
+    }
   }
 
   return (

@@ -35,7 +35,7 @@ const zuidFaqs = [
   {
     question: "Can I check accessibility information?",
     answer:
-      "Yes. Listings may show wheelchair accessibility information where available. Unknown details should be verified before visiting."
+      "Yes. Listings may show wheelchair accessibility information where available. Missing details should be verified before visiting."
   },
   {
     question: "Does TobaccoNearby promote smoking?",

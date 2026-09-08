@@ -11,6 +11,7 @@ import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import ShopComments from "@/components/ShopComments";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition, type AreaDefinition } from "@/data/areas";
+import { cityMatchesShop, getCityDefinitionForShop, getCitySlugFromShop } from "@/data/cities";
 import {
   Shop,
   getDirectionsUrl,
@@ -68,20 +69,18 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const approvedComments = await getApprovedCommentsForShop(shop.slug);
   const nearbyShops = getNearbyListedShops(shop, shopList);
   const neighborhoodHref = getShopAreaHref(shop);
-  const accessibility =
-    shop.wheelchairAccessible === undefined
-      ? "Accessibility information not available."
-      : shop.wheelchairAccessible
-        ? "Yes"
-        : "No";
+  const hasAccessibilityInfo = typeof shop.wheelchairAccessible === "boolean";
+  const accessibility = shop.wheelchairAccessible ? "Yes" : "No";
   const openingHours = formatOpeningHours(shop.openingHours);
   const hasMapLocation = hasValidCoordinates(shop);
   const directionsUrl = getDirectionsUrl(shop);
   const schema = generateLocalBusinessJsonLd(shop);
   const placeTypeLabel = getPlaceTypeLabel(shop.place_type);
+  const cityDefinition = getCityDefinitionForShop(shop);
   const areaDefinition = getShopAreaDefinition(shop);
   const areaLabel = areaDefinition?.label ?? shop.neighborhood;
   const areaHref = areaDefinition?.href ?? neighborhoodHref;
+  const cityListingsLabel = `${cityDefinition.name} listings`;
   const fullAddress = getFullAddress(shop);
   const nearbyAreaLinks = getNearbyAreaLinks(shop);
   const shopFaqs = getShopFaqs(shop, directionsUrl);
@@ -99,7 +98,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
         <article className="rounded-lg border border-line bg-white p-6 shadow-sm">
-          <p className="text-sm font-bold uppercase text-teal">Amsterdam shop detail</p>
+          <p className="text-sm font-bold uppercase text-teal">{cityDefinition.name} shop detail</p>
           <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">{shop.name}</h1>
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <span className="inline-flex rounded-md border border-line bg-paper px-2 py-1 text-xs font-semibold text-muted">
@@ -164,9 +163,11 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               ) : null}
               {!shop.phone && !shop.website ? <p>Contact details not available.</p> : null}
             </InfoBlock>
-            <InfoBlock icon={<Accessibility aria-hidden="true" size={18} />} title="Accessibility">
-              Wheelchair accessible: {accessibility}
-            </InfoBlock>
+            {hasAccessibilityInfo ? (
+              <InfoBlock icon={<Accessibility aria-hidden="true" size={18} />} title="Accessibility">
+                Wheelchair accessible: {accessibility}
+              </InfoBlock>
+            ) : null}
             {shop.nearbyPublicTransport ? (
               <InfoBlock icon={<Train aria-hidden="true" size={18} />} title="Nearby public transport">
                 {shop.nearbyPublicTransport}
@@ -202,9 +203,9 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
                 className="focus-ring rounded-lg border border-line bg-paper px-3 py-2 text-sm font-semibold text-ink hover:border-teal hover:text-teal"
-                href="/amsterdam/tobacco-shops"
-              >
-                Amsterdam listings
+              href={cityDefinition.href}
+            >
+                {cityListingsLabel}
               </Link>
               {areaDefinition ? (
                 <Link
@@ -235,7 +236,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
             </p>
             <div className="mt-4">
               {hasMapLocation ? (
-                <LazyShopMap shops={[shop]} />
+                <LazyShopMap defaultCitySlug={cityDefinition.slug} shops={[shop]} />
               ) : (
                 <div className="rounded-lg border border-line bg-paper p-5 text-sm leading-6 text-muted">
                   Map location is not available for this listing.
@@ -285,9 +286,9 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               </Link>
               <Link
                 className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
-                href="/amsterdam/tobacco-shops"
+                href={cityDefinition.href}
               >
-                Back to Amsterdam listings
+                Back to {cityListingsLabel}
               </Link>
               <Link
                 className="focus-ring inline-flex items-center justify-center rounded-lg border border-line px-4 py-2 text-sm font-bold text-ink hover:border-teal hover:text-teal"
@@ -455,6 +456,7 @@ function getAboutLocationText(shop: Shop, placeTypeLabel: string, areaLabel: str
 }
 
 function getNearbyAreaInformation(shop: Shop, areaLabel: string) {
+  const city = getCityDefinitionForShop(shop);
   const neighborhoodText = shop.neighborhood
     ? `${shop.neighborhood} is the local neighborhood shown for this listing.`
     : `${areaLabel} is the area shown for this listing.`;
@@ -462,7 +464,7 @@ function getNearbyAreaInformation(shop: Shop, areaLabel: string) {
     ? ` Nearby public transport information currently listed: ${shop.nearbyPublicTransport}`
     : " Nearby public transport details are not currently listed for this location.";
 
-  return `${neighborhoodText}${transportText} Use the area links below to compare other listed locations around ${areaLabel} and Amsterdam.`;
+  return `${neighborhoodText}${transportText} Use the area links below to compare other listed locations around ${areaLabel} and ${city.name}.`;
 }
 
 function getShopFaqs(shop: Shop, directionsUrl: string | null): FAQItem[] {
@@ -529,6 +531,10 @@ function getListingUpdateLines(shop: Shop) {
 }
 
 function getNearbyAreaLinks(shop: Shop) {
+  if (!cityMatchesShop(shop, "amsterdam")) {
+    return [];
+  }
+
   const currentAreaSlug = getComparableAreaSlug(shop);
   const nearbySlugs = nearbyAreaSlugMap[currentAreaSlug] ?? ["centrum", "de-pijp", "jordaan", "oost"];
 
@@ -580,14 +586,40 @@ function hasValidCoordinates(shop: Shop) {
 }
 
 function getShopAreaHref(shop: Shop) {
-  return getShopAreaDefinition(shop)?.href ?? `/search?neighborhood=${encodeURIComponent(shop.neighborhood)}`;
+  const area = getShopAreaDefinition(shop);
+
+  if (area) {
+    return area.href;
+  }
+
+  const citySlug = getCitySlugFromShop(shop);
+  const params = new URLSearchParams();
+
+  if (citySlug) {
+    params.set("city", citySlug);
+  }
+  if (shop.neighborhood) {
+    params.set("neighborhood", shop.neighborhood);
+  }
+
+  return `/search${params.toString() ? `?${params.toString()}` : ""}`;
 }
 
 function getComparableAreaSlug(shop: Shop) {
-  return getShopAreaDefinition(shop)?.slug ?? normalize(shop.area_slug || shop.neighborhood);
+  const area = getShopAreaDefinition(shop);
+
+  if (area) {
+    return area.slug;
+  }
+
+  return [getCitySlugFromShop(shop), normalize(shop.area_slug || shop.neighborhood)].filter(Boolean).join(":");
 }
 
 function getShopAreaDefinition(shop: Shop) {
+  if (!cityMatchesShop(shop, "amsterdam")) {
+    return undefined;
+  }
+
   if (shop.area_slug) {
     const area = getAreaDefinition(shop.area_slug);
 
