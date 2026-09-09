@@ -9,6 +9,7 @@ import FAQSection, { type FAQItem } from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
 import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import ShopComments from "@/components/ShopComments";
+import ShopPhotos from "@/components/ShopPhotos";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
 import { areaDefinitions, getAreaDefinition, type AreaDefinition } from "@/data/areas";
 import { cityMatchesShop, getCityDefinitionForShop, getCitySlugFromShop } from "@/data/cities";
@@ -24,6 +25,7 @@ import {
 } from "@/data/shops";
 import { getAllShops, getShopBySlug } from "@/lib/shop-data";
 import { getApprovedCommentsForShop } from "@/lib/shop-comments";
+import { getApprovedPhotosForShop } from "@/lib/shop-photos";
 import { generateLocalBusinessJsonLd } from "@/lib/structured-data";
 
 export const dynamic = "force-dynamic";
@@ -67,6 +69,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
 
   const shopList = await getAllShops();
   const approvedComments = await getApprovedCommentsForShop(shop.slug);
+  const approvedPhotos = await getApprovedPhotosForShop(shop.slug);
   const nearbyShops = getNearbyListedShops(shop, shopList);
   const neighborhoodHref = getShopAreaHref(shop);
   const hasAccessibilityInfo = typeof shop.wheelchairAccessible === "boolean";
@@ -321,6 +324,13 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
 
       <ShopComments
         approvedComments={approvedComments}
+        shopId={shop.id}
+        shopName={shop.name}
+        shopSlug={shop.slug}
+      />
+
+      <ShopPhotos
+        approvedPhotos={approvedPhotos}
         shopId={shop.id}
         shopName={shop.name}
         shopSlug={shop.slug}
