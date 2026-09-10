@@ -59,6 +59,8 @@ const homepageFaqs = [
 
 const homepageRelatedLinks = [
   { href: "/utrecht", label: "Tobacco shops Utrecht" },
+  { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
+  { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" },
   ...primarySeoLandingPages
     .filter((page) => page.language === "en")
     .map((page) => ({ href: page.href, label: page.label }))

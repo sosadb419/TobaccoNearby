@@ -20,6 +20,12 @@ const footerAmsterdamLinks = primarySeoLandingPages
   .slice(0, 5)
   .map((page) => ({ href: page.href, label: page.label }));
 
+const footerUtrechtLinks = [
+  { href: "/utrecht", label: "Tobacco shops Utrecht" },
+  { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
+  { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" }
+];
+
 export default function Footer() {
   return (
     <footer className="mt-16 border-t border-line bg-white">
@@ -39,7 +45,7 @@ export default function Footer() {
             </p>
           </div>
           <div className="grid gap-6">
-            <div className="grid gap-6 sm:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               <FooterLinkGroup label="Website" links={siteLinks} />
               <FooterLinkGroup
                 label="Supported cities"
@@ -49,6 +55,7 @@ export default function Footer() {
                 label="Amsterdam pages"
                 links={footerAmsterdamLinks}
               />
+              <FooterLinkGroup label="Utrecht pages" links={footerUtrechtLinks} />
             </div>
             <FooterLinkGroup
               label="Amsterdam areas"

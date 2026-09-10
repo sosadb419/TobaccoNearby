@@ -18,6 +18,7 @@ export type CityDefinition = {
   referencePoint: Coordinates;
   referenceLabel: string;
   aliases: string[];
+  coverageAliases?: string[];
   referenceAliases: string[];
   quickSearches: CityQuickSearch[];
 };
@@ -88,6 +89,7 @@ export const cityDefinitions: CityDefinition[] = [
       "Utrecht city",
       "Utrecht NL"
     ],
+    coverageAliases: ["De Meern", "Vleuten", "Maarssenbroek"],
     referenceAliases: [
       "Utrecht Centraal",
       "Utrecht Central",
@@ -133,7 +135,10 @@ export function getCitySlugFromShop(
 
   if (cityValue) {
     const directCity = cityDefinitions.find(
-      (city) => city.slug === cityValue || normalizeCityText(city.name) === cityValue
+      (city) =>
+        city.slug === cityValue ||
+        normalizeCityText(city.name) === cityValue ||
+        city.coverageAliases?.some((alias) => normalizeCityText(alias) === cityValue)
     );
 
     if (directCity) {
@@ -143,7 +148,7 @@ export function getCitySlugFromShop(
 
   const searchable = normalizeCityText([shop.city, shop.neighborhood, shop.address, shop.nearbyPublicTransport].join(" "));
   const matchedCity = cityDefinitions.find((city) =>
-    city.aliases.some((alias) => {
+    [...city.aliases, ...(city.coverageAliases ?? [])].some((alias) => {
       const normalizedAlias = normalizeCityText(alias);
 
       return normalizedAlias.length >= 5 && searchable.includes(normalizedAlias);
@@ -171,7 +176,7 @@ export function cityMatchesShop(
 
   const searchable = normalizeCityText([shop.city, shop.neighborhood, shop.address, shop.nearbyPublicTransport].join(" "));
 
-  return city.aliases.some((alias) => {
+  return [...city.aliases, ...(city.coverageAliases ?? [])].some((alias) => {
     const normalizedAlias = normalizeCityText(alias);
 
     return normalizedAlias.length >= 5 && searchable.includes(normalizedAlias);
@@ -187,7 +192,7 @@ export function getSearchCityTargets(value: string) {
 
   return cityDefinitions
     .filter((city) => {
-      const aliases = [city.slug, city.name, ...city.aliases].map(normalizeCityText);
+      const aliases = [city.slug, city.name, ...city.aliases, ...(city.coverageAliases ?? [])].map(normalizeCityText);
 
       return aliases.some((alias) => alias && (normalizedValue === alias || normalizedValue.includes(alias)));
     })
@@ -198,7 +203,7 @@ export function getExactCityTarget(value: string) {
   const normalizedValue = normalizeCityText(value);
 
   return cityDefinitions.find((city) => {
-    const aliases = [city.slug, city.name, ...city.aliases].map(normalizeCityText);
+    const aliases = [city.slug, city.name, ...city.aliases, ...(city.coverageAliases ?? [])].map(normalizeCityText);
 
     return aliases.some((alias) => alias === normalizedValue);
   })?.slug;
