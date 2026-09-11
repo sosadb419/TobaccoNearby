@@ -15,6 +15,7 @@ import {
   getSearchCityTargets,
   type CitySlug
 } from "@/data/cities";
+import { getUtrechtAreaDisplayName } from "@/data/utrecht-seo";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -30,6 +31,8 @@ export const revalidate = 0;
 
 const searchRelatedLinks = [
   { href: "/utrecht", label: "Tobacco shops Utrecht" },
+  { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
+  { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" },
   { href: "/amsterdam/tobacco-shops", label: "Tobacco shops Amsterdam" },
   { href: "/amsterdam/where-to-buy-cigarettes", label: "Where to buy cigarettes Amsterdam" },
   { href: "/amsterdam/buy-cigarettes", label: "Buy cigarettes Amsterdam" },
@@ -485,11 +488,13 @@ function getDynamicNeighborhoodOptions(shopList: Shop[]): FilterOption[] {
   const counts = new Map<string, { label: string; count: number }>();
 
   shopList.forEach((shop) => {
-    const label = shop.neighborhood?.trim();
+    const rawLabel = shop.neighborhood?.trim();
 
-    if (!label) {
+    if (!rawLabel) {
       return;
     }
+
+    const label = getUtrechtAreaDisplayName(rawLabel);
 
     const key = normalizeAreaText(label);
     const current = counts.get(key);

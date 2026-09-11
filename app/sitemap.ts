@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { areaDefinitions } from "@/data/areas";
 import { seoLandingPages } from "@/data/seo-pages";
-import { getAllShops } from "@/lib/shop-data";
+import { getAllShops, getIndexableUtrechtAreas } from "@/lib/shop-data";
 
 const siteUrl = "https://tobacconearby.com";
 
@@ -9,6 +9,8 @@ const staticRoutes = [
   "",
   "/search",
   "/utrecht",
+  "/tabakswinkel-utrecht",
+  "/sigaretten-kopen-utrecht",
   "/forum",
   "/about",
   "/contact",
@@ -23,11 +25,13 @@ const staticRoutes = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const shops = await getAllShops();
   const now = new Date();
-  const staticEntries = staticRoutes.map((route) => ({
+  const utrechtAreaRoutes = getIndexableUtrechtAreas(shops).map(({ area }) => area.href);
+  const publicRoutes = [...new Set([...staticRoutes, ...utrechtAreaRoutes])];
+  const staticEntries = publicRoutes.map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: now,
     changeFrequency: route === "" || route === "/search" ? "daily" : "weekly",
-    priority: route === "" ? 1 : route.startsWith("/amsterdam") || route === "/utrecht" ? 0.8 : 0.6
+    priority: route === "" ? 1 : route.startsWith("/amsterdam") || route.startsWith("/utrecht") ? 0.8 : 0.6
   })) satisfies MetadataRoute.Sitemap;
 
   const shopEntries = shops.map((shop) => ({

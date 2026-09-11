@@ -13,6 +13,10 @@ type SearchBarProps = {
   placeholder?: string;
   showLocationButton?: boolean;
   submitLabel?: string;
+  locationLabel?: string;
+  locationDeniedText?: string;
+  locationFailedText?: string;
+  locationRequestText?: string;
 };
 
 const locationDeniedMessage =
@@ -26,7 +30,11 @@ export default function SearchBar({
   helperText = "Examples: De Pijp, Bijlmer, Utrecht, Overvecht, 1012, 3511",
   placeholder = "Search by area, postal code, street, or neighborhood",
   showLocationButton = true,
-  submitLabel = "Search"
+  submitLabel = "Search",
+  locationLabel = "Use my current location",
+  locationDeniedText = locationDeniedMessage,
+  locationFailedText = locationFailedMessage,
+  locationRequestText = "Requesting your location..."
 }: SearchBarProps) {
   const [query, setQuery] = useState(initialQuery);
   const [locationStatus, setLocationStatus] = useState("");
@@ -53,11 +61,11 @@ export default function SearchBar({
     trackUseLocationClicked();
 
     if (!navigator.geolocation) {
-      setLocationStatus(locationFailedMessage);
+      setLocationStatus(locationFailedText);
       return;
     }
 
-    setLocationStatus("Requesting your location...");
+    setLocationStatus(locationRequestText);
     navigator.geolocation.getCurrentPosition(
       () => {
         const params = new URLSearchParams({
@@ -76,7 +84,7 @@ export default function SearchBar({
         router.push(`/search?${params.toString()}`);
       },
       (error) => {
-        setLocationStatus(error.code === error.PERMISSION_DENIED ? locationDeniedMessage : locationFailedMessage);
+        setLocationStatus(error.code === error.PERMISSION_DENIED ? locationDeniedText : locationFailedText);
       },
       {
         enableHighAccuracy: true,
@@ -120,7 +128,7 @@ export default function SearchBar({
             onClick={handleCurrentLocation}
           >
             <LocateFixed aria-hidden="true" size={18} />
-            Use my current location
+            {locationLabel}
           </button>
         ) : null}
       </form>

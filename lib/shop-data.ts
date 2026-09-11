@@ -19,6 +19,14 @@ import {
   type CitySlug
 } from "@/data/cities";
 import {
+  getUtrechtAreaDefinition,
+  getUtrechtAreaSearchTargets,
+  normalizeLeidscheRijnSpelling,
+  normalizeUtrechtAreaText,
+  utrechtAreaDefinitions,
+  type UtrechtAreaDefinition
+} from "@/data/utrecht-seo";
+import {
   DayName,
   OpeningHoursSlot,
   Shop,
@@ -120,6 +128,58 @@ export async function getShopsForCity(citySlug: string) {
   return filterShopsForCity(shopList, citySlug);
 }
 
+export async function getShopsForUtrechtArea(areaSlug: string) {
+  const shopList = await getAllShops();
+  const area = getUtrechtAreaDefinition(areaSlug);
+
+  return area ? filterShopsForCityArea(shopList, "utrecht", area) : [];
+}
+
+export function filterShopsForCityArea(
+  shopList: Shop[],
+  citySlug: CitySlug,
+  area: Pick<UtrechtAreaDefinition, "areaSlugAliases" | "matchTerms">
+) {
+  return sortShopsByOpeningStatus(
+    shopList.filter((shop) => isPublicShop(shop) && matchesShopForCityArea(shop, citySlug, area))
+  );
+}
+
+export function matchesShopForCityArea(
+  shop: Shop,
+  citySlug: CitySlug,
+  area: Pick<UtrechtAreaDefinition, "areaSlugAliases" | "matchTerms">
+) {
+  if (!cityMatchesShop(shop, citySlug)) {
+    return false;
+  }
+
+  const shopAreaSlug = normalizeUtrechtAreaText(shop.area_slug);
+  const areaSlugMatch =
+    Boolean(shopAreaSlug) &&
+    area.areaSlugAliases.some((alias) => normalizeUtrechtAreaText(alias) === shopAreaSlug);
+
+  if (areaSlugMatch) {
+    return true;
+  }
+
+  const searchable = normalizeAreaText(
+    [shop.neighborhood, shop.address, shop.postalCode, shop.city, shop.nearbyPublicTransport].join(" ")
+  );
+
+  return area.matchTerms.some((term) => matchesNormalizedText(searchable, normalizeAreaText(term)));
+}
+
+export function getUtrechtAreaForShop(shop: Shop) {
+  return utrechtAreaDefinitions.find((area) => matchesShopForCityArea(shop, "utrecht", area));
+}
+
+export function getIndexableUtrechtAreas(shopList: Shop[]) {
+  return utrechtAreaDefinitions
+    .map((area) => ({ area, shops: filterShopsForCityArea(shopList, "utrecht", area) }))
+    .filter(({ area, shops }) => shops.length >= area.minimumListings);
+}
+
 export function filterShopsForArea(shopList: Shop[], areaSlug: string) {
   const normalizedAreaSlug = normalizeAreaSlug(areaSlug);
   const filtered = shopList.filter((shop) => isPublicShop(shop) && matchesArea(shop, normalizedAreaSlug));
@@ -169,6 +229,7 @@ export function searchShopList(shopList: Shop[], query: string) {
   }
 
   const aliasTargets = getSearchAliasTargets(value);
+  const utrechtAreaTargets = getUtrechtAreaSearchTargets(value);
   const cityTargets = getSearchCityTargets(value);
   const referenceCityTargets = getReferenceCityTargets(value);
   const scopedCityTargets = uniqueValues([...cityTargets, ...referenceCityTargets]);
@@ -190,6 +251,10 @@ export function searchShopList(shopList: Shop[], query: string) {
     }
 
     if (matchesScopedCity && aliasTargets.some((target) => matchesArea(shop, target))) {
+      return true;
+    }
+
+    if (utrechtAreaTargets.some((area) => matchesShopForCityArea(shop, "utrecht", area))) {
       return true;
     }
 
@@ -476,11 +541,13 @@ function sortByCityReferenceDistance(shopList: Shop[], citySlug: CitySlug) {
 function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
   const hasStatusField = Object.prototype.hasOwnProperty.call(row, "status");
   const status = readString(row, ["status"]);
-  const name = readString(row, ["name", "shop_name", "title"]);
+  const rawName = readString(row, ["name", "shop_name", "title"]);
 
-  if ((hasStatusField && status !== "published") || !name) {
+  if ((hasStatusField && status !== "published") || !rawName) {
     return null;
   }
+
+  const name = normalizeLeidscheRijnSpelling(rawName);
 
   const addressLine1 = readString(row, ["address", "address_line_1", "street_address"]) ?? "";
   const addressLine2 = readString(row, ["address_line_2", "address_extra"]);
@@ -503,7 +570,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     postalCode: readString(row, ["postal_code", "postalCode", "postcode"]) ?? "",
     latitude,
     longitude,
-    neighborhood: readString(row, ["neighborhood", "area", "district"]) ?? city,
+    neighborhood: normalizeLeidscheRijnSpelling(readString(row, ["neighborhood", "area", "district"]) ?? city),
     openingHours: readOpeningHours(row),
     phone: readString(row, ["phone", "phone_number", "telephone"]),
     website: readString(row, ["website", "website_url", "url"]),
@@ -518,14 +585,20 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     city,
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),
-    nearbyPublicTransport: readString(row, [
-      "public_transport_info",
-      "nearby_public_transport",
-      "nearby_public_transport_notes",
-      "public_transport_notes",
-      "transit_notes"
-    ])
+    nearbyPublicTransport: normalizeOptionalPublicText(
+      readString(row, [
+        "public_transport_info",
+        "nearby_public_transport",
+        "nearby_public_transport_notes",
+        "public_transport_notes",
+        "transit_notes"
+      ])
+    )
   };
+}
+
+function normalizeOptionalPublicText(value?: string) {
+  return value ? normalizeLeidscheRijnSpelling(value) : undefined;
 }
 
 function readId(row: SupabaseShopRow, keys: string[]) {
