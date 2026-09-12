@@ -30,6 +30,7 @@ export type SeoLandingPageDefinition = {
   faqs: FAQItem[];
   relatedLinks: SeoRelatedLink[];
   searchIntentKeywords: string[];
+  listingPlaceTypes?: string[];
   listingLimit: number;
   ctaLabel: string;
   translationKey: string;
@@ -45,6 +46,7 @@ type SeoRouteSeed = {
   intent: SeoIntent;
   translationKey: string;
   searchIntentKeywords: string[];
+  listingPlaceTypes?: string[];
   seoTitle?: string;
   metaDescription?: string;
   h1?: string;
@@ -134,9 +136,9 @@ const nearMeSeoRoutes: SeoRouteSeed[] = [
     intent: "near-me",
     translationKey: "near-me-cigarettes-global",
     searchIntentKeywords: ["cigarettes near me", "cigarettes nearby", "tobacco near me"],
-    seoTitle: "Cigarettes Near Me | Find Tobacco Shops Nearby",
+    seoTitle: "Cigarettes Near Me | Map, Opening Hours & Nearby Locations",
     metaDescription:
-      "Find practical location information for tobacco shops, kiosks and gas stations near you, including opening hours, directions and nearby Amsterdam locations. Adults 18+ only.",
+      "Find practical information for nearby listed locations, including tobacco shops, kiosks and gas stations, with a map, opening hours and directions. Adults 18+ only.",
     h1: "Cigarettes Near Me",
     isPrimary: true
   },
@@ -148,26 +150,12 @@ const nearMeSeoRoutes: SeoRouteSeed[] = [
     areaDisplayName: "Amsterdam",
     intent: "near-me",
     translationKey: "near-me-tobacco-shop-global",
-    searchIntentKeywords: ["tobacco shop near me", "tabak shop near me", "tobacco near me"],
-    seoTitle: "Tobacco Shop Near Me | Map, Opening Hours & Directions",
+    searchIntentKeywords: ["tobacco shop near me", "tobacco store near me", "tobacconist near me", "nearest tobacco shop"],
+    listingPlaceTypes: ["tobacco_shop"],
+    seoTitle: "Tobacco Shop Near Me | Tobacconists, Map & Opening Hours",
     metaDescription:
-      "Find practical nearby location information for tobacco shops, kiosks and gas stations, including map view, opening hours and directions. Adults 18+ only.",
+      "Find dedicated tobacco-shop and tobacconist listings near you, with a map, opening hours and directions where available. Adults 18+ only.",
     h1: "Tobacco Shop Near Me",
-    isPrimary: true
-  },
-  {
-    language: "en",
-    href: "/where-to-buy-cigarettes-near-me",
-    label: "Where to buy cigarettes near me",
-    areaSlug: "amsterdam",
-    areaDisplayName: "Amsterdam",
-    intent: "near-me",
-    translationKey: "near-me-where-cigarettes-global",
-    searchIntentKeywords: ["where to buy cigarettes near me", "where can i buy cigarettes near me"],
-    seoTitle: "Where to Buy Cigarettes Near Me | Nearby Locations & Directions",
-    metaDescription:
-      "Find practical location information for nearby tobacco shops, kiosks and gas stations with opening hours, directions and Amsterdam area links. Adults 18+ only.",
-    h1: "Where to Buy Cigarettes Near Me",
     isPrimary: true
   },
   {
@@ -912,6 +900,14 @@ function getIntro(seed: SeoRouteSeed) {
   const compliance = getComplianceSentence(seed.language);
 
   if (seed.intent === "near-me") {
+    if (seed.href === "/cigarettes-near-me") {
+      return "Looking for nearby listed locations? This page helps adults aged 18+ compare practical information for tobacco shops, kiosks and gas stations, including map positions, opening hours where available and directions. Browser location access is optional and can be used to sort listings by distance; you can also search manually by city, area, street or postal code. Amsterdam and Utrecht currently have published listings. Opening hours and product availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
+    }
+
+    if (seed.href === "/tobacco-shop-near-me") {
+      return "Looking specifically for a dedicated tobacco shop or tobacconist nearby? This page limits its listing selection to locations classified in the directory as tobacco shops, rather than mixing in kiosks, gas stations or other place types. Adults aged 18+ can use the map, review opening hours where available, get directions or optionally use browser location access to sort by distance. Amsterdam and Utrecht currently have published listings. Classification, opening hours and availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
+    }
+
     if (seed.language === "nl") {
       return `Deze pagina helpt volwassenen van 18+ met praktische locatie-informatie voor tabakswinkels, kiosken en tankstations in de buurt in Amsterdam. Je kunt zoeken per gebied of “Gebruik mijn locatie” gebruiken om locaties in de buurt te bekijken; locatie delen is optioneel en wordt alleen in je browser gebruikt om te sorteren. ${areaContext} ${compliance}`;
     }
@@ -1073,6 +1069,76 @@ function getFaqItems(seed: SeoRouteSeed): FAQItem[] {
   const areaDisplayName = seed.areaDisplayName;
 
   if (seed.intent === "near-me") {
+    if (seed.href === "/cigarettes-near-me") {
+      return [
+        {
+          question: "How can I find nearby listed locations?",
+          answer:
+            "Use the search, map or optional location button to compare published listings by area or distance. Amsterdam and Utrecht currently have published data."
+        },
+        {
+          question: "Do I need to share my location?",
+          answer:
+            "No. Location access is optional. You can search manually by city, neighborhood, street or postal code without sharing your position."
+        },
+        {
+          question: "What does Open Now mean?",
+          answer:
+            "Open Now is calculated from the opening hours supplied for a listing. Hours can change, so verify them directly before visiting."
+        },
+        {
+          question: "Why do the results include different place types?",
+          answer:
+            "This page may include tobacco shops, kiosks and gas stations when those place types are present in the published data. Use the type label or search filters to narrow the list."
+        },
+        {
+          question: "Does a listing confirm that cigarettes are available?",
+          answer:
+            "No. TobaccoNearby provides location information only. Product availability can change and should be verified directly with the location."
+        },
+        {
+          question: "How is listing information updated?",
+          answer:
+            "Published data may be checked or updated over time, and visitors can suggest corrections. Always verify opening hours and contact details before visiting."
+        }
+      ];
+    }
+
+    if (seed.href === "/tobacco-shop-near-me") {
+      return [
+        {
+          question: "What counts as a tobacco shop on this page?",
+          answer:
+            "The listing selection uses locations classified in the directory with the place type Tobacco shop. It does not automatically include kiosks or gas stations."
+        },
+        {
+          question: "How can I find the nearest dedicated tobacco shop?",
+          answer:
+            "Allow optional browser location access to sort listings by distance, or search manually by city, neighborhood, street or postal code."
+        },
+        {
+          question: "Can I view only tobacco shops in the full search?",
+          answer:
+            "Yes. Open the full search with the Tobacco shop place-type filter to continue browsing dedicated listings."
+        },
+        {
+          question: "Are the displayed opening hours guaranteed?",
+          answer:
+            "No. Opening hours can change because of holidays, temporary closures or local updates. Verify the details before travelling."
+        },
+        {
+          question: "Can I get directions to a listed tobacconist?",
+          answer:
+            "Yes. Listings may provide an address-based Google Maps directions link where enough location information is available."
+        },
+        {
+          question: "What if a location type is incorrect?",
+          answer:
+            "Use the report or update option to suggest a correction. Submissions are reviewed before published listing data is changed."
+        }
+      ];
+    }
+
     if (seed.language === "nl") {
       return [
         {
@@ -1399,7 +1465,6 @@ function getRelatedLinks(seed: SeoRouteSeed): SeoRelatedLink[] {
         { href: "/", label: "TobaccoNearby home" },
         { href: "/cigarettes-near-me", label: "Cigarettes near me" },
         { href: "/tobacco-shop-near-me", label: "Tobacco shop near me" },
-        { href: "/where-to-buy-cigarettes-near-me", label: "Where to buy cigarettes near me" },
         { href: "/sigaretten-kopen-in-de-buurt", label: "Sigaretten kopen in de buurt" },
         { href: "/sigaretten-dichtbij", label: "Sigaretten dichtbij" },
         { href: "/tabakswinkel-dichtbij", label: "Tabakswinkel dichtbij" },
