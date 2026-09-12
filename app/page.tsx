@@ -12,11 +12,10 @@ import { areaDefinitions } from "@/data/areas";
 import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
 import { getAllShops, getIndexableUtrechtAreas } from "@/lib/shop-data";
+import { SITE_URL } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-const siteUrl = "https://tobacconearby.com";
 
 export const metadata: Metadata = {
   title: {
@@ -73,9 +72,9 @@ export default async function HomePage() {
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": `${siteUrl}/#website`,
+    "@id": `${SITE_URL}/#website`,
     name: "TobaccoNearby",
-    url: siteUrl,
+    url: SITE_URL,
     inLanguage: "en",
     audience: {
       "@type": "PeopleAudience",
@@ -83,7 +82,7 @@ export default async function HomePage() {
     },
     potentialAction: {
       "@type": "SearchAction",
-      target: `${siteUrl}/search?q={search_term_string}`,
+      target: `${SITE_URL}/search?q={search_term_string}`,
       "query-input": "required name=search_term_string"
     }
   };

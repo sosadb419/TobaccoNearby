@@ -1,11 +1,11 @@
 import type { DayName, OpeningHoursSlot, Shop } from "@/data/shops";
+import { SITE_URL } from "@/lib/site-config";
 
 export type BreadcrumbJsonLdItem = {
   label: string;
   href: string;
 };
 
-const siteUrl = "https://tobacconearby.com";
 const validDays = new Set<DayName>([
   "Monday",
   "Tuesday",
@@ -34,8 +34,8 @@ export function generateLocalBusinessJsonLd(shop: Shop) {
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "@id": `${siteUrl}/shops/${shop.slug}#localbusiness`,
-    mainEntityOfPage: `${siteUrl}/shops/${shop.slug}`,
+    "@id": `${SITE_URL}/shops/${shop.slug}#localbusiness`,
+    mainEntityOfPage: `${SITE_URL}/shops/${shop.slug}`,
     name: shop.name,
     address: {
       "@type": "PostalAddress",
@@ -44,7 +44,7 @@ export function generateLocalBusinessJsonLd(shop: Shop) {
       addressLocality: shop.city || "Amsterdam",
       addressCountry: getAddressCountry(shop.country)
     },
-    url: `${siteUrl}/shops/${shop.slug}`
+    url: `${SITE_URL}/shops/${shop.slug}`
   };
 
   if (hasValidCoordinates(shop)) {
@@ -89,7 +89,7 @@ export function generateBreadcrumbJsonLd(items: BreadcrumbJsonLdItem[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.label,
-      item: `${siteUrl}${item.href}`
+      item: `${SITE_URL}${item.href}`
     }))
   };
 }

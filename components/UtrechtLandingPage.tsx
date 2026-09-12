@@ -7,6 +7,7 @@ import SearchBar from "@/components/SearchBar";
 import ShopCard from "@/components/ShopCard";
 import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import type { Shop } from "@/data/shops";
+import { SITE_URL } from "@/lib/site-config";
 import {
   utrechtCityPage,
   utrechtDutchPages,
@@ -26,8 +27,6 @@ type UtrechtLandingPageProps = {
   eligibleAreas: EligibleUtrechtArea[];
   currentAreaSlug?: UtrechtAreaSlug;
 };
-
-const siteUrl = "https://tobacconearby.com";
 
 export default function UtrechtLandingPage({
   config,
@@ -335,7 +334,7 @@ function createBreadcrumbSchema(breadcrumbs: Array<{ label: string; href: string
       "@type": "ListItem",
       position: index + 1,
       name: crumb.label,
-      item: `${siteUrl}${crumb.href}`
+      item: `${SITE_URL}${crumb.href}`
     }))
   };
 }
@@ -346,11 +345,11 @@ function createCollectionSchema(config: UtrechtPageContent, shops: Shop[]) {
     "@type": "CollectionPage",
     name: config.h1,
     description: config.description,
-    url: `${siteUrl}${config.href}`,
+    url: `${SITE_URL}${config.href}`,
     isPartOf: {
       "@type": "WebSite",
       name: "TobaccoNearby",
-      url: siteUrl
+      url: SITE_URL
     },
     mainEntity: {
       "@type": "ItemList",
@@ -359,7 +358,7 @@ function createCollectionSchema(config: UtrechtPageContent, shops: Shop[]) {
         "@type": "ListItem",
         position: index + 1,
         name: shop.name,
-        url: `${siteUrl}/shops/${shop.slug}`
+        url: `${SITE_URL}/shops/${shop.slug}`
       }))
     }
   };
