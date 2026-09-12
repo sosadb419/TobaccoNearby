@@ -1,5 +1,10 @@
 import type { DayName, OpeningHoursSlot, Shop } from "@/data/shops";
 
+export type BreadcrumbJsonLdItem = {
+  label: string;
+  href: string;
+};
+
 const siteUrl = "https://tobacconearby.com";
 const validDays = new Set<DayName>([
   "Monday",
@@ -74,6 +79,19 @@ export function generateLocalBusinessJsonLd(shop: Shop) {
   }
 
   return schema;
+}
+
+export function generateBreadcrumbJsonLd(items: BreadcrumbJsonLdItem[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: `${siteUrl}${item.href}`
+    }))
+  };
 }
 
 function getOpeningHoursJsonLd(slots: OpeningHoursSlot[]) {

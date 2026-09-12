@@ -127,14 +127,29 @@ export default function UtrechtLandingPage({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 id="utrecht-areas-heading" className="text-2xl font-bold text-ink">
-                {isDutch ? "Gebieden in Utrecht" : "Areas in Utrecht"}
+                {currentAreaSlug
+                  ? isDutch
+                    ? "Verwante Utrechtse gebieden"
+                    : "Related Utrecht areas"
+                  : isDutch
+                    ? "Gebieden in Utrecht"
+                    : "Areas in Utrecht"}
               </h2>
               <p className="mt-2 text-sm leading-6 text-muted">
-                {isDutch
-                  ? "Alleen gebieden met voldoende gepubliceerde locatiedata hebben een eigen pagina."
-                  : "Only areas with enough published location data have their own page."}
+                {currentAreaSlug
+                  ? isDutch
+                    ? "Bekijk de stadspagina of vergelijk enkele nabijgelegen gebieden met voldoende gepubliceerde locatiedata."
+                    : "Return to the city page or compare a small set of related areas with enough published location data."
+                  : isDutch
+                    ? "Alleen gebieden met voldoende gepubliceerde locatiedata hebben een eigen pagina."
+                    : "Only areas with enough published location data have their own page."}
               </p>
             </div>
+            {currentAreaSlug ? (
+              <Link className="focus-ring rounded-md text-sm font-bold text-teal hover:text-ink" href="/utrecht">
+                {isDutch ? "Alle locaties in Utrecht" : "All Utrecht listings"}
+              </Link>
+            ) : null}
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
             {orderedAreas.map(({ area, shops: areaShops }) => (
@@ -282,22 +297,11 @@ function getOrderedAreas(eligibleAreas: EligibleUtrechtArea[], currentAreaSlug?:
 
   const current = eligibleAreas.find(({ area }) => area.slug === currentAreaSlug);
   const relatedSlugs = current?.area.relatedAreaSlugs ?? [];
+  const orderedSlugs = [currentAreaSlug, ...relatedSlugs];
 
-  return [...eligibleAreas].sort((a, b) => {
-    if (a.area.slug === currentAreaSlug) return -1;
-    if (b.area.slug === currentAreaSlug) return 1;
-
-    const aIndex = relatedSlugs.indexOf(a.area.slug);
-    const bIndex = relatedSlugs.indexOf(b.area.slug);
-
-    if (aIndex !== -1 || bIndex !== -1) {
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-      return aIndex - bIndex;
-    }
-
-    return a.area.label.localeCompare(b.area.label);
-  });
+  return orderedSlugs
+    .map((areaSlug) => eligibleAreas.find(({ area }) => area.slug === areaSlug))
+    .filter((area): area is EligibleUtrechtArea => Boolean(area));
 }
 
 function getSearchHref(config: UtrechtPageContent, currentAreaSlug?: UtrechtAreaSlug) {

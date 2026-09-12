@@ -11,7 +11,7 @@ import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
 import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
-import { getAllShops } from "@/lib/shop-data";
+import { getAllShops, getIndexableUtrechtAreas } from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -69,6 +69,7 @@ const homepageRelatedLinks = [
 export default async function HomePage() {
   const shops = await getAllShops();
   const featuredShops = shops.slice(0, 3);
+  const eligibleUtrechtAreas = getIndexableUtrechtAreas(shops);
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -200,6 +201,41 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {eligibleUtrechtAreas.length > 0 ? (
+        <section
+          id="utrecht-areas"
+          className="container-shell scroll-mt-6 py-5 md:py-8"
+          aria-labelledby="utrecht-areas-heading"
+        >
+          <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-6">
+            <div>
+              <h2
+                id="utrecht-areas-heading"
+                tabIndex={-1}
+                className="focus-ring rounded-md text-xl font-bold text-ink md:text-2xl"
+              >
+                Browse Utrecht areas
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                Open an area page with enough published Utrecht listings for useful local information.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:gap-3">
+              {eligibleUtrechtAreas.map(({ area }) => (
+                <TrackedNeighborhoodLink
+                  key={area.href}
+                  className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+                  href={area.href}
+                  neighborhood={area.label}
+                >
+                  {area.label}
+                </TrackedNeighborhoodLink>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="container-shell py-5 md:py-8">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between md:mb-6">

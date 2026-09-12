@@ -11,7 +11,7 @@ import ReportIncorrectInfo from "@/components/ReportIncorrectInfo";
 import ShopComments from "@/components/ShopComments";
 import ShopPhotos from "@/components/ShopPhotos";
 import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/TrackedLinks";
-import { areaDefinitions, getAreaDefinition, type AreaDefinition } from "@/data/areas";
+import { getAreaDefinition, type AreaDefinition } from "@/data/areas";
 import { cityMatchesShop, getCityDefinitionForShop, getCitySlugFromShop } from "@/data/cities";
 import { getUtrechtAreaDefinition } from "@/data/utrecht-seo";
 import {
@@ -26,13 +26,15 @@ import {
 } from "@/data/shops";
 import {
   filterShopsForCityArea,
+  getAmsterdamAreaForShop,
   getAllShops,
   getShopBySlug,
-  getUtrechtAreaForShop
+  getUtrechtAreaForShop,
+  matchesShopForAmsterdamArea
 } from "@/lib/shop-data";
 import { getApprovedCommentsForShop } from "@/lib/shop-comments";
 import { getApprovedPhotosForShop } from "@/lib/shop-photos";
-import { generateLocalBusinessJsonLd } from "@/lib/structured-data";
+import { generateBreadcrumbJsonLd, generateLocalBusinessJsonLd } from "@/lib/structured-data";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -54,11 +56,17 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
     };
   }
 
+  const shopList = await getAllShops();
+  const area = getValidShopArea(shop, shopList);
+  const titleLocation = getMetadataLocationLabel(shop, area?.label);
+  const titlePrefix = titleLocation ? `${shop.name} in ${titleLocation}` : shop.name;
+  const address = [shop.address, shop.postalCode, shop.city].filter(Boolean).join(", ");
+
   return {
     title: {
-      absolute: `${shop.name} ${shop.city || "Amsterdam"} | Map, Opening Hours & Directions`
+      absolute: `${titlePrefix} | Opening Hours & Directions`
     },
-    description: `View practical location information for ${shop.name} in ${shop.city || "Amsterdam"}, including map directions, opening hours, contact details and nearby locations. Adults 18+ only.`,
+    description: `View practical information for ${shop.name}${address ? ` at ${address}` : ""}, including listed opening hours, directions and contact details. Adults 18+ only.`,
     alternates: {
       canonical: `/shops/${shop.slug}`
     }
@@ -77,7 +85,8 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const approvedComments = await getApprovedCommentsForShop(shop.slug);
   const approvedPhotos = await getApprovedPhotosForShop(shop.slug);
   const nearbyShops = getNearbyListedShops(shop, shopList);
-  const neighborhoodHref = getShopAreaHref(shop, shopList);
+  const validArea = getValidShopArea(shop, shopList);
+  const neighborhoodHref = validArea?.href ?? getShopAreaHref(shop, shopList);
   const hasAccessibilityInfo = typeof shop.wheelchairAccessible === "boolean";
   const accessibility = shop.wheelchairAccessible ? "Yes" : "No";
   const openingHours = formatOpeningHours(shop.openingHours);
@@ -86,42 +95,34 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const schema = generateLocalBusinessJsonLd(shop);
   const placeTypeLabel = getPlaceTypeLabel(shop.place_type);
   const cityDefinition = getCityDefinitionForShop(shop);
-  const areaDefinition = getShopAreaDefinition(shop);
-  const utrechtAreaCandidate = getUtrechtAreaForShop(shop);
-  const utrechtAreaDefinition =
-    utrechtAreaCandidate &&
-    filterShopsForCityArea(shopList, "utrecht", utrechtAreaCandidate).length >= utrechtAreaCandidate.minimumListings
-      ? utrechtAreaCandidate
-      : undefined;
-  const areaLabel = utrechtAreaDefinition?.label ?? areaDefinition?.label ?? shop.neighborhood;
-  const areaHref = utrechtAreaDefinition?.href ?? areaDefinition?.href ?? neighborhoodHref;
-  const hasAreaPage = Boolean(utrechtAreaDefinition || areaDefinition);
+  const areaLabel = validArea?.label ?? shop.neighborhood;
+  const areaHref = validArea?.href ?? neighborhoodHref;
+  const hasAreaPage = Boolean(validArea);
   const cityListingsLabel = `${cityDefinition.name} listings`;
   const fullAddress = getFullAddress(shop);
   const nearbyAreaLinks = getNearbyAreaLinks(shop, shopList);
   const shopFaqs = getShopFaqs(shop, directionsUrl);
   const listingUpdateLines = getListingUpdateLines(shop);
+  const breadcrumbs = getShopBreadcrumbs(shop, cityDefinition, validArea);
+  const breadcrumbSchema = generateBreadcrumbJsonLd(breadcrumbs);
 
   return (
     <section className="container-shell py-8">
       <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
-        <Link className="focus-ring rounded-md hover:text-teal" href="/">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <Link className="focus-ring rounded-md hover:text-teal" href={cityDefinition.href}>
-          {cityDefinition.name}
-        </Link>
-        {hasAreaPage ? (
-          <>
-            <span aria-hidden="true"> / </span>
-            <Link className="focus-ring rounded-md hover:text-teal" href={areaHref}>
-              {areaLabel}
-            </Link>
-          </>
-        ) : null}
-        <span aria-hidden="true"> / </span>
-        <span>{shop.name}</span>
+        <ol className="flex flex-wrap items-center gap-1">
+          {breadcrumbs.map((crumb, index) => (
+            <li key={crumb.href} className="flex items-center gap-1">
+              {index > 0 ? <span aria-hidden="true">/</span> : null}
+              {index === breadcrumbs.length - 1 ? (
+                <span aria-current="page">{crumb.label}</span>
+              ) : (
+                <Link className="focus-ring rounded-md hover:text-teal" href={crumb.href}>
+                  {crumb.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
       </nav>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
@@ -396,6 +397,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
       />
 
       {schema ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} /> : null}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
     </section>
   );
 }
@@ -488,6 +490,74 @@ function getAboutLocationText(shop: Shop, placeTypeLabel: string, areaLabel: str
   const addressText = fullAddress ? ` The address shown for this listing is ${fullAddress}.` : "";
 
   return `${shop.name} is listed as ${article} ${typeDescription} in ${areaLabel}${neighborhoodText}.${addressText} This page brings together opening hours, contact details, directions, map information and nearby listings so adults aged 18+ can verify practical details before visiting.`;
+}
+
+type ValidShopArea = {
+  label: string;
+  href: string;
+};
+
+function getValidShopArea(shop: Shop, shopList: Shop[]): ValidShopArea | undefined {
+  const utrechtArea = getUtrechtAreaForShop(shop);
+
+  if (
+    utrechtArea &&
+    filterShopsForCityArea(shopList, "utrecht", utrechtArea).length >= utrechtArea.minimumListings
+  ) {
+    return { label: utrechtArea.label, href: utrechtArea.href };
+  }
+
+  const amsterdamArea = getAmsterdamAreaForShop(shop);
+
+  return amsterdamArea ? { label: amsterdamArea.label, href: amsterdamArea.href } : undefined;
+}
+
+function getMetadataLocationLabel(shop: Shop, areaLabel?: string) {
+  const cityLabel = shop.city || getCityDefinitionForShop(shop).name;
+  const genericAmsterdamAreas = new Set(["Centrum", "West", "Nieuw-West", "Oost", "Noord", "Zuid", "Zuidoost"]);
+  const qualifiedAreaLabel =
+    areaLabel && genericAmsterdamAreas.has(areaLabel) ? `Amsterdam ${areaLabel}` : areaLabel;
+  const preferredLabel = qualifiedAreaLabel || cityLabel;
+  const normalizedName = normalize(shop.name);
+  const normalizedPreferredLabel = normalize(preferredLabel);
+  const normalizedCityLabel = normalize(cityLabel);
+
+  if (normalizedName.includes(normalizedPreferredLabel)) {
+    if (
+      qualifiedAreaLabel &&
+      normalize(qualifiedAreaLabel) !== normalizedCityLabel &&
+      !normalizedName.includes(normalizedCityLabel)
+    ) {
+      return cityLabel;
+    }
+
+    return "";
+  }
+
+  if (qualifiedAreaLabel && normalizedName.includes(normalizedCityLabel)) {
+    const localAreaLabel = qualifiedAreaLabel.replace(new RegExp(`^${escapeRegExp(cityLabel)}\\s+`, "i"), "");
+
+    return normalizedName.includes(normalize(localAreaLabel)) ? "" : localAreaLabel;
+  }
+
+  return preferredLabel;
+}
+
+function getShopBreadcrumbs(
+  shop: Shop,
+  cityDefinition: ReturnType<typeof getCityDefinitionForShop>,
+  area?: ValidShopArea
+) {
+  return [
+    { label: "Home", href: "/" },
+    { label: cityDefinition.name, href: cityDefinition.href },
+    ...(area ? [{ label: area.label, href: area.href }] : []),
+    { label: shop.name, href: `/shops/${shop.slug}` }
+  ];
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function getNearbyAreaInformation(shop: Shop, areaLabel: string) {
@@ -596,13 +666,16 @@ function getNearbyAreaLinks(shop: Shop, shopList: Shop[]) {
 
 function getNearbyListedShops(currentShop: Shop, shopList: Shop[]) {
   const currentCitySlug = getCitySlugFromShop(currentShop);
+  const currentIsDiemen = matchesShopForAmsterdamArea(currentShop, "diemen");
 
   return shopList
     .filter(
       (shop) =>
         shop.slug !== currentShop.slug &&
         isPublishedShop(shop) &&
-        (!currentCitySlug || cityMatchesShop(shop, currentCitySlug))
+        (currentIsDiemen
+          ? matchesShopForAmsterdamArea(shop, "diemen")
+          : Boolean(currentCitySlug) && cityMatchesShop(shop, currentCitySlug))
     )
     .map((shop) => ({
       shop,
@@ -611,12 +684,12 @@ function getNearbyListedShops(currentShop: Shop, shopList: Shop[]) {
       distance: getSafeDistanceKm(currentShop, shop)
     }))
     .sort((a, b) => {
-      if (a.sameArea !== b.sameArea) {
-        return a.sameArea ? -1 : 1;
-      }
-
       if (a.sameNeighborhood !== b.sameNeighborhood) {
         return a.sameNeighborhood ? -1 : 1;
+      }
+
+      if (a.sameArea !== b.sameArea) {
+        return a.sameArea ? -1 : 1;
       }
 
       if (a.distance !== b.distance) {
@@ -642,16 +715,7 @@ function hasValidCoordinates(shop: Shop) {
 }
 
 function getShopAreaHref(shop: Shop, shopList: Shop[]) {
-  const utrechtArea = getUtrechtAreaForShop(shop);
-
-  if (
-    utrechtArea &&
-    filterShopsForCityArea(shopList, "utrecht", utrechtArea).length >= utrechtArea.minimumListings
-  ) {
-    return utrechtArea.href;
-  }
-
-  const area = getShopAreaDefinition(shop);
+  const area = getValidShopArea(shop, shopList);
 
   if (area) {
     return area.href;
@@ -687,25 +751,7 @@ function getComparableAreaSlug(shop: Shop) {
 }
 
 function getShopAreaDefinition(shop: Shop) {
-  if (!cityMatchesShop(shop, "amsterdam")) {
-    return undefined;
-  }
-
-  if (shop.area_slug) {
-    const area = getAreaDefinition(shop.area_slug);
-
-    if (area) {
-      return area;
-    }
-  }
-
-  const normalizedNeighborhood = normalize(shop.neighborhood);
-  return areaDefinitions.find(
-    (item) =>
-      normalize(item.label) === normalizedNeighborhood ||
-      normalize(item.searchLabel) === normalizedNeighborhood ||
-      item.fallbackTerms.some((term) => normalize(term) === normalizedNeighborhood)
-  );
+  return getAmsterdamAreaForShop(shop);
 }
 
 function isPublishedShop(shop: Shop) {

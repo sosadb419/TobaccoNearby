@@ -1,6 +1,11 @@
 import { AreaSlug, getAreaDisplayName, normalizeAreaSlug } from "@/data/areas";
 import { amsterdamCentralStation, getDistanceKm, normalize, Shop, sortShopsByOpeningStatus } from "@/data/shops";
-import { filterShopsForArea, normalizeAreaText } from "@/lib/shop-data";
+import {
+  filterShopsForArea,
+  filterShopsForCity,
+  matchesNormalizedText,
+  normalizeAreaText
+} from "@/lib/shop-data";
 
 export type SeoAreaSlug = "amsterdam" | AreaSlug | "bijlmer";
 
@@ -69,13 +74,10 @@ export function getSeoAreaDisplayName(areaSlug: SeoAreaSlug) {
 
 export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
   const publicShops = shopList.filter(isPublicShop);
+  const amsterdamShops = filterShopsForCity(publicShops, "amsterdam");
 
   if (areaSlug === "amsterdam") {
-    return sortShopsByOpeningStatus(publicShops.filter((shop) => {
-      const city = normalizeAreaText(shop.city);
-
-      return !city || city.includes("amsterdam");
-    }));
+    return amsterdamShops;
   }
 
   if (areaSlug === "bijlmer") {
@@ -84,7 +86,7 @@ export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
 
   if (areaSlug === "central-station") {
     const exactMatches = filterShopsForArea(publicShops, "central-station");
-    const termMatches = publicShops.filter((shop) => shopMatchesTerms(shop, centralStationTerms));
+    const termMatches = amsterdamShops.filter((shop) => shopMatchesTerms(shop, centralStationTerms));
     const mergedMatches = uniqueShops([...exactMatches, ...termMatches]);
     const fallbackMatches = mergedMatches.length > 0 ? mergedMatches : filterShopsForArea(publicShops, "centrum");
 
@@ -98,7 +100,7 @@ export function filterShopsForSeoArea(shopList: Shop[], areaSlug: SeoAreaSlug) {
 
   if (areaSlug === "de-wallen") {
     const exactMatches = filterShopsForArea(publicShops, "de-wallen");
-    const termMatches = publicShops.filter((shop) => shopMatchesTerms(shop, deWallenTerms));
+    const termMatches = amsterdamShops.filter((shop) => shopMatchesTerms(shop, deWallenTerms));
     const mergedMatches = uniqueShops([...exactMatches, ...termMatches]);
 
     return mergedMatches.length > 0
@@ -123,7 +125,7 @@ function shopMatchesTerms(shop: Shop, terms: string[]) {
   return terms.some((term) => {
     const normalizedTerm = normalizeAreaText(term);
 
-    return normalizedTerm && searchable.includes(normalizedTerm);
+    return normalizedTerm && matchesNormalizedText(searchable, normalizedTerm);
   });
 }
 

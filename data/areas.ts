@@ -135,6 +135,7 @@ export const areaDefinitions: AreaDefinition[] = [
       "Watergraafsmeer",
       "IJburg",
       "Oostpoort",
+      "Dapperbuurt",
       "Linnaeusstraat",
       "Javastraat",
       "Dappermarkt"
@@ -169,8 +170,10 @@ export const areaDefinitions: AreaDefinition[] = [
       "Zuid",
       "Amsterdam-Zuid",
       "Amsterdam Zuid",
+      "Oud-Zuid",
       "Museumkwartier",
       "Rivierenbuurt",
+      "Rijnbuurt",
       "Buitenveldert",
       "Hobbemakade",
       "Beethovenstraat",

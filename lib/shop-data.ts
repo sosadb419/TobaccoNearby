@@ -1,11 +1,11 @@
 import { cache } from "react";
 import { supabase } from "@/lib/supabase";
 import {
-  AreaSlug,
   areaDefinitions,
   getAreaDefinition,
   getAreaDisplayName as getSharedAreaDisplayName,
-  normalizeAreaSlug
+  normalizeAreaSlug,
+  type AreaSlug
 } from "@/data/areas";
 import {
   cityMatchesShop,
@@ -27,13 +27,13 @@ import {
   type UtrechtAreaDefinition
 } from "@/data/utrecht-seo";
 import {
-  DayName,
-  OpeningHoursSlot,
-  Shop,
   getDistanceKm,
   normalize,
   sortShopsByOpeningStatus,
-  shops as localShops
+  shops as localShops,
+  type DayName,
+  type OpeningHoursSlot,
+  type Shop
 } from "@/data/shops";
 
 type SupabaseShopRow = Record<string, unknown>;
@@ -119,7 +119,7 @@ export async function getShopsForZuidoostArea() {
 export async function getShopsForArea(areaSlug: string) {
   const shopList = await getAllShops();
 
-  return filterShopsForArea(shopList, areaSlug);
+  return filterShopsForAmsterdamArea(shopList, areaSlug);
 }
 
 export async function getShopsForCity(citySlug: string) {
@@ -181,8 +181,14 @@ export function getIndexableUtrechtAreas(shopList: Shop[]) {
 }
 
 export function filterShopsForArea(shopList: Shop[], areaSlug: string) {
+  return filterShopsForAmsterdamArea(shopList, areaSlug);
+}
+
+export function filterShopsForAmsterdamArea(shopList: Shop[], areaSlug: string) {
   const normalizedAreaSlug = normalizeAreaSlug(areaSlug);
-  const filtered = shopList.filter((shop) => isPublicShop(shop) && matchesArea(shop, normalizedAreaSlug));
+  const filtered = shopList.filter(
+    (shop) => isPublicShop(shop) && matchesShopForAmsterdamArea(shop, normalizedAreaSlug)
+  );
 
   if (normalizedAreaSlug === "central-station") {
     return sortByCityReferenceDistance(filtered, "amsterdam");
@@ -206,6 +212,7 @@ export async function getShopsNearCentralStation(maxKm = 1.5) {
   const city = getCityDefinition("amsterdam");
 
   return shopList
+    .filter((shop) => isPublicShop(shop) && cityMatchesShop(shop, "amsterdam"))
     .map((shop) => ({
       shop,
       distance: city ? getDistanceKm(shop, city.referencePoint) : Number.POSITIVE_INFINITY
@@ -233,6 +240,7 @@ export function searchShopList(shopList: Shop[], query: string) {
   const cityTargets = getSearchCityTargets(value);
   const referenceCityTargets = getReferenceCityTargets(value);
   const scopedCityTargets = uniqueValues([...cityTargets, ...referenceCityTargets]);
+  const canMatchUtrechtArea = scopedCityTargets.length === 0 || scopedCityTargets.includes("utrecht");
   const exactCityTarget = getExactCityTarget(value);
   const isGeneralSupportedCityQuery = isGeneralSupportedCitySearch(value);
   const locationOnlyQuery = getLocationOnlyQuery(value);
@@ -250,11 +258,11 @@ export function searchShopList(shopList: Shop[], query: string) {
       return true;
     }
 
-    if (matchesScopedCity && aliasTargets.some((target) => matchesArea(shop, target))) {
+    if (matchesScopedCity && aliasTargets.some((target) => matchesShopForAmsterdamArea(shop, target))) {
       return true;
     }
 
-    if (utrechtAreaTargets.some((area) => matchesShopForCityArea(shop, "utrecht", area))) {
+    if (canMatchUtrechtArea && utrechtAreaTargets.some((area) => matchesShopForCityArea(shop, "utrecht", area))) {
       return true;
     }
 
@@ -308,7 +316,7 @@ function getSearchAliasTargets(value: string) {
       aliases.some((alias) => {
         const shouldMatchInsideQuery = alias.length >= 5;
 
-        return value === alias || (shouldMatchInsideQuery && value.includes(alias));
+        return value === alias || (shouldMatchInsideQuery && matchesNormalizedText(value, alias));
       })
     ) {
       targets.push(area.slug);
@@ -457,8 +465,22 @@ function uniqueValues<T>(values: T[]) {
   return [...new Set(values)];
 }
 
-function matchesArea(shop: Shop, areaSlug: string) {
+export function matchesShopForAmsterdamArea(shop: Shop, areaSlug: string) {
   const normalizedAreaSlug = normalizeAreaSlug(areaSlug);
+  const area = getAreaDefinition(normalizedAreaSlug);
+
+  if (!area) {
+    return false;
+  }
+
+  if (normalizedAreaSlug === "diemen") {
+    if (!isDiemenAreaShop(shop)) {
+      return false;
+    }
+  } else if (!cityMatchesShop(shop, "amsterdam")) {
+    return false;
+  }
+
   const shopAreaSlug = shop.area_slug?.trim();
 
   if (shopAreaSlug) {
@@ -475,9 +497,27 @@ export function matchesAreaFallback(shop: Shop, areaSlug: string) {
     return false;
   }
 
-  const searchable = getShopSearchableText(shop);
+  const geographicFields = [shop.neighborhood, shop.address, shop.postalCode, shop.nearbyPublicTransport];
 
-  return area.fallbackTerms.some((term) => matchesNormalizedText(searchable, normalizeAreaText(term)));
+  if (area.slug === "diemen") {
+    geographicFields.push(shop.city);
+  }
+
+  const normalizedFields = geographicFields.map(normalizeAreaText).filter(Boolean);
+  const neighborhoodSegments = (shop.neighborhood ?? "")
+    .split(/[\/,;|]+/)
+    .map(normalizeAreaText)
+    .filter(Boolean);
+
+  return area.fallbackTerms.some((term) => {
+    const normalizedTerm = normalizeAreaText(term);
+
+    if (isGenericAmsterdamAreaTerm(area.slug, normalizedTerm)) {
+      return neighborhoodSegments.some((segment) => segment === normalizedTerm);
+    }
+
+    return normalizedFields.some((field) => matchesNormalizedText(field, normalizedTerm));
+  });
 }
 
 export function normalizeAreaText(value?: string) {
@@ -492,18 +532,55 @@ export function normalizeAreaText(value?: string) {
     .replace(/\s+/g, " ");
 }
 
-function matchesNormalizedText(searchable: string, term: string) {
+export function matchesNormalizedText(searchable: string, term: string) {
   const normalizedTerm = normalizeAreaText(term);
 
   if (!normalizedTerm) {
     return false;
   }
 
-  if (!normalizedTerm.includes(" ")) {
-    return searchable.split(" ").includes(normalizedTerm);
+  return ` ${normalizeAreaText(searchable)} `.includes(` ${normalizedTerm} `);
+}
+
+export function getAmsterdamAreaForShop(shop: Shop) {
+  const priority: AreaSlug[] = [
+    "de-pijp",
+    "jordaan",
+    "de-wallen",
+    "nieuw-west",
+    "zuidoost",
+    "diemen",
+    "central-station",
+    "noord",
+    "oost",
+    "west",
+    "zuid",
+    "centrum"
+  ];
+
+  return priority
+    .map((areaSlug) => getAreaDefinition(areaSlug))
+    .find((area) => area && matchesShopForAmsterdamArea(shop, area.slug));
+}
+
+function isDiemenAreaShop(shop: Shop) {
+  const city = normalizeAreaText(shop.city);
+
+  if (city === "diemen") {
+    return true;
   }
 
-  return searchable.includes(normalizedTerm);
+  if (!cityMatchesShop(shop, "amsterdam")) {
+    return false;
+  }
+
+  const neighborhood = normalizeAreaText(shop.neighborhood);
+
+  return neighborhood === "diemen" || matchesNormalizedText(neighborhood, "Amsterdam Diemen");
+}
+
+function isGenericAmsterdamAreaTerm(areaSlug: AreaSlug, term: string) {
+  return ["centrum", "west", "oost", "noord", "zuid"].includes(areaSlug) && term === areaSlug;
 }
 
 export function getAreaDisplayName(areaSlug: string) {
