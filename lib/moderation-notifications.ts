@@ -1,5 +1,6 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { SITE_URL } from "@/lib/site-config";
 
 type ModerationRecord = Record<string, unknown>;
 
@@ -23,7 +24,7 @@ export type ModerationWebhookPayload = {
   record?: ModerationRecord;
 };
 
-const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://tobacconearby.com").replace(/\/$/, "");
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/$/, "");
 const photoBucketName = "shop-photos";
 
 export function getModerationReviewUrl(item?: Pick<ModerationItem, "sourceTable" | "id">) {

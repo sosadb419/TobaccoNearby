@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tobacconearby.com/sitemap.xml
+Sitemap: https://www.tobacconearby.com/sitemap.xml

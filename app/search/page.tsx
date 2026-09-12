@@ -98,30 +98,20 @@ type SearchPageProps = {
   }>;
 };
 
-export async function generateMetadata({ searchParams }: Pick<SearchPageProps, "searchParams">): Promise<Metadata> {
-  const params = await searchParams;
-  const hasQueryParameters = Object.values(params).some((value) => Boolean(value));
-
-  return {
-    title: {
-      absolute: "Search Tobacco Shops in Amsterdam and Utrecht | Map & Directions"
-    },
-    description:
-      "Search tobacco shops, kiosks and gas stations in Amsterdam and Utrecht by city, area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
-    alternates: {
-      canonical: "/search"
-    },
-    robots: hasQueryParameters
-      ? {
-          index: false,
-          follow: true
-        }
-      : {
-          index: true,
-          follow: true
-        }
-  };
-}
+export const metadata: Metadata = {
+  title: {
+    absolute: "Search Tobacco Shops in Amsterdam and Utrecht | Map & Directions"
+  },
+  description:
+    "Search tobacco shops, kiosks and gas stations in Amsterdam and Utrecht by city, area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
+  alternates: {
+    canonical: "/search"
+  },
+  robots: {
+    index: false,
+    follow: true
+  }
+};
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
