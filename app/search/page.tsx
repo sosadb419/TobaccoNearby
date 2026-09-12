@@ -15,7 +15,7 @@ import {
   getSearchCityTargets,
   type CitySlug
 } from "@/data/cities";
-import { getUtrechtAreaDisplayName } from "@/data/utrecht-seo";
+import { getUtrechtAreaDefinition, getUtrechtAreaDisplayName } from "@/data/utrecht-seo";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -24,7 +24,14 @@ import {
   placeTypes,
   sortShopsByOpeningStatus
 } from "@/data/shops";
-import { filterShopsForArea, getAllShops, normalizeAreaText, searchShopList } from "@/lib/shop-data";
+import {
+  filterShopsForArea,
+  filterShopsForCityArea,
+  getAllShops,
+  matchesNormalizedText,
+  normalizeAreaText,
+  searchShopList
+} from "@/lib/shop-data";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -353,9 +360,20 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
   }
 
   if (filters.selectedNeighborhood) {
-    filteredShops = getAreaDefinition(filters.selectedNeighborhood)
-      ? filterShopsForArea(filteredShops, filters.selectedNeighborhood)
-      : filteredShops.filter((shop) => matchesNeighborhoodFilter(shop, filters.selectedNeighborhood));
+    const utrechtArea =
+      filters.selectedCity === "utrecht"
+        ? getUtrechtAreaDefinition(filters.selectedNeighborhood)
+        : undefined;
+
+    if (utrechtArea) {
+      filteredShops = filterShopsForCityArea(filteredShops, "utrecht", utrechtArea);
+    } else if (getAreaDefinition(filters.selectedNeighborhood)) {
+      filteredShops = filterShopsForArea(filteredShops, filters.selectedNeighborhood);
+    } else {
+      filteredShops = filteredShops.filter((shop) =>
+        matchesNeighborhoodFilter(shop, filters.selectedNeighborhood)
+      );
+    }
   }
 
   if (filters.selectedPlaceType) {
@@ -463,7 +481,7 @@ function matchesNeighborhoodFilter(shop: Shop, filterValue: string) {
     [shop.neighborhood, shop.address, shop.postalCode, shop.city, shop.nearbyPublicTransport].join(" ")
   );
 
-  return searchable.includes(normalizedFilter);
+  return matchesNormalizedText(searchable, normalizedFilter);
 }
 
 function getNeighborhoodFilterOptions(shopList: Shop[], selectedCity: CitySlug | ""): FilterOption[] {

@@ -3,6 +3,7 @@ import AdSlot from "@/components/AdSlot";
 import { areaDefinitions } from "@/data/areas";
 import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
+import { getUtrechtAreaDefinition, primaryUtrechtAreaSlugs } from "@/data/utrecht-seo";
 
 const siteLinks = [
   { href: "/search", label: "Search" },
@@ -25,6 +26,11 @@ const footerUtrechtLinks = [
   { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
   { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" }
 ];
+
+const footerUtrechtAreaLinks = primaryUtrechtAreaSlugs
+  .map((areaSlug) => getUtrechtAreaDefinition(areaSlug))
+  .filter((area): area is NonNullable<typeof area> => Boolean(area))
+  .map((area) => ({ href: area.href, label: area.label }));
 
 export default function Footer() {
   return (
@@ -57,10 +63,13 @@ export default function Footer() {
               />
               <FooterLinkGroup label="Utrecht pages" links={footerUtrechtLinks} />
             </div>
-            <FooterLinkGroup
-              label="Amsterdam areas"
-              links={areaDefinitions.map((area) => ({ href: area.href, label: area.label }))}
-            />
+            <div className="grid gap-6 sm:grid-cols-2">
+              <FooterLinkGroup
+                label="Amsterdam areas"
+                links={areaDefinitions.map((area) => ({ href: area.href, label: area.label }))}
+              />
+              <FooterLinkGroup label="Utrecht areas" links={footerUtrechtAreaLinks} />
+            </div>
           </div>
         </div>
         <div className="mt-8 border-t border-line pt-5 text-xs text-muted">

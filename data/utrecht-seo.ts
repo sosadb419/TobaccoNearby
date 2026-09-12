@@ -594,13 +594,24 @@ export const utrechtAreaDefinitions: UtrechtAreaDefinition[] = [
   }
 ];
 
+export const primaryUtrechtAreaSlugs: UtrechtAreaSlug[] = [
+  "centrum",
+  "overvecht",
+  "lombok",
+  "zuilen",
+  "leidsche-rijn"
+];
+
 export function getUtrechtAreaDefinition(value?: string) {
   const normalized = normalizeUtrechtAreaText(value);
 
   return utrechtAreaDefinitions.find(
     (area) =>
       normalizeUtrechtAreaText(area.slug) === normalized ||
-      area.areaSlugAliases.some((alias) => normalizeUtrechtAreaText(alias) === normalized)
+      normalizeUtrechtAreaText(area.label) === normalized ||
+      [...area.areaSlugAliases, ...area.matchTerms].some(
+        (alias) => normalizeUtrechtAreaText(alias) === normalized
+      )
   );
 }
 
