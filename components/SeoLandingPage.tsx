@@ -18,8 +18,14 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
   const pageId = slugifyId(page.h1);
   const labels = getSeoPageUiLabels(page.language);
   const listingLimit = page.listingLimit ?? 10;
-  const visibleShops = shops.slice(0, listingLimit);
-  const hasMoreListings = shops.length > visibleShops.length;
+  const listingShops = page.listingPlaceTypes?.length
+    ? shops.filter((shop) => page.listingPlaceTypes?.includes(shop.place_type?.trim().toLowerCase() ?? ""))
+    : shops;
+  const visibleShops = listingShops.slice(0, listingLimit);
+  const hasMoreListings = listingShops.length > visibleShops.length;
+  const fullSearchHref = page.listingPlaceTypes?.length === 1
+    ? `/search?placeType=${encodeURIComponent(page.listingPlaceTypes[0])}`
+    : "/search";
   const searchCopy = getSearchCopy(page);
 
   return (
@@ -87,7 +93,7 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
           </div>
           <Link
             className="focus-ring rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-teal"
-            href="/search"
+            href={fullSearchHref}
           >
             {page.ctaLabel}
           </Link>
@@ -106,9 +112,9 @@ export default function SeoLandingPage({ page, shops }: SeoLandingPageProps) {
         {hasMoreListings ? (
           <div className="mt-5 rounded-lg border border-line bg-white p-5 text-sm leading-6 text-muted">
             <p>
-              {getListingCountCopy(page.language, visibleShops.length, shops.length)}
+              {getListingCountCopy(page.language, visibleShops.length, listingShops.length)}
             </p>
-            <Link className="mt-3 inline-flex font-bold text-teal hover:text-ink" href="/search">
+            <Link className="mt-3 inline-flex font-bold text-teal hover:text-ink" href={fullSearchHref}>
               {page.ctaLabel}
             </Link>
           </div>
@@ -487,6 +493,34 @@ function getNearMeGuideCopy(page: SeoLandingPageDefinition) {
         "Les villes mises en avant montrent comment l’annuaire pourra évoluer. Amsterdam et Utrecht disposent maintenant de données publiées, tandis que Rotterdam, Den Haag et Eindhoven restent des pistes d’extension future. Cela évite de laisser penser que la couverture nationale est déjà complète, tout en gardant une structure prête pour d’autres villes. Pour l’instant, les pages les plus utiles sont les pages de ville, les pages de quartiers et les fiches détaillées de lieux listés.",
         "En ouvrant une fiche détaillée, vous trouverez plus de contexte que dans une recherche temporaire: adresse, quartier, horaires, itinéraire, carte, lieux listés à proximité et date de dernière mise à jour. Ces pages ont des URL stables et contiennent davantage d’informations uniques. C’est pourquoi TobaccoNearby relie cette page aux quartiers importants et aux fiches individuelles, tandis que les filtres de recherche restent surtout destinés à l’usage pratique et non à l’indexation principale.",
         "Les lieux visibles sur cette page représentent une sélection limitée de fiches publiées. Pour parcourir tous les résultats publiés, utilisez la page de recherche complète avec les filtres comme ouvert maintenant, téléphone disponible, site web disponible, accessibilité et vue carte. Vérifiez toujours les horaires, coordonnées, itinéraires et disponibilités avant de vous déplacer. TobaccoNearby reste un annuaire neutre, pas un service de vente."
+      ]
+    };
+  }
+
+  if (page.href === "/cigarettes-near-me") {
+    return {
+      heading: "How to compare nearby listed locations",
+      paragraphs: [
+        "A cigarettes near me search usually starts with a practical question: which listed locations are close enough to visit? This page brings together published tobacco-shop, kiosk and gas-station listings where those classifications are available. It does not confirm stock or recommend a location; it helps adults aged 18+ compare addresses, place types and practical details.",
+        "Location access is optional. If you allow it, your position stays in the browser and can be used to sort listings by distance. No coordinates are sent to analytics or saved in the directory. You can get the same core information without location access by searching for a city, neighborhood, street, station or postal code.",
+        "The Open Now filter uses the opening-hours data supplied for each listing. It can help narrow the results, including schedules that cross midnight, but it is not a guarantee that a location is open. Holidays, temporary closures and local changes may not appear immediately, so check the displayed hours and contact the location when necessary.",
+        "The map shows published locations with different marker styles for tobacco shops, kiosks, gas stations and other place types. Address-based directions are available where sufficient address data exists. The result cards remain available alongside the map, so the map is never the only way to access shop information.",
+        "Amsterdam and Utrecht currently have published directory data. Use the featured city and area links to browse those locations directly, or open the full search to compare all supported listings and filters. Other Dutch cities are not presented as supported until published data is available.",
+        "TobaccoNearby does not sell tobacco products, process orders or promote smoking. Availability can change and the presence of a listing does not confirm a particular product. Verify opening hours, contact details, accessibility information and availability before visiting."
+      ]
+    };
+  }
+
+  if (page.href === "/tobacco-shop-near-me") {
+    return {
+      heading: "How to find dedicated tobacco-shop listings",
+      paragraphs: [
+        "A tobacco shop near me search is more specific than a general nearby-location search. This page is intended for adults aged 18+ looking for practical information about dedicated tobacco shops or tobacconists. Its listing selection uses the Tobacco shop place-type classification rather than combining those locations with kiosks, gas stations, convenience stores or night shops.",
+        "The distinction comes from the published place-type data attached to each listing; TobaccoNearby does not invent a classification from a shop name. If a classification appears incorrect, visitors can submit a correction for manual review. The page does not make claims about products, brands, prices or current availability.",
+        "You can optionally allow browser location access to compare dedicated tobacco-shop listings by distance. Your exact position remains in the browser and is not sent to analytics or stored in Supabase. Manual search remains available for city names, neighborhoods, streets and postal codes when you do not want to share location.",
+        "Opening hours and map directions provide practical planning information. Open Now is calculated from the hours stored for a listing, while directions use the published address where possible. Because hours and contact details may change, both should be verified before travelling.",
+        "Amsterdam and Utrecht currently have published listings. City and neighborhood pages provide broader local context, while the full search can keep the Tobacco shop filter active for a longer dedicated list. This makes the purpose of this page different from the broader Cigarettes Near Me page, which may show several relevant place types.",
+        "TobaccoNearby is a neutral directory and does not sell tobacco products or promote smoking. A dedicated listing does not confirm inventory or product availability. Use the available address, opening-hours, contact and directions information only as a starting point, and verify details before visiting."
       ]
     };
   }
