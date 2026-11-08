@@ -54,6 +54,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          async
+          crossOrigin="anonymous"
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8466194473351664"
+        />
+      </head>
       <body>
         <AgeGate />
         <a className="skip-link" href="#main-content">
