@@ -4,7 +4,7 @@ import { getCityReferenceLabelForShop, getCityReferencePointForShop } from "@/da
 import {
   Coordinates,
   formatDistance,
-  formatOpeningHours,
+  formatShopOpeningHours,
   getDirectionsUrl,
   getDistanceKm,
   getOpeningStatusLabel,
@@ -95,7 +95,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
                 ) : null}
               </>
             ) : (
-              formatOpeningHours(shop.openingHours).slice(0, 2).join("; ")
+              formatShopOpeningHours(shop).slice(0, 2).join("; ")
             )}
           </dd>
         </div>

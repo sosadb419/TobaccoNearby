@@ -639,6 +639,8 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
       ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
       : "");
 
+  const openingHours = readOpeningHours(row);
+
   return {
     id: readId(row, ["id"]),
     name,
@@ -648,7 +650,8 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     latitude,
     longitude,
     neighborhood: normalizeLeidscheRijnSpelling(readString(row, ["neighborhood", "area", "district"]) ?? city),
-    openingHours: readOpeningHours(row),
+    openingHours,
+    openingHoursVerifiedForShop: hasConfirmedShopOpeningHoursEvidence(row),
     phone: readString(row, ["phone", "phone_number", "telephone"]),
     website: readString(row, ["website", "website_url", "url"]),
     googleMapsLink,
@@ -757,6 +760,54 @@ function readOpeningHours(row: SupabaseShopRow): OpeningHoursSlot[] {
   }
 
   return [];
+}
+
+function hasConfirmedShopOpeningHoursEvidence(row: SupabaseShopRow) {
+  return containsConfirmedShopHoursEvidence(readRaw(row, ["opening_hours", "openingHours", "hours"]));
+}
+
+function containsConfirmedShopHoursEvidence(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some(containsConfirmedShopHoursEvidence);
+  }
+
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  const booleanEvidenceKeys = ["shop_hours_verified", "opening_hours_verified_for_shop", "verified_shop_hours"];
+
+  if (booleanEvidenceKeys.some((key) => record[key] === true)) {
+    return true;
+  }
+
+  const scopeValues = [record.scope, record.applies_to, record.hours_type]
+    .filter((item): item is string => typeof item === "string")
+    .map(normalizeAreaText);
+
+  if (scopeValues.some((scope) => ["shop", "store", "winkel"].includes(scope))) {
+    return true;
+  }
+
+  const note = typeof record.note === "string" ? normalizeAreaText(record.note) : "";
+  const explicitNotePhrases = [
+    "shop opening hours",
+    "shop hours verified",
+    "verified shop hours",
+    "store opening hours",
+    "store hours verified",
+    "verified store hours",
+    "winkel openingstijden",
+    "winkel openingstijden bevestigd",
+    "bevestigde winkel openingstijden"
+  ];
+
+  if (explicitNotePhrases.some((phrase) => note.includes(phrase))) {
+    return true;
+  }
+
+  return Object.values(record).some(containsConfirmedShopHoursEvidence);
 }
 
 function parseOpeningHoursSlot(value: unknown): OpeningHoursSlot | null {

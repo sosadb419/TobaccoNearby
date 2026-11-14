@@ -17,7 +17,7 @@ import { getUtrechtAreaDefinition } from "@/data/utrecht-seo";
 import {
   Shop,
   getDirectionsUrl,
-  formatOpeningHours,
+  formatShopOpeningHours,
   getDistanceKm,
   getOpeningStatusLabel,
   getPlaceTypeLabel,
@@ -89,7 +89,7 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
   const neighborhoodHref = validArea?.href ?? getShopAreaHref(shop, shopList);
   const hasAccessibilityInfo = typeof shop.wheelchairAccessible === "boolean";
   const accessibility = shop.wheelchairAccessible ? "Yes" : "No";
-  const openingHours = formatOpeningHours(shop.openingHours);
+  const openingHours = formatShopOpeningHours(shop);
   const hasMapLocation = hasValidCoordinates(shop);
   const directionsUrl = getDirectionsUrl(shop);
   const schema = generateLocalBusinessJsonLd(shop);
