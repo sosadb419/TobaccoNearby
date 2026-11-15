@@ -11,7 +11,7 @@ import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import { areaDefinitions } from "@/data/areas";
 import { cityDefinitions } from "@/data/cities";
 import { primarySeoLandingPages } from "@/data/seo-pages";
-import { getAllShops, getIndexableUtrechtAreas } from "@/lib/shop-data";
+import { getAllShops, getIndexableRotterdamAreas, getIndexableUtrechtAreas } from "@/lib/shop-data";
 import { SITE_URL } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     absolute: "TobaccoNearby | Netherlands Tobacco Shop Map & Directions"
   },
   description:
-    "Find practical location information for tobacco shops, kiosks and gas stations in supported Dutch cities, including Amsterdam and Utrecht. Adults 18+ only.",
+    "Find practical location information for published tobacco shop, kiosk and gas station listings in Amsterdam, Utrecht and Rotterdam. Adults 18+ only.",
   alternates: {
     canonical: "/"
   }
@@ -45,7 +45,7 @@ const homepageFaqs = [
       "No. TobaccoNearby does not sell tobacco products, process orders or promote smoking. The website only provides practical shop location information."
   },
   {
-    question: "How can I search for tobacco shops in Amsterdam or Utrecht?",
+    question: "How can I search for tobacco shops in Amsterdam, Utrecht or Rotterdam?",
     answer:
       "Use the search bar to search by city, area, postal code, street or neighborhood, then review addresses, opening hours and directions where available."
   },
@@ -57,6 +57,7 @@ const homepageFaqs = [
 ];
 
 const homepageRelatedLinks = [
+  { href: "/rotterdam", label: "Tobacco shops Rotterdam" },
   { href: "/utrecht", label: "Tobacco shops Utrecht" },
   { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
   { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" },
@@ -69,6 +70,7 @@ export default async function HomePage() {
   const shops = await getAllShops();
   const featuredShops = shops.slice(0, 3);
   const eligibleUtrechtAreas = getIndexableUtrechtAreas(shops);
+  const eligibleRotterdamAreas = getIndexableRotterdamAreas(shops);
   const websiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -98,8 +100,8 @@ export default async function HomePage() {
             </h1>
             <p className="hidden max-w-2xl text-base leading-7 text-muted md:mt-5 md:block md:text-lg">
               Search by city, area, postal code, or neighborhood to find practical information such as shop locations,
-              opening hours, directions, accessibility notes, and contact details. Amsterdam and Utrecht are currently
-              supported.
+              opening hours, directions, accessibility notes, and contact details. Amsterdam, Utrecht and Rotterdam
+              are currently supported.
             </p>
             <p className="hidden rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink md:mt-4 md:block">
               This website is intended for adults aged 18+.
@@ -124,10 +126,10 @@ export default async function HomePage() {
             <div className="absolute left-8 top-8 rounded-lg bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-sm font-bold text-ink">
                 <Map aria-hidden="true" size={18} />
-                Amsterdam and Utrecht
+                Amsterdam, Utrecht and Rotterdam
               </div>
               <p className="mt-2 max-w-[14rem] text-sm leading-5 text-muted">
-                A Netherlands directory with two supported cities and a reusable city structure for later expansion.
+                A Netherlands directory with three supported cities and a reusable city structure for later expansion.
               </p>
             </div>
             <div className="absolute bottom-8 right-8 w-[min(78%,22rem)] rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -158,10 +160,10 @@ export default async function HomePage() {
               Browse supported cities
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted">
-              TobaccoNearby currently has published coverage for Amsterdam and Utrecht.
+              TobaccoNearby currently has published coverage for Amsterdam, Utrecht and Rotterdam.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2 md:gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:gap-3">
             {cityDefinitions.map((city) => (
               <TrackedNeighborhoodLink
                 key={city.slug}
@@ -222,6 +224,41 @@ export default async function HomePage() {
             </div>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:gap-3">
               {eligibleUtrechtAreas.map(({ area }) => (
+                <TrackedNeighborhoodLink
+                  key={area.href}
+                  className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
+                  href={area.href}
+                  neighborhood={area.label}
+                >
+                  {area.label}
+                </TrackedNeighborhoodLink>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {eligibleRotterdamAreas.length > 0 ? (
+        <section
+          id="rotterdam-areas"
+          className="container-shell scroll-mt-6 py-5 md:py-8"
+          aria-labelledby="rotterdam-areas-heading"
+        >
+          <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr] md:items-start md:gap-6">
+            <div>
+              <h2
+                id="rotterdam-areas-heading"
+                tabIndex={-1}
+                className="focus-ring rounded-md text-xl font-bold text-ink md:text-2xl"
+              >
+                Browse Rotterdam areas
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-muted">
+                Area pages are published only where the current Rotterdam dataset supports a useful local list.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:gap-3">
+              {eligibleRotterdamAreas.map(({ area }) => (
                 <TrackedNeighborhoodLink
                   key={area.href}
                   className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"

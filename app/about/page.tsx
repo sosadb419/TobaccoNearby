@@ -22,7 +22,7 @@ export default function AboutPage() {
           <h1 className="mt-3 text-3xl font-bold text-ink">Neutral shop location information for adults</h1>
           <p className="mt-5 text-sm leading-6 text-muted">
             TobaccoNearby is an English-language directory for adults aged 18+ looking for practical location
-            information about tobacco shops in supported Dutch cities, including Amsterdam and Utrecht. The site
+            information about tobacco shops in supported Dutch cities, including Amsterdam, Utrecht and Rotterdam. The site
             focuses on addresses, opening hours, directions, accessibility notes, nearby public transport, and contact
             details.
           </p>
@@ -32,7 +32,7 @@ export default function AboutPage() {
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Info title="Supported cities" text="The current directory supports Amsterdam and Utrecht, with a city structure that can expand later." />
+            <Info title="Supported cities" text="The current directory supports Amsterdam, Utrecht and Rotterdam, with a city structure that can expand later." />
             <Info title="Verification focused" text="Each shop record includes a last updated date and a reminder to verify details before visiting." />
             <Info title="Scalable structure" text="Country, city, neighborhood, and shop routes are designed for later Dutch city expansion." />
           </div>

@@ -47,7 +47,7 @@ export default function Header() {
               TobaccoNearby
             </span>
             <span className={`text-xs text-muted ${isCompactMobileRoute ? "hidden md:block" : "block"}`}>
-              Amsterdam and Utrecht
+              Amsterdam, Utrecht and Rotterdam
             </span>
           </span>
         </Link>

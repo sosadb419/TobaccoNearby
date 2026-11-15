@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, ChevronRight, MapPin } from "lucide-react";
 import DisclaimerNotice from "@/components/DisclaimerNotice";
 import FAQSection, { type FAQItem } from "@/components/FAQSection";
 import LazyShopMap from "@/components/LazyShopMap";
@@ -9,28 +9,90 @@ import { TrackedNeighborhoodLink } from "@/components/TrackedLinks";
 import type { CityDefinition } from "@/data/cities";
 import type { Shop } from "@/data/shops";
 import { normalizeAreaText } from "@/lib/shop-data";
+import { SITE_URL } from "@/lib/site-config";
+
+export type CityLandingAreaLink = {
+  href: string;
+  label: string;
+  count?: number;
+};
 
 type CityLandingPageProps = {
+  allListingsHref?: string;
+  areaContext?: string;
+  areaLinks?: CityLandingAreaLink[];
+  breadcrumbLabel?: string;
   city: CityDefinition;
+  contextHeading?: string;
+  eyebrow?: string;
+  faqItems?: FAQItem[];
   intro: string;
+  listingHeading?: string;
+  listingIntro?: string;
+  listingLimit?: number;
+  pageHref?: string;
   practicalInfo: string[];
   shops: Shop[];
   title: string;
 };
 
-const listingLimit = 20;
-
-export default function CityLandingPage({ city, intro, practicalInfo, shops, title }: CityLandingPageProps) {
+export default function CityLandingPage({
+  allListingsHref,
+  areaContext,
+  areaLinks,
+  breadcrumbLabel,
+  city,
+  contextHeading,
+  eyebrow = "Supported city",
+  faqItems,
+  intro,
+  listingHeading,
+  listingIntro,
+  listingLimit = 20,
+  pageHref = city.href,
+  practicalInfo,
+  shops,
+  title
+}: CityLandingPageProps) {
   const visibleShops = shops.slice(0, listingLimit);
-  const usefulAreas = getUsefulCityAreas(shops);
-  const allCityListingsHref = `/search?city=${city.slug}`;
-  const cityFaqs = getCityFaqs(city.name);
+  const usefulAreas: CityLandingAreaLink[] =
+    areaLinks ??
+    getUsefulCityAreas(shops).map((area) => ({
+      href: `/search?city=${city.slug}&neighborhood=${encodeURIComponent(area)}&q=${encodeURIComponent(area)}`,
+      label: area
+    }));
+  const allCityListingsHref = allListingsHref ?? `/search?city=${city.slug}`;
+  const cityFaqs = faqItems ?? getCityFaqs(city.name);
+  const currentBreadcrumbLabel = breadcrumbLabel ?? city.name;
+  const breadcrumbs = [
+    { label: "Home", href: "/" },
+    ...(pageHref !== city.href ? [{ label: city.name, href: city.href }] : []),
+    { label: currentBreadcrumbLabel, href: pageHref }
+  ];
+  const breadcrumbSchema = createBreadcrumbSchema(breadcrumbs);
+  const collectionSchema = createCollectionSchema(title, intro, pageHref, visibleShops);
 
   return (
     <section className="container-shell py-6 md:py-8">
+      <nav aria-label="Breadcrumb" className="mb-5">
+        <ol className="flex flex-wrap items-center gap-1 text-sm text-muted">
+          {breadcrumbs.map((crumb, index) => (
+            <li key={crumb.href} className="flex items-center gap-1">
+              {index > 0 ? <ChevronRight aria-hidden="true" size={14} /> : null}
+              {index === breadcrumbs.length - 1 ? (
+                <span aria-current="page">{crumb.label}</span>
+              ) : (
+                <Link className="focus-ring rounded-md hover:text-teal" href={crumb.href}>
+                  {crumb.label}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
       <div className="grid gap-8 lg:grid-cols-[1fr_320px] lg:items-start">
         <div>
-          <p className="text-sm font-bold uppercase text-teal">Supported city</p>
+          <p className="text-sm font-bold uppercase text-teal">{eyebrow}</p>
           <h1 className="mt-3 text-3xl font-bold text-ink sm:text-4xl">{title}</h1>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-muted">{intro}</p>
           <p className="mt-4 rounded-lg border border-line bg-white px-4 py-3 text-sm font-medium text-ink">
@@ -63,6 +125,15 @@ export default function CityLandingPage({ city, intro, practicalInfo, shops, tit
 
       <DisclaimerNotice className="mt-8" />
 
+      {areaContext ? (
+        <section className="mt-8 rounded-lg border border-line bg-white p-5" aria-labelledby={`${city.slug}-context-heading`}>
+          <h2 id={`${city.slug}-context-heading`} className="text-xl font-bold text-ink">
+            {contextHeading ?? `About ${city.name}`}
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-muted">{areaContext}</p>
+        </section>
+      ) : null}
+
       {usefulAreas.length > 0 ? (
         <section className="mt-8" aria-labelledby={`${city.slug}-areas-heading`}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -78,12 +149,17 @@ export default function CityLandingPage({ city, intro, practicalInfo, shops, tit
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
             {usefulAreas.map((area) => (
               <TrackedNeighborhoodLink
-                key={area}
+                key={area.href}
                 className="focus-ring rounded-lg border border-line bg-white px-3 py-2.5 text-sm font-bold text-ink transition hover:border-teal hover:text-teal"
-                href={`/search?city=${city.slug}&neighborhood=${encodeURIComponent(area)}&q=${encodeURIComponent(area)}`}
-                neighborhood={area}
+                href={area.href}
+                neighborhood={area.label}
               >
-                {area}
+                <span className="block">{area.label}</span>
+                {typeof area.count === "number" ? (
+                  <span className="block text-xs font-normal text-muted">
+                    {area.count} {area.count === 1 ? "location" : "locations"}
+                  </span>
+                ) : null}
               </TrackedNeighborhoodLink>
             ))}
           </div>
@@ -103,11 +179,11 @@ export default function CityLandingPage({ city, intro, practicalInfo, shops, tit
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 id={`${city.slug}-listings-heading`} className="text-2xl font-bold text-ink">
-              Published {city.name} listings
+              {listingHeading ?? `Published ${city.name} listings`}
             </h2>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Listings show practical details such as address, opening hours, directions and contact information where
-              available.
+              {listingIntro ??
+                "Listings show practical details such as address, opening hours, directions and contact information where available."}
             </p>
           </div>
           <Link
@@ -158,10 +234,13 @@ export default function CityLandingPage({ city, intro, practicalInfo, shops, tit
 
       <FAQSection
         className="mt-8"
-        id={`${city.slug}-faq`}
+        id={`${city.slug}-${currentBreadcrumbLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-faq`}
         items={cityFaqs}
         intro="Short practical answers about using TobaccoNearby city listings."
       />
+
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
     </section>
   );
 }
@@ -216,4 +295,42 @@ function getCityFaqs(cityName: string): FAQItem[] {
         "Yes. Use the report or add/update option to submit a correction suggestion. Submissions are reviewed before any listing changes are made."
     }
   ];
+}
+
+function createBreadcrumbSchema(items: Array<{ label: string; href: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.label,
+      item: `${SITE_URL}${item.href}`
+    }))
+  };
+}
+
+function createCollectionSchema(title: string, description: string, href: string, shops: Shop[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: title,
+    description,
+    url: `${SITE_URL}${href}`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: "TobaccoNearby",
+      url: SITE_URL
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: shops.length,
+      itemListElement: shops.map((shop, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: shop.name,
+        url: `${SITE_URL}/shops/${shop.slug}`
+      }))
+    }
+  };
 }

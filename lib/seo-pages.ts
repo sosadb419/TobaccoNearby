@@ -901,11 +901,11 @@ function getIntro(seed: SeoRouteSeed) {
 
   if (seed.intent === "near-me") {
     if (seed.href === "/cigarettes-near-me") {
-      return "Looking for nearby listed locations? This page helps adults aged 18+ compare practical information for tobacco shops, kiosks and gas stations, including map positions, opening hours where available and directions. Browser location access is optional and can be used to sort listings by distance; you can also search manually by city, area, street or postal code. Amsterdam and Utrecht currently have published listings. Opening hours and product availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
+      return "Looking for nearby listed locations? This page helps adults aged 18+ compare practical information for tobacco shops, kiosks and gas stations, including map positions, opening hours where available and directions. Browser location access is optional and can be used to sort listings by distance; you can also search manually by city, area, street or postal code. Amsterdam, Utrecht and Rotterdam currently have published listings. Opening hours and product availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
     }
 
     if (seed.href === "/tobacco-shop-near-me") {
-      return "Looking specifically for a dedicated tobacco shop or tobacconist nearby? This page limits its listing selection to locations classified in the directory as tobacco shops, rather than mixing in kiosks, gas stations or other place types. Adults aged 18+ can use the map, review opening hours where available, get directions or optionally use browser location access to sort by distance. Amsterdam and Utrecht currently have published listings. Classification, opening hours and availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
+      return "Looking specifically for a dedicated tobacco shop or tobacconist nearby? This page limits its listing selection to locations classified in the directory as tobacco shops, rather than mixing in kiosks, gas stations or other place types. Adults aged 18+ can use the map, review opening hours where available, get directions or optionally use browser location access to sort by distance. Amsterdam, Utrecht and Rotterdam currently have published listings. Classification, opening hours and availability can change, so verify details before visiting. TobaccoNearby does not sell tobacco products or promote smoking.";
     }
 
     if (seed.language === "nl") {
@@ -1074,7 +1074,7 @@ function getFaqItems(seed: SeoRouteSeed): FAQItem[] {
         {
           question: "How can I find nearby listed locations?",
           answer:
-            "Use the search, map or optional location button to compare published listings by area or distance. Amsterdam and Utrecht currently have published data."
+            "Use the search, map or optional location button to compare published listings by area or distance. Amsterdam, Utrecht and Rotterdam currently have published data."
         },
         {
           question: "Do I need to share my location?",

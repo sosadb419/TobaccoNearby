@@ -14,9 +14,11 @@ import { TrackedDirectionsLink, TrackedShopDetailsLink } from "@/components/Trac
 import { getAreaDefinition, type AreaDefinition } from "@/data/areas";
 import { cityMatchesShop, getCityDefinitionForShop, getCitySlugFromShop } from "@/data/cities";
 import { getUtrechtAreaDefinition } from "@/data/utrecht-seo";
+import { getRotterdamAreaDefinition } from "@/data/rotterdam";
 import {
   Shop,
   getDirectionsUrl,
+  getConfirmedShopOpeningHours,
   formatShopOpeningHours,
   getDistanceKm,
   getOpeningStatusLabel,
@@ -26,9 +28,11 @@ import {
 } from "@/data/shops";
 import {
   filterShopsForCityArea,
+  filterShopsForRotterdamArea,
   getAmsterdamAreaForShop,
   getAllShops,
   getShopBySlug,
+  getRotterdamAreaForShop,
   getUtrechtAreaForShop,
   matchesShopForAmsterdamArea
 } from "@/lib/shop-data";
@@ -61,12 +65,22 @@ export async function generateMetadata({ params }: ShopDetailPageProps): Promise
   const titleLocation = getMetadataLocationLabel(shop, area?.label);
   const titlePrefix = titleLocation ? `${shop.name} in ${titleLocation}` : shop.name;
   const address = [shop.address, shop.postalCode, shop.city].filter(Boolean).join(", ");
+  const hasConfirmedOpeningHours = getConfirmedShopOpeningHours(shop).length > 0;
+  const titleDetails = hasConfirmedOpeningHours ? "Opening Hours & Directions" : "Address & Directions";
+  const descriptionDetails = [
+    "address",
+    hasConfirmedOpeningHours ? "listed opening hours" : null,
+    "directions",
+    "contact details"
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   return {
     title: {
-      absolute: `${titlePrefix} | Opening Hours & Directions`
+      absolute: `${titlePrefix} | ${titleDetails}`
     },
-    description: `View practical information for ${shop.name}${address ? ` at ${address}` : ""}, including listed opening hours, directions and contact details. Adults 18+ only.`,
+    description: `View practical information for ${shop.name}${address ? ` at ${address}` : ""}, including ${descriptionDetails}. Adults 18+ only.`,
     alternates: {
       canonical: `/shops/${shop.slug}`
     }
@@ -171,9 +185,9 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
               <br />
               {shop.country}
             </InfoBlock>
-            <InfoBlock icon={<MapPin aria-hidden="true" size={18} />} title="Neighborhood">
+            <InfoBlock icon={<MapPin aria-hidden="true" size={18} />} title="Area / neighborhood">
               <Link className="font-semibold text-teal hover:text-ink" href={neighborhoodHref}>
-                {shop.neighborhood}
+                {areaLabel}
               </Link>
             </InfoBlock>
             <InfoBlock icon={<CalendarDays aria-hidden="true" size={18} />} title="Opening hours">
@@ -484,7 +498,9 @@ function getAboutLocationText(shop: Shop, placeTypeLabel: string, areaLabel: str
   const typeDescription = placeTypeLabel.toLowerCase();
   const article = /^[aeiou]/i.test(typeDescription) ? "an" : "a";
   const neighborhoodText =
-    shop.neighborhood && normalize(shop.neighborhood) !== normalize(areaLabel)
+    shop.neighborhood &&
+    normalize(shop.neighborhood) !== normalize(areaLabel) &&
+    normalize(shop.neighborhood) !== normalize(shop.city)
       ? ` within the ${shop.neighborhood} area`
       : "";
   const addressText = fullAddress ? ` The address shown for this listing is ${fullAddress}.` : "";
@@ -507,6 +523,15 @@ function getValidShopArea(shop: Shop, shopList: Shop[]): ValidShopArea | undefin
     return { label: utrechtArea.label, href: utrechtArea.href };
   }
 
+  const rotterdamArea = getRotterdamAreaForShop(shop);
+
+  if (
+    rotterdamArea &&
+    filterShopsForRotterdamArea(shopList, rotterdamArea).length >= rotterdamArea.minimumListings
+  ) {
+    return { label: rotterdamArea.label, href: rotterdamArea.href };
+  }
+
   const amsterdamArea = getAmsterdamAreaForShop(shop);
 
   return amsterdamArea ? { label: amsterdamArea.label, href: amsterdamArea.href } : undefined;
@@ -515,8 +540,13 @@ function getValidShopArea(shop: Shop, shopList: Shop[]): ValidShopArea | undefin
 function getMetadataLocationLabel(shop: Shop, areaLabel?: string) {
   const cityLabel = shop.city || getCityDefinitionForShop(shop).name;
   const genericAmsterdamAreas = new Set(["Centrum", "West", "Nieuw-West", "Oost", "Noord", "Zuid", "Zuidoost"]);
-  const qualifiedAreaLabel =
-    areaLabel && genericAmsterdamAreas.has(areaLabel) ? `Amsterdam ${areaLabel}` : areaLabel;
+  const qualifiedAreaLabel = areaLabel
+    ? genericAmsterdamAreas.has(areaLabel)
+      ? `Amsterdam ${areaLabel}`
+      : normalize(cityLabel) === "rotterdam" && !normalize(areaLabel).includes("rotterdam")
+        ? `${areaLabel}, Rotterdam`
+        : areaLabel
+    : undefined;
   const preferredLabel = qualifiedAreaLabel || cityLabel;
   const normalizedName = normalize(shop.name);
   const normalizedPreferredLabel = normalize(preferredLabel);
@@ -562,7 +592,8 @@ function escapeRegExp(value: string) {
 
 function getNearbyAreaInformation(shop: Shop, areaLabel: string) {
   const city = getCityDefinitionForShop(shop);
-  const neighborhoodText = shop.neighborhood
+  const hasSpecificNeighborhood = shop.neighborhood && normalize(shop.neighborhood) !== normalize(city.name);
+  const neighborhoodText = hasSpecificNeighborhood
     ? `${shop.neighborhood} is the local neighborhood shown for this listing.`
     : `${areaLabel} is the area shown for this listing.`;
   const transportText = shop.nearbyPublicTransport
@@ -647,6 +678,20 @@ function getNearbyAreaLinks(shop: Shop, shopList: Shop[]) {
       .map((areaSlug) => getUtrechtAreaDefinition(areaSlug))
       .filter((area): area is NonNullable<typeof area> => Boolean(area))
       .filter((area) => filterShopsForCityArea(shopList, "utrecht", area).length >= area.minimumListings)
+      .slice(0, 4);
+  }
+
+  if (cityMatchesShop(shop, "rotterdam")) {
+    const currentArea = getRotterdamAreaForShop(shop);
+
+    if (!currentArea) {
+      return [];
+    }
+
+    return currentArea.relatedAreaSlugs
+      .map((areaSlug) => getRotterdamAreaDefinition(areaSlug))
+      .filter((area): area is NonNullable<typeof area> => Boolean(area))
+      .filter((area) => filterShopsForRotterdamArea(shopList, area).length >= area.minimumListings)
       .slice(0, 4);
   }
 
@@ -739,6 +784,12 @@ function getComparableAreaSlug(shop: Shop) {
 
   if (utrechtArea) {
     return `utrecht:${utrechtArea.slug}`;
+  }
+
+  const rotterdamArea = getRotterdamAreaForShop(shop);
+
+  if (rotterdamArea) {
+    return `rotterdam:${rotterdamArea.slug}`;
   }
 
   const area = getShopAreaDefinition(shop);
