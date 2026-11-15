@@ -1,12 +1,12 @@
 import type { AreaSlug } from "@/data/areas";
 import type { Coordinates, Shop } from "@/data/shops";
 
-export type CitySlug = "amsterdam" | "utrecht";
+export type CitySlug = "amsterdam" | "utrecht" | "rotterdam";
 
 export type CityQuickSearch = {
   label: string;
   query: string;
-  areaSlug?: AreaSlug;
+  areaSlug?: string;
   aliases?: string[];
 };
 
@@ -105,6 +105,45 @@ export const cityDefinitions: CityDefinition[] = [
         query: "Utrecht Centraal",
         aliases: ["Utrecht Central", "Utrecht Central Station", "Station Utrecht Centraal"]
       }
+    ]
+  },
+  {
+    slug: "rotterdam",
+    name: "Rotterdam",
+    href: "/rotterdam",
+    center: {
+      latitude: 51.9244,
+      longitude: 4.4777
+    },
+    referencePoint: {
+      latitude: 51.9252244,
+      longitude: 4.4688184
+    },
+    referenceLabel: "Rotterdam Centraal",
+    aliases: [
+      "Rotterdam",
+      "Rotterdam city",
+      "Rotterdam NL"
+    ],
+    coverageAliases: ["Hoek van Holland", "Hoogvliet", "Pernis", "Rozenburg"],
+    referenceAliases: [
+      "Rotterdam Centraal",
+      "Rotterdam Central",
+      "Rotterdam Central Station",
+      "Station Rotterdam Centraal",
+      "Rotterdam CS",
+      "Stationsplein Rotterdam"
+    ],
+    quickSearches: [
+      {
+        label: "Rotterdam Centraal",
+        query: "Rotterdam Centraal",
+        aliases: ["Rotterdam Central", "Rotterdam Central Station", "Station Rotterdam Centraal"]
+      },
+      { label: "Centrum", query: "Rotterdam Centrum", areaSlug: "centrum" },
+      { label: "Delfshaven", query: "Delfshaven", areaSlug: "delfshaven" },
+      { label: "Kralingen", query: "Kralingen", areaSlug: "kralingen" },
+      { label: "Rotterdam Zuid", query: "Rotterdam Zuid", areaSlug: "zuid" }
     ]
   }
 ];

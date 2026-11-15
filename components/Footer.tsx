@@ -42,7 +42,7 @@ export default function Footer() {
             <p className="text-lg font-bold text-ink">TobaccoNearby</p>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">
               A neutral, English-language directory for adults aged 18+ looking for practical location information
-              about tobacco shops in supported Dutch cities, including Amsterdam and Utrecht. TobaccoNearby does not
+              about tobacco shops in supported Dutch cities, including Amsterdam, Utrecht and Rotterdam. TobaccoNearby does not
               sell tobacco products and does not encourage tobacco use.
             </p>
             <p className="mt-3 text-sm leading-6 text-muted">

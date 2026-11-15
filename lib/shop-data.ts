@@ -27,6 +27,13 @@ import {
   type UtrechtAreaDefinition
 } from "@/data/utrecht-seo";
 import {
+  getRotterdamAreaDefinition,
+  getRotterdamAreaSearchTargets,
+  normalizeRotterdamAreaText,
+  rotterdamAreaDefinitions,
+  type RotterdamAreaDefinition
+} from "@/data/rotterdam";
+import {
   getDistanceKm,
   normalize,
   sortShopsByOpeningStatus,
@@ -135,6 +142,56 @@ export async function getShopsForUtrechtArea(areaSlug: string) {
   return area ? filterShopsForCityArea(shopList, "utrecht", area) : [];
 }
 
+export async function getShopsForRotterdamArea(areaSlug: string) {
+  const shopList = await getAllShops();
+  const area = getRotterdamAreaDefinition(areaSlug);
+
+  return area ? filterShopsForRotterdamArea(shopList, area) : [];
+}
+
+export function filterShopsForRotterdamArea(shopList: Shop[], area: RotterdamAreaDefinition) {
+  return sortShopsByOpeningStatus(
+    shopList.filter((shop) => isPublicShop(shop) && matchesShopForRotterdamArea(shop, area))
+  );
+}
+
+export function matchesShopForRotterdamArea(shop: Shop, area: RotterdamAreaDefinition) {
+  if (!cityMatchesShop(shop, "rotterdam")) {
+    return false;
+  }
+
+  const shopAreaSlug = normalizeRotterdamAreaText(shop.area_slug);
+
+  if (
+    shopAreaSlug &&
+    area.areaSlugAliases.some((alias) => normalizeRotterdamAreaText(alias) === shopAreaSlug)
+  ) {
+    return true;
+  }
+
+  const searchable = normalizeAreaText(
+    [shop.neighborhood, shop.address, shop.postalCode, shop.city, shop.nearbyPublicTransport].join(" ")
+  );
+
+  if (area.matchTerms.some((term) => matchesNormalizedText(searchable, normalizeAreaText(term)))) {
+    return true;
+  }
+
+  const postalCode = shop.postalCode.replace(/\s+/g, "").toLowerCase();
+
+  return area.postalCodePrefixes.some((prefix) => postalCode.startsWith(prefix.toLowerCase()));
+}
+
+export function getRotterdamAreaForShop(shop: Shop) {
+  return rotterdamAreaDefinitions.find((area) => matchesShopForRotterdamArea(shop, area));
+}
+
+export function getIndexableRotterdamAreas(shopList: Shop[]) {
+  return rotterdamAreaDefinitions
+    .map((area) => ({ area, shops: filterShopsForRotterdamArea(shopList, area) }))
+    .filter(({ area, shops }) => shops.length >= area.minimumListings);
+}
+
 export function filterShopsForCityArea(
   shopList: Shop[],
   citySlug: CitySlug,
@@ -237,10 +294,12 @@ export function searchShopList(shopList: Shop[], query: string) {
 
   const aliasTargets = getSearchAliasTargets(value);
   const utrechtAreaTargets = getUtrechtAreaSearchTargets(value);
+  const rotterdamAreaTargets = getRotterdamAreaSearchTargets(value);
   const cityTargets = getSearchCityTargets(value);
   const referenceCityTargets = getReferenceCityTargets(value);
   const scopedCityTargets = uniqueValues([...cityTargets, ...referenceCityTargets]);
   const canMatchUtrechtArea = scopedCityTargets.length === 0 || scopedCityTargets.includes("utrecht");
+  const canMatchRotterdamArea = scopedCityTargets.length === 0 || scopedCityTargets.includes("rotterdam");
   const exactCityTarget = getExactCityTarget(value);
   const isGeneralSupportedCityQuery = isGeneralSupportedCitySearch(value);
   const locationOnlyQuery = getLocationOnlyQuery(value);
@@ -263,6 +322,10 @@ export function searchShopList(shopList: Shop[], query: string) {
     }
 
     if (canMatchUtrechtArea && utrechtAreaTargets.some((area) => matchesShopForCityArea(shop, "utrecht", area))) {
+      return true;
+    }
+
+    if (canMatchRotterdamArea && rotterdamAreaTargets.some((area) => matchesShopForRotterdamArea(shop, area))) {
       return true;
     }
 
@@ -324,8 +387,10 @@ function getSearchAliasTargets(value: string) {
   });
 
   getReferenceAreaTargets(value).forEach((areaSlug) => {
-    if (!targets.includes(areaSlug)) {
-      targets.push(areaSlug);
+    const area = getAreaDefinition(areaSlug);
+
+    if (area && !targets.includes(area.slug)) {
+      targets.push(area.slug);
     }
   });
 
@@ -359,6 +424,7 @@ function isGeneralSupportedCitySearch(value: string) {
     "tobacco shops",
     "tabakswinkel",
     "tabakszaak",
+    "sigarenwinkel",
     "tabak",
     "tabak shop",
     "tabac",
@@ -383,6 +449,7 @@ function getLocationOnlyQuery(value: string) {
     "waar kan ik sigaretten kopen",
     "tabakswinkel",
     "tabakszaak",
+    "sigarenwinkel",
     "tabak",
     "tabak shop",
     "tobacco shops",
@@ -638,6 +705,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     (Number.isFinite(latitude) && Number.isFinite(longitude)
       ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
       : "");
+  const openingHours = readOpeningHours(row);
 
   return {
     id: readId(row, ["id"]),
@@ -648,7 +716,8 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     latitude,
     longitude,
     neighborhood: normalizeLeidscheRijnSpelling(readString(row, ["neighborhood", "area", "district"]) ?? city),
-    openingHours: readOpeningHours(row),
+    openingHours,
+    openingHoursVerifiedForShop: hasConfirmedShopOpeningHoursEvidence(row),
     phone: readString(row, ["phone", "phone_number", "telephone"]),
     website: readString(row, ["website", "website_url", "url"]),
     googleMapsLink,
@@ -757,6 +826,54 @@ function readOpeningHours(row: SupabaseShopRow): OpeningHoursSlot[] {
   }
 
   return [];
+}
+
+function hasConfirmedShopOpeningHoursEvidence(row: SupabaseShopRow) {
+  return containsConfirmedShopHoursEvidence(readRaw(row, ["opening_hours", "openingHours", "hours"]));
+}
+
+function containsConfirmedShopHoursEvidence(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some(containsConfirmedShopHoursEvidence);
+  }
+
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const record = value as Record<string, unknown>;
+  const booleanEvidenceKeys = ["shop_hours_verified", "opening_hours_verified_for_shop", "verified_shop_hours"];
+
+  if (booleanEvidenceKeys.some((key) => record[key] === true)) {
+    return true;
+  }
+
+  const scopeValues = [record.scope, record.applies_to, record.hours_type]
+    .filter((item): item is string => typeof item === "string")
+    .map(normalizeAreaText);
+
+  if (scopeValues.some((scope) => ["shop", "store", "winkel"].includes(scope))) {
+    return true;
+  }
+
+  const note = typeof record.note === "string" ? normalizeAreaText(record.note) : "";
+  const explicitNotePhrases = [
+    "shop opening hours",
+    "shop hours verified",
+    "verified shop hours",
+    "store opening hours",
+    "store hours verified",
+    "verified store hours",
+    "winkel openingstijden",
+    "winkel openingstijden bevestigd",
+    "bevestigde winkel openingstijden"
+  ];
+
+  if (explicitNotePhrases.some((phrase) => note.includes(phrase))) {
+    return true;
+  }
+
+  return Object.values(record).some(containsConfirmedShopHoursEvidence);
 }
 
 function parseOpeningHoursSlot(value: unknown): OpeningHoursSlot | null {

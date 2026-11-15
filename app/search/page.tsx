@@ -16,6 +16,7 @@ import {
   type CitySlug
 } from "@/data/cities";
 import { getUtrechtAreaDefinition, getUtrechtAreaDisplayName } from "@/data/utrecht-seo";
+import { getRotterdamAreaDefinition } from "@/data/rotterdam";
 import {
   Shop,
   getPlaceTypeLabel,
@@ -27,7 +28,9 @@ import {
 import {
   filterShopsForArea,
   filterShopsForCityArea,
+  filterShopsForRotterdamArea,
   getAllShops,
+  getIndexableRotterdamAreas,
   matchesNormalizedText,
   normalizeAreaText,
   searchShopList
@@ -37,6 +40,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const searchRelatedLinks = [
+  { href: "/rotterdam", label: "Tobacco shops Rotterdam" },
   { href: "/utrecht", label: "Tobacco shops Utrecht" },
   { href: "/tabakswinkel-utrecht", label: "Tabakswinkels in Utrecht" },
   { href: "/sigaretten-kopen-utrecht", label: "Sigaretten kopen in Utrecht" },
@@ -51,14 +55,14 @@ const searchRelatedLinks = [
 
 const searchFaqs = [
   {
-    question: "How can I search for tobacco shops in Amsterdam or Utrecht?",
+    question: "How can I search for tobacco shops in Amsterdam, Utrecht or Rotterdam?",
     answer:
       "Enter a city, area, postal code, street, station name or neighborhood. Search results show practical listing details where available."
   },
   {
     question: "Can I search by neighborhood or postal code?",
     answer:
-      "Yes. The search page supports neighborhood names such as De Pijp, Overvecht or Noord, area aliases such as Bijlmer, and postal codes such as 1012 or 3511."
+      "Yes. The search page supports area names such as De Pijp, Overvecht, Kralingen or Rotterdam Zuid, as well as streets and postal codes."
   },
   {
     question: "Can I filter by open now?",
@@ -100,10 +104,10 @@ type SearchPageProps = {
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Search Tobacco Shops in Amsterdam and Utrecht | Map & Directions"
+    absolute: "Search Tobacco Shops in Amsterdam, Utrecht & Rotterdam | Map"
   },
   description:
-    "Search tobacco shops, kiosks and gas stations in Amsterdam and Utrecht by city, area, postal code or street, with opening hours, map directions and nearby locations. Adults 18+ only.",
+    "Search published tobacco shop, kiosk and gas station listings in Amsterdam, Utrecht and Rotterdam by city, area, postal code or street. Adults 18+ only.",
   alternates: {
     canonical: "/search"
   },
@@ -167,7 +171,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       <div className="md:mb-6">
         <p className="hidden text-sm font-bold uppercase text-teal md:block">Supported city search</p>
         <h1 className="sr-only md:not-sr-only md:mt-3 md:block md:text-3xl md:font-bold md:text-ink lg:text-4xl">
-          Tobacco shops near you in Amsterdam and Utrecht
+          Tobacco shops near you in Amsterdam, Utrecht and Rotterdam
         </h1>
         <p className="mt-3 hidden max-w-3xl text-sm leading-6 text-muted md:block">
           Use filters for practical information only. Listings are neutral and should be verified before visiting.
@@ -354,8 +358,14 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
       filters.selectedCity === "utrecht"
         ? getUtrechtAreaDefinition(filters.selectedNeighborhood)
         : undefined;
+    const rotterdamArea =
+      filters.selectedCity === "rotterdam"
+        ? getRotterdamAreaDefinition(filters.selectedNeighborhood)
+        : getScopedRotterdamArea(filters.selectedNeighborhood);
 
-    if (utrechtArea) {
+    if (rotterdamArea) {
+      filteredShops = filterShopsForRotterdamArea(filteredShops, rotterdamArea);
+    } else if (utrechtArea) {
       filteredShops = filterShopsForCityArea(filteredShops, "utrecht", utrechtArea);
     } else if (getAreaDefinition(filters.selectedNeighborhood)) {
       filteredShops = filterShopsForArea(filteredShops, filters.selectedNeighborhood);
@@ -436,7 +446,14 @@ function getActiveFilterLabels(filters: ShopFilters) {
   if (filters.openNow) labels.push("Open now");
   if (filters.sortNearest) labels.push("Nearest");
   if (filters.selectedCity) labels.push(getCityDefinition(filters.selectedCity)?.name ?? filters.selectedCity);
-  if (filters.selectedNeighborhood) labels.push(getAreaDefinition(filters.selectedNeighborhood)?.label ?? filters.selectedNeighborhood);
+  if (filters.selectedNeighborhood) {
+    labels.push(
+      getScopedRotterdamArea(filters.selectedNeighborhood)?.label ??
+        getRotterdamAreaDefinition(filters.selectedNeighborhood)?.label ??
+        getAreaDefinition(filters.selectedNeighborhood)?.label ??
+        filters.selectedNeighborhood
+    );
+  }
   if (filters.selectedPlaceType) labels.push(getPlaceTypeLabel(filters.selectedPlaceType));
   if (filters.hasPhone) labels.push("Has phone number");
   if (filters.hasWebsite) labels.push("Has website");
@@ -483,11 +500,19 @@ function getNeighborhoodFilterOptions(shopList: Shop[], selectedCity: CitySlug |
     return areaDefinitions.map((area) => ({ label: area.label, value: area.slug }));
   }
 
+  if (selectedCity === "rotterdam") {
+    return getIndexableRotterdamAreas(shopList).map(({ area }) => ({ label: area.label, value: area.slug }));
+  }
+
   return uniqueOptions([
     ...areaDefinitions.map((area) => ({ label: area.label, value: area.slug })),
     ...getDynamicNeighborhoodOptions(shopList.filter((shop) => cityMatchesShop(shop, "utrecht"))).map((option) => ({
       label: `Utrecht: ${option.label}`,
       value: option.value
+    })),
+    ...getIndexableRotterdamAreas(shopList).map(({ area }) => ({
+      label: `Rotterdam: ${area.label.replace(/^Rotterdam\s+/i, "")}`,
+      value: `rotterdam:${area.slug}`
     }))
   ]);
 }
@@ -542,11 +567,34 @@ function getQuickSearchLinks(shopList: Shop[], selectedCity: CitySlug | ""): Qui
     ];
   }
 
+  if (selectedCity === "rotterdam") {
+    const city = getCityDefinition("rotterdam");
+    const eligibleAreaSlugs = new Set<string>(getIndexableRotterdamAreas(shopList).map(({ area }) => area.slug));
+
+    return (
+      city?.quickSearches
+        .filter((item) => !item.areaSlug || eligibleAreaSlugs.has(item.areaSlug))
+        .map((item) => ({
+          href: buildQuickSearchHref(item.query, "rotterdam", item.areaSlug),
+          label: item.label,
+          query: item.query
+        })) ?? []
+    );
+  }
+
   return cityDefinitions.map((city) => ({
     href: `/search?city=${city.slug}&q=${encodeURIComponent(city.name)}`,
     label: city.name,
     query: city.name
   }));
+}
+
+function getScopedRotterdamArea(value: string) {
+  if (!value.startsWith("rotterdam:")) {
+    return undefined;
+  }
+
+  return getRotterdamAreaDefinition(value.slice("rotterdam:".length));
 }
 
 function buildQuickSearchHref(query: string, citySlug?: CitySlug, areaFilter?: string) {

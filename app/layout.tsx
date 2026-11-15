@@ -14,18 +14,20 @@ export const metadata: Metadata = {
     template: "%s | TobaccoNearby"
   },
   description:
-    "Find practical location information for tobacco shops, kiosks and gas stations in supported Dutch cities, including Amsterdam and Utrecht. Adults 18+ only.",
+    "Find practical location information for published tobacco shop, kiosk and gas station listings in Amsterdam, Utrecht and Rotterdam. Adults 18+ only.",
   keywords: [
     "tobacco shops Amsterdam",
     "tobacco shops Utrecht",
+    "tobacco shops Rotterdam",
     "Amsterdam tobacconist locations",
     "Utrecht tobacconist locations",
+    "Rotterdam tobacconist locations",
     "tobacco shop opening hours Netherlands"
   ],
   openGraph: {
     title: "TobaccoNearby",
     description:
-      "Find practical location information for tobacco shops, kiosks and gas stations in supported Dutch cities, including Amsterdam and Utrecht. Adults 18+ only.",
+      "Find practical location information for published tobacco shop, kiosk and gas station listings in Amsterdam, Utrecht and Rotterdam. Adults 18+ only.",
     url: SITE_URL,
     siteName: "TobaccoNearby",
     locale: "en_US",

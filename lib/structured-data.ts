@@ -1,4 +1,4 @@
-import type { DayName, OpeningHoursSlot, Shop } from "@/data/shops";
+import { getConfirmedShopOpeningHours, type DayName, type OpeningHoursSlot, type Shop } from "@/data/shops";
 import { SITE_URL } from "@/lib/site-config";
 
 export type BreadcrumbJsonLdItem = {
@@ -67,8 +67,9 @@ export function generateLocalBusinessJsonLd(shop: Shop) {
     schema.hasMap = shop.googleMapsLink.trim();
   }
 
-  const openingHoursSpecification = getOpeningHoursSpecificationJsonLd(shop.openingHours);
-  const openingHours = getOpeningHoursJsonLd(shop.openingHours);
+  const confirmedOpeningHours = getConfirmedShopOpeningHours(shop);
+  const openingHoursSpecification = getOpeningHoursSpecificationJsonLd(confirmedOpeningHours);
+  const openingHours = getOpeningHoursJsonLd(confirmedOpeningHours);
 
   if (openingHoursSpecification.length > 0) {
     schema.openingHoursSpecification = openingHoursSpecification;
