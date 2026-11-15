@@ -21,6 +21,7 @@ import {
   getConfirmedShopOpeningHours,
   formatShopOpeningHours,
   getDistanceKm,
+  getOpeningStatus,
   getOpeningStatusLabel,
   getPlaceTypeLabel,
   getTodayOpeningHours,
@@ -605,8 +606,9 @@ function getNearbyAreaInformation(shop: Shop, areaLabel: string) {
 
 function getShopFaqs(shop: Shop, directionsUrl: string | null): FAQItem[] {
   const todayHours = getTodayOpeningHours(shop);
+  const openingStatusValue = getOpeningStatus(shop);
   const openingStatus = getOpeningStatusLabel(shop);
-  const hasOpeningHours = todayHours !== "Opening hours not available";
+  const hasOpeningHours = openingStatusValue !== "unknown";
 
   return [
     {
@@ -618,7 +620,7 @@ function getShopFaqs(shop: Shop, directionsUrl: string | null): FAQItem[] {
     {
       question: `Is ${shop.name} currently open?`,
       answer:
-        openingStatus === "Opening hours not available"
+        openingStatusValue === "unknown"
           ? "Current open status cannot be determined because opening-hours data is missing or unclear."
           : `Available opening-hours data currently shows this location as ${openingStatus.toLowerCase()}. Please verify before travelling.`
     },

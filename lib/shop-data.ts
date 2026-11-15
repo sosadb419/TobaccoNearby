@@ -998,8 +998,8 @@ function parseOpeningHoursSlot(value: unknown): OpeningHoursSlot | null {
 
   return {
     days,
-    opens,
-    closes,
+    opens: normalizeTime(opens),
+    closes: normalizeTime(closes, true),
     note: typeof record.note === "string" ? record.note : undefined
   };
 }
@@ -1018,7 +1018,7 @@ function parseDayEntry(day: string, value: unknown): OpeningHoursSlot[] {
       return isClosedOpeningHoursText(value) ? [{ days, opens: "00:00", closes: "00:00", note: "Closed" }] : [];
     }
 
-    return [{ days, opens: normalizeTime(match[1]), closes: normalizeTime(match[2]) }];
+    return [{ days, opens: normalizeTime(match[1]), closes: normalizeTime(match[2], true) }];
   }
 
   if (typeof value === "object") {
@@ -1101,8 +1101,12 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
-function normalizeTime(value: string) {
+function normalizeTime(value: string, isClosingTime = false) {
   const [hour, minute] = value.split(":");
+
+  if (isClosingTime && hour === "24" && minute === "00") {
+    return "23:59";
+  }
 
   return `${hour.padStart(2, "0")}:${minute}`;
 }

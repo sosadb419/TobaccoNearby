@@ -21,6 +21,7 @@ where status = 'published'
   and opening_hours is not null
   and (
     opening_hours::text ~* '00:00.{0,120}23:5[89]'
+    or opening_hours::text ~* '00:00.{0,120}24:00'
     or opening_hours::text ~* '24\s*/\s*7'
     or opening_hours::text ~* '24\s*(hours?|uur)'
   )

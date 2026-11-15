@@ -49,6 +49,9 @@ export type Coordinates = {
 
 export type OpeningStatus = "open" | "closed" | "unknown";
 
+export const OPENING_HOURS_NOT_AVAILABLE = "Opening hours not available";
+export const SHOP_OPENING_HOURS_NOT_CONFIRMED = "Shop opening hours not confirmed";
+
 export const amsterdamCentralStation: Coordinates = {
   latitude: 52.379128,
   longitude: 4.900272
@@ -378,7 +381,7 @@ export function formatOpeningHours(slots: OpeningHoursSlot[]) {
   const readableSlots = slots.filter(isReadableOpeningHoursSlot);
 
   if (readableSlots.length === 0) {
-    return ["Opening hours not available"];
+    return [OPENING_HOURS_NOT_AVAILABLE];
   }
 
   return readableSlots.map((slot) => {
@@ -391,7 +394,17 @@ export function formatOpeningHours(slots: OpeningHoursSlot[]) {
 }
 
 export function formatShopOpeningHours(shop: Shop) {
-  return formatOpeningHours(getConfirmedShopOpeningHours(shop));
+  const openingHours = getConfirmedShopOpeningHours(shop);
+
+  return openingHours.some(isReadableOpeningHoursSlot)
+    ? formatOpeningHours(openingHours)
+    : [getOpeningHoursUnavailableLabel(shop)];
+}
+
+export function getOpeningHoursUnavailableLabel(shop: Shop) {
+  return (shop.place_type ?? "").trim().toLowerCase() === "gas_station"
+    ? SHOP_OPENING_HOURS_NOT_CONFIRMED
+    : OPENING_HOURS_NOT_AVAILABLE;
 }
 
 export function getConfirmedShopOpeningHours(shop: Shop) {
@@ -416,7 +429,7 @@ export function getTodayOpeningHours(shop: Shop, date = new Date()) {
   const openingHours = getConfirmedShopOpeningHours(shop);
 
   if (!openingHours.some(isReadableOpeningHoursSlot)) {
-    return "Opening hours not available";
+    return getOpeningHoursUnavailableLabel(shop);
   }
 
   const { day: today, minutes } = getAmsterdamDayAndMinutes(date);
@@ -437,7 +450,7 @@ export function getTodayOpeningHours(shop: Shop, date = new Date()) {
   }
 
   if (!isReadableOpeningHoursSlot(slot)) {
-    return "Opening hours not available";
+    return getOpeningHoursUnavailableLabel(shop);
   }
 
   return `${slot.opens}–${slot.closes}${slot.note ? ` (${slot.note})` : ""}`;
@@ -474,14 +487,14 @@ export function getOpeningStatusLabel(shop: Shop, date = new Date()) {
   const status = getOpeningStatus(shop, date);
 
   if (status === "unknown") {
-    return "Opening hours not available";
+    return getOpeningHoursUnavailableLabel(shop);
   }
 
   return status === "open" ? "Open now" : "Closed now";
 }
 
 export function getOpeningStatus(shop: Shop, date = new Date()): OpeningStatus {
-  if (getTodayOpeningHours(shop, date) === "Opening hours not available") {
+  if (!hasReadableOpeningHours(shop)) {
     return "unknown";
   }
 
@@ -516,7 +529,7 @@ export function getOpeningHoursSpecification(shop: Shop) {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
       opens: slot.opens,
-      closes: slot.closes
+      closes: normalizeClosingTime(slot.closes)
     }));
 }
 
@@ -589,11 +602,19 @@ function getPreviousDay(day: DayName) {
 function parseTime(value: string) {
   const [hour, minute] = value.split(":").map(Number);
 
+  if (hour === 24 && minute === 0) {
+    return 24 * 60;
+  }
+
   if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
     return null;
   }
 
   return hour * 60 + minute;
+}
+
+function normalizeClosingTime(value: string) {
+  return value === "24:00" ? "23:59" : value;
 }
 
 export function hasValidCoordinates(value: Pick<Shop, "latitude" | "longitude"> | Coordinates) {

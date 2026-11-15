@@ -101,7 +101,7 @@ function getOpeningHoursJsonLd(slots: OpeningHoursSlot[]) {
       return [];
     }
 
-    return slot.days.map((day) => `${dayAbbreviations[day]} ${slot.opens}-${slot.closes}`);
+    return slot.days.map((day) => `${dayAbbreviations[day]} ${slot.opens}-${normalizeClosingTime(slot.closes)}`);
   });
 }
 
@@ -116,21 +116,27 @@ function getOpeningHoursSpecificationJsonLd(slots: OpeningHoursSlot[]) {
         "@type": "OpeningHoursSpecification",
         dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
         opens: slot.opens,
-        closes: slot.closes
+        closes: normalizeClosingTime(slot.closes)
       }
     ];
   });
 }
 
 function isValidOpeningHoursSlot(slot: OpeningHoursSlot) {
+  const closes = normalizeClosingTime(slot.closes);
+
   return (
     !isClosedOpeningHoursSlot(slot) &&
     slot.days.length > 0 &&
     slot.days.every((day) => validDays.has(day)) &&
     isValidTime(slot.opens) &&
-    isValidTime(slot.closes) &&
-    slot.opens !== slot.closes
+    isValidTime(closes) &&
+    slot.opens !== closes
   );
+}
+
+function normalizeClosingTime(value: string) {
+  return value === "24:00" ? "23:59" : value;
 }
 
 function isClosedOpeningHoursSlot(slot: OpeningHoursSlot) {

@@ -11,6 +11,7 @@ import { getCityDefinition, getDominantCitySlugForShops, type CitySlug } from "@
 import {
   getDirectionsUrl,
   getOpeningStatusLabel,
+  getOpeningStatus,
   getPlaceTypeLabel,
   getTodayOpeningHours,
   Shop,
@@ -261,9 +262,10 @@ function createShopPopup(shop: Shop) {
     .filter(Boolean)
     .join(", ");
   const openingStatusLabel = getOpeningStatusLabel(shop);
+  const openingStatus = getOpeningStatus(shop);
   const todayOpeningHours = getTodayOpeningHours(shop);
   const openingText =
-    todayOpeningHours === "Opening hours not available"
+    openingStatus === "unknown"
       ? openingStatusLabel
       : `${openingStatusLabel}. Today: ${todayOpeningHours}`;
 

@@ -7,11 +7,11 @@ import {
   formatShopOpeningHours,
   getDirectionsUrl,
   getDistanceKm,
+  getOpeningStatus,
   getOpeningStatusLabel,
   getPlaceTypeLabel,
   getTodayOpeningHours,
   hasValidCoordinates,
-  isOpenNow,
   Shop
 } from "@/data/shops";
 
@@ -26,7 +26,7 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
   const distanceOrigin = origin ?? getCityReferencePointForShop(shop);
   const distance = hasValidCoordinates(shop) ? formatDistance(getDistanceKm(shop, distanceOrigin)) : "";
   const distanceContext = origin ? "from your location" : `from ${getCityReferenceLabelForShop(shop)}`;
-  const openNow = showLiveStatus ? isOpenNow(shop) : null;
+  const openingStatus = showLiveStatus ? getOpeningStatus(shop) : null;
   const openingStatusLabel = showLiveStatus ? getOpeningStatusLabel(shop) : "";
   const todayOpeningHours = showLiveStatus ? getTodayOpeningHours(shop) : "";
   const directionsUrl = getDirectionsUrl(shop);
@@ -81,16 +81,16 @@ export default function ShopCard({ shop, origin, showLiveStatus = false, priorit
               <>
                 <span
                   className={
-                    openNow
+                    openingStatus === "open"
                       ? "font-semibold text-moss"
-                      : openingStatusLabel === "Opening hours not available"
+                      : openingStatus === "unknown"
                         ? "font-semibold text-muted"
                         : "font-semibold text-amber"
                   }
                 >
                   {openingStatusLabel}
                 </span>
-                {todayOpeningHours !== "Opening hours not available" ? (
+                {openingStatus !== "unknown" ? (
                   <span className="block">Today: {todayOpeningHours}</span>
                 ) : null}
               </>

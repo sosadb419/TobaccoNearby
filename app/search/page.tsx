@@ -400,7 +400,7 @@ function applyShopFilters(shops: Shop[], filters: ShopFilters) {
 }
 
 function isShopOpenNow(shop: Shop) {
-  return shop.openingHours.length > 0 && isOpenNow(shop);
+  return isOpenNow(shop);
 }
 
 function hasText(value?: string) {
