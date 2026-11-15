@@ -305,15 +305,14 @@ export function searchShopList(shopList: Shop[], query: string) {
   const locationOnlyQuery = getLocationOnlyQuery(value);
 
   const matchedShops = shopList.filter((shop) => {
-    const searchable = getShopSearchableText(shop);
     const matchesScopedCity =
       scopedCityTargets.length === 0 || scopedCityTargets.some((citySlug) => cityMatchesShop(shop, citySlug));
 
-    if (matchesNormalizedText(searchable, value)) {
+    if (getShopSearchMatchScore(shop, value) !== null) {
       return true;
     }
 
-    if (locationOnlyQuery && matchesNormalizedText(searchable, locationOnlyQuery)) {
+    if (locationOnlyQuery && getShopSearchMatchScore(shop, locationOnlyQuery) !== null) {
       return true;
     }
 
@@ -346,7 +345,7 @@ export function searchShopList(shopList: Shop[], query: string) {
     return false;
   });
 
-  return sortSearchResultsForQuery(matchedShops, value);
+  return sortSearchResultsForQuery(matchedShops, value, locationOnlyQuery);
 }
 
 function normalizeSearchValue(query: string) {
@@ -367,6 +366,97 @@ function getShopSearchableText(shop: Shop) {
       shop.nearbyPublicTransport ?? ""
     ].join(" ")
   );
+}
+
+const minimumPartialSearchLength = 3;
+
+type SearchableShopField = {
+  allowPartial: boolean;
+  compact?: boolean;
+  value?: string;
+  weight: number;
+};
+
+export function getShopSearchMatchScore(shop: Shop, query: string) {
+  const value = normalizeSearchValue(query);
+
+  if (!value) {
+    return null;
+  }
+
+  const fields: SearchableShopField[] = [
+    { value: shop.name, weight: 0, allowPartial: true },
+    { value: shop.address, weight: 1, allowPartial: true },
+    { value: shop.neighborhood, weight: 2, allowPartial: true },
+    { value: shop.postalCode, weight: 3, allowPartial: true, compact: true },
+    { value: shop.city, weight: 4, allowPartial: false },
+    { value: shop.country, weight: 5, allowPartial: false },
+    { value: shop.place_type, weight: 6, allowPartial: false },
+    { value: shop.area_slug, weight: 7, allowPartial: false },
+    { value: shop.nearbyPublicTransport, weight: 8, allowPartial: false }
+  ];
+  const queryTokens = value.split(" ");
+  const canUsePartialMatch = queryTokens.every((token) => token.length >= minimumPartialSearchLength);
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  fields.forEach((field) => {
+    const normalizedField = normalizeAreaText(field.value);
+
+    if (!normalizedField) {
+      return;
+    }
+
+    if (normalizedField === value) {
+      bestScore = Math.min(bestScore, field.weight);
+      return;
+    }
+
+    if (value.length >= minimumPartialSearchLength && matchesNormalizedText(normalizedField, value)) {
+      bestScore = Math.min(bestScore, 10 + field.weight);
+      return;
+    }
+
+    if (field.compact) {
+      const compactField = normalizedField.replaceAll(" ", "");
+      const compactQuery = value.replaceAll(" ", "");
+
+      if (compactField === compactQuery) {
+        bestScore = Math.min(bestScore, field.weight);
+        return;
+      }
+
+      if (compactQuery.length >= minimumPartialSearchLength && compactField.startsWith(compactQuery)) {
+        bestScore = Math.min(bestScore, 20 + field.weight);
+        return;
+      }
+    }
+
+    if (!field.allowPartial || !canUsePartialMatch) {
+      return;
+    }
+
+    const fieldTokens = normalizedField.split(" ");
+    const matchesEveryQueryToken = queryTokens.every((queryToken) =>
+      fieldTokens.some((fieldToken) => fieldToken.startsWith(queryToken))
+    );
+
+    if (matchesEveryQueryToken) {
+      bestScore = Math.min(bestScore, 20 + field.weight);
+    }
+  });
+
+  if (!Number.isFinite(bestScore) && canUsePartialMatch) {
+    const searchableTokens = getShopSearchableText(shop).split(" ");
+    const matchesAcrossFields = queryTokens.every((queryToken) =>
+      searchableTokens.some((fieldToken) => fieldToken.startsWith(queryToken))
+    );
+
+    if (matchesAcrossFields) {
+      bestScore = 40;
+    }
+  }
+
+  return Number.isFinite(bestScore) ? bestScore : null;
 }
 
 function getSearchAliasTargets(value: string) {
@@ -483,9 +573,11 @@ function getLocationOnlyQuery(value: string) {
   return normalized && normalized !== value ? normalized : "";
 }
 
-function sortSearchResultsForQuery(shopList: Shop[], value: string) {
+function sortSearchResultsForQuery(shopList: Shop[], value: string, locationOnlyQuery: string) {
   const priorityTerms = getPriorityTermsForSearch(value);
   const referenceCityTargets = getReferenceCityTargets(value);
+  const compareSearchMatch = (a: Shop, b: Shop) =>
+    getBestSearchMatchScore(a, value, locationOnlyQuery) - getBestSearchMatchScore(b, value, locationOnlyQuery);
 
   if (referenceCityTargets.length > 0) {
     const city = getCityDefinition(referenceCityTargets[0]);
@@ -493,6 +585,7 @@ function sortSearchResultsForQuery(shopList: Shop[], value: string) {
     if (city) {
       return [...shopList].sort(
         (a, b) =>
+          compareSearchMatch(a, b) ||
           getSearchPriorityScore(a, priorityTerms) -
             getSearchPriorityScore(b, priorityTerms) ||
           getDistanceKm(a, city.referencePoint) -
@@ -501,11 +594,23 @@ function sortSearchResultsForQuery(shopList: Shop[], value: string) {
     }
   }
 
-  if (priorityTerms.length === 0) {
-    return shopList;
+  return [...shopList].sort(
+    (a, b) =>
+      compareSearchMatch(a, b) ||
+      getSearchPriorityScore(a, priorityTerms) - getSearchPriorityScore(b, priorityTerms)
+  );
+}
+
+function getBestSearchMatchScore(shop: Shop, value: string, locationOnlyQuery: string) {
+  const scores = [getShopSearchMatchScore(shop, value)];
+
+  if (locationOnlyQuery) {
+    scores.push(getShopSearchMatchScore(shop, locationOnlyQuery));
   }
 
-  return [...shopList].sort((a, b) => getSearchPriorityScore(a, priorityTerms) - getSearchPriorityScore(b, priorityTerms));
+  const directScores = scores.filter((score): score is number => score !== null);
+
+  return directScores.length > 0 ? Math.min(...directScores) : Number.MAX_SAFE_INTEGER;
 }
 
 function getPriorityTermsForSearch(value: string) {
