@@ -24,6 +24,7 @@ export type Shop = {
   longitude: number;
   neighborhood: string;
   openingHours: OpeningHoursSlot[];
+  openingHoursVerifiedForShop?: boolean;
   phone?: string;
   website?: string;
   googleMapsLink: string;
@@ -389,13 +390,43 @@ export function formatOpeningHours(slots: OpeningHoursSlot[]) {
   });
 }
 
+export function formatShopOpeningHours(shop: Shop) {
+  return formatOpeningHours(getConfirmedShopOpeningHours(shop));
+}
+
+export function getConfirmedShopOpeningHours(shop: Shop) {
+  return isAmbiguousGasStationTwentyFourHourSchedule(shop) ? [] : shop.openingHours;
+}
+
+export function isAmbiguousGasStationTwentyFourHourSchedule(shop: Shop) {
+  if ((shop.place_type ?? "").trim().toLowerCase() !== "gas_station" || shop.openingHoursVerifiedForShop === true) {
+    return false;
+  }
+
+  const coveredDays = new Set<DayName>();
+
+  shop.openingHours.filter(isNearTwentyFourHourSlot).forEach((slot) => {
+    slot.days.forEach((day) => coveredDays.add(day));
+  });
+
+  return allDays.every((day) => coveredDays.has(day));
+}
+
 export function getTodayOpeningHours(shop: Shop, date = new Date()) {
-  if (!hasReadableOpeningHours(shop)) {
+  const openingHours = getConfirmedShopOpeningHours(shop);
+
+  if (!openingHours.some(isReadableOpeningHoursSlot)) {
     return "Opening hours not available";
   }
 
-  const today = getAmsterdamDayAndMinutes(date).day;
-  const slot = shop.openingHours.find((item) => item.days.includes(today));
+  const { day: today, minutes } = getAmsterdamDayAndMinutes(date);
+  const previousDay = getPreviousDay(today);
+  const carriedOverSlot = openingHours.find((slot) => {
+    const closes = parseTime(slot.closes);
+
+    return slot.days.includes(previousDay) && isOvernightOpeningHoursSlot(slot) && closes !== null && minutes < closes;
+  });
+  const slot = carriedOverSlot ?? openingHours.find((item) => item.days.includes(today));
 
   if (!slot) {
     return "Closed";
@@ -414,24 +445,29 @@ export function getTodayOpeningHours(shop: Shop, date = new Date()) {
 
 export function isOpenNow(shop: Shop, date = new Date()) {
   const { day, minutes } = getAmsterdamDayAndMinutes(date);
-  const slot = shop.openingHours.find((item) => item.days.includes(day));
+  const previousDay = getPreviousDay(day);
 
-  if (!slot || isClosedOpeningHoursSlot(slot)) {
-    return false;
-  }
+  return getConfirmedShopOpeningHours(shop).some((slot) => {
+    if (isClosedOpeningHoursSlot(slot)) {
+      return false;
+    }
 
-  const openMinutes = parseTime(slot.opens);
-  const closeMinutes = parseTime(slot.closes);
+    const openMinutes = parseTime(slot.opens);
+    const closeMinutes = parseTime(slot.closes);
 
-  if (openMinutes === null || closeMinutes === null || openMinutes === closeMinutes) {
-    return false;
-  }
+    if (openMinutes === null || closeMinutes === null || openMinutes === closeMinutes) {
+      return false;
+    }
 
-  if (closeMinutes < openMinutes) {
-    return minutes >= openMinutes || minutes < closeMinutes;
-  }
+    if (closeMinutes < openMinutes) {
+      return (
+        (slot.days.includes(day) && minutes >= openMinutes) ||
+        (slot.days.includes(previousDay) && minutes < closeMinutes)
+      );
+    }
 
-  return minutes >= openMinutes && minutes < closeMinutes;
+    return slot.days.includes(day) && minutes >= openMinutes && minutes < closeMinutes;
+  });
 }
 
 export function getOpeningStatusLabel(shop: Shop, date = new Date()) {
@@ -474,7 +510,7 @@ export function sortShopsByOpeningStatus<T extends Shop>(shopList: T[], date = n
 }
 
 export function getOpeningHoursSpecification(shop: Shop) {
-  return shop.openingHours
+  return getConfirmedShopOpeningHours(shop)
     .filter((slot) => isReadableOpeningHoursSlot(slot) && !isClosedOpeningHoursSlot(slot))
     .map((slot) => ({
       "@type": "OpeningHoursSpecification",
@@ -485,7 +521,25 @@ export function getOpeningHoursSpecification(shop: Shop) {
 }
 
 function hasReadableOpeningHours(shop: Shop) {
-  return shop.openingHours.some(isReadableOpeningHoursSlot);
+  return getConfirmedShopOpeningHours(shop).some(isReadableOpeningHoursSlot);
+}
+
+function isNearTwentyFourHourSlot(slot: OpeningHoursSlot) {
+  if (isClosedOpeningHoursSlot(slot)) {
+    return false;
+  }
+
+  const openMinutes = parseTime(slot.opens);
+  const closeMinutes = parseTime(slot.closes);
+
+  return openMinutes !== null && closeMinutes !== null && openMinutes <= 15 && closeMinutes >= 23 * 60 + 45;
+}
+
+function isOvernightOpeningHoursSlot(slot: OpeningHoursSlot) {
+  const openMinutes = parseTime(slot.opens);
+  const closeMinutes = parseTime(slot.closes);
+
+  return openMinutes !== null && closeMinutes !== null && closeMinutes < openMinutes;
 }
 
 function isReadableOpeningHoursSlot(slot: OpeningHoursSlot) {
@@ -524,6 +578,12 @@ function getAmsterdamDayAndMinutes(date: Date) {
     day,
     minutes: hour * 60 + minute
   };
+}
+
+function getPreviousDay(day: DayName) {
+  const index = allDays.indexOf(day);
+
+  return allDays[(index + allDays.length - 1) % allDays.length];
 }
 
 function parseTime(value: string) {
