@@ -36,6 +36,7 @@ export type Shop = {
   internal_notes?: string;
   place_type?: string;
   area_slug?: string;
+  motorwayOnlyAccess?: boolean;
   city: string;
   country: string;
   wheelchairAccessible?: boolean;
@@ -51,6 +52,14 @@ export type OpeningStatus = "open" | "closed" | "unknown";
 
 export const OPENING_HOURS_NOT_AVAILABLE = "Opening hours not available";
 export const SHOP_OPENING_HOURS_NOT_CONFIRMED = "Shop opening hours not confirmed";
+
+export function filterMotorwayOnlyAccess(shops: Shop[], excludeMotorwayOnly = true) {
+  return excludeMotorwayOnly ? shops.filter((shop) => shop.motorwayOnlyAccess !== true) : shops;
+}
+
+export function shouldExcludeMotorwayOnlyAccess(includeMotorway?: string) {
+  return includeMotorway !== "true";
+}
 
 export const amsterdamCentralStation: Coordinates = {
   latitude: 52.379128,

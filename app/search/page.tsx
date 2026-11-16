@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SlidersHorizontal } from "lucide-react";
+import { Check, SlidersHorizontal } from "lucide-react";
 import FAQSection from "@/components/FAQSection";
 import RelatedPagesSection from "@/components/RelatedPagesSection";
 import SearchBar from "@/components/SearchBar";
@@ -19,10 +19,12 @@ import { getUtrechtAreaDefinition, getUtrechtAreaDisplayName } from "@/data/utre
 import { getRotterdamAreaDefinition } from "@/data/rotterdam";
 import {
   Shop,
+  filterMotorwayOnlyAccess,
   getPlaceTypeLabel,
   isOpenNow,
   normalize,
   placeTypes,
+  shouldExcludeMotorwayOnlyAccess,
   sortShopsByOpeningStatus
 } from "@/data/shops";
 import {
@@ -99,6 +101,7 @@ type SearchPageProps = {
     placeType?: string;
     perPage?: string;
     city?: string;
+    includeMotorway?: string;
   }>;
 };
 
@@ -126,6 +129,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const wantsNearest = params.sort === "nearest";
   const shouldRequestLocation = params.locate === "true";
   const initialPerPage = params.perPage === "20" ? 20 : 10;
+  const excludeMotorwayOnly = shouldExcludeMotorwayOnlyAccess(params.includeMotorway);
 
   const allShops = await getAllShops();
   const baseResults = query ? searchShopList(allShops, query) : allShops;
@@ -137,7 +141,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     selectedPlaceType,
     hasPhone: params.hasPhone === "true",
     hasWebsite: params.hasWebsite === "true",
-    wheelchairAccessible: params.accessible === "true"
+    wheelchairAccessible: params.accessible === "true",
+    excludeMotorwayOnly
   };
   const results = sortShopsForSearch(applyShopFilters(baseResults, filters));
   const defaultCitySlug = selectedCity || getSearchCityTargets(query)[0] || getDominantCitySlugForShops(results);
@@ -158,6 +163,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   if (selectedNeighborhood) filterParams.set("neighborhood", selectedNeighborhood);
   if (selectedPlaceType) filterParams.set("placeType", selectedPlaceType);
   if (initialPerPage === 20) filterParams.set("perPage", "20");
+  if (!excludeMotorwayOnly) filterParams.set("includeMotorway", "true");
 
   const clearFilterParams = new URLSearchParams();
   if (query) clearFilterParams.set("q", query);
@@ -219,6 +225,26 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               active={params.accessible === "true"}
             />
             <Link
+              aria-checked={excludeMotorwayOnly}
+              className={`focus-ring rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                excludeMotorwayOnly
+                  ? "border-teal bg-teal text-white"
+                  : "border-line bg-white text-muted hover:border-teal hover:text-teal"
+              }`}
+              href={getMotorwayFilterHref(filterParams, excludeMotorwayOnly)}
+              role="checkbox"
+            >
+              <span
+                aria-hidden="true"
+                className={`mr-2 inline-flex h-4 w-4 items-center justify-center rounded-sm border ${
+                  excludeMotorwayOnly ? "border-white" : "border-line"
+                }`}
+              >
+                {excludeMotorwayOnly ? <Check size={12} strokeWidth={3} /> : null}
+              </span>
+              Exclude motorway-only locations
+            </Link>
+            <Link
               className="focus-ring rounded-lg border border-line bg-white px-3 py-2 text-sm font-semibold text-muted hover:border-teal hover:text-teal"
               href={clearFiltersHref}
             >
@@ -233,6 +259,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             {params.accessible ? <input type="hidden" name="accessible" value={params.accessible} /> : null}
             {params.hasPhone ? <input type="hidden" name="hasPhone" value={params.hasPhone} /> : null}
             {params.hasWebsite ? <input type="hidden" name="hasWebsite" value={params.hasWebsite} /> : null}
+            {!excludeMotorwayOnly ? <input type="hidden" name="includeMotorway" value="true" /> : null}
             <div className="grid gap-1">
               <label className="text-xs font-bold uppercase text-muted" htmlFor="city">
                 City
@@ -344,10 +371,11 @@ type ShopFilters = {
   hasPhone: boolean;
   hasWebsite: boolean;
   wheelchairAccessible: boolean;
+  excludeMotorwayOnly: boolean;
 };
 
 function applyShopFilters(shops: Shop[], filters: ShopFilters) {
-  let filteredShops = [...shops];
+  let filteredShops = filterMotorwayOnlyAccess(shops, filters.excludeMotorwayOnly);
 
   if (filters.selectedCity) {
     filteredShops = filteredShops.filter((shop) => cityMatchesShop(shop, filters.selectedCity));
@@ -458,8 +486,21 @@ function getActiveFilterLabels(filters: ShopFilters) {
   if (filters.hasPhone) labels.push("Has phone number");
   if (filters.hasWebsite) labels.push("Has website");
   if (filters.wheelchairAccessible) labels.push("Wheelchair accessible");
+  if (!filters.excludeMotorwayOnly) labels.push("Motorway-only locations included");
 
   return labels;
+}
+
+function getMotorwayFilterHref(params: URLSearchParams, excludeMotorwayOnly: boolean) {
+  const nextParams = new URLSearchParams(params);
+
+  if (excludeMotorwayOnly) {
+    nextParams.set("includeMotorway", "true");
+  } else {
+    nextParams.delete("includeMotorway");
+  }
+
+  return `/search${nextParams.toString() ? `?${nextParams.toString()}` : ""}`;
 }
 
 type FilterOption = {

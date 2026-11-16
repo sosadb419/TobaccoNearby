@@ -21,6 +21,7 @@ type SearchFilterState = {
   hasPhone: boolean;
   hasWebsite: boolean;
   wheelchairAccessible: boolean;
+  excludeMotorwayOnly: boolean;
 };
 
 type SearchResultsViewProps = {
@@ -347,7 +348,8 @@ function MobileSearchControls({
       selectedPlaceType: "",
       hasPhone: false,
       hasWebsite: false,
-      wheelchairAccessible: false
+      wheelchairAccessible: false,
+      excludeMotorwayOnly: true
     };
 
     setPendingFilters(clearedFilters);
@@ -476,9 +478,13 @@ function MobileSearchControls({
               />
               <MobileCheckbox
                 checked={pendingFilters.wheelchairAccessible}
-                className="col-span-2"
                 label="Wheelchair accessible"
                 onChange={(checked) => setPendingFilters((current) => ({ ...current, wheelchairAccessible: checked }))}
+              />
+              <MobileCheckbox
+                checked={pendingFilters.excludeMotorwayOnly}
+                label="Exclude motorway-only locations"
+                onChange={(checked) => setPendingFilters((current) => ({ ...current, excludeMotorwayOnly: checked }))}
               />
             </div>
 
@@ -630,6 +636,7 @@ function buildSearchHref(query: string, filters: SearchFilterState, perPage: 10 
   if (filters.hasPhone) params.set("hasPhone", "true");
   if (filters.hasWebsite) params.set("hasWebsite", "true");
   if (filters.wheelchairAccessible) params.set("accessible", "true");
+  if (!filters.excludeMotorwayOnly) params.set("includeMotorway", "true");
   if (perPage === 20) params.set("perPage", "20");
 
   const serialized = params.toString();

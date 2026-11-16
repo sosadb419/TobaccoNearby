@@ -160,6 +160,11 @@ export default async function ShopDetailPage({ params }: ShopDetailPageProps) {
           <p className="mt-4 rounded-lg border border-line bg-paper px-4 py-3 text-sm font-medium text-ink">
             This website is intended for adults aged 18+.
           </p>
+          {shop.motorwayOnlyAccess === true ? (
+            <p className="mt-4 rounded-lg border border-amber bg-amber/10 px-4 py-3 text-sm font-semibold text-ink">
+              Motorway-only access — this location cannot be reached via normal pedestrian or cycling routes.
+            </p>
+          ) : null}
 
           <section className="mt-6 rounded-lg border border-line bg-paper p-5" aria-labelledby="about-location-heading">
             <h2 id="about-location-heading" className="text-xl font-bold text-ink">

@@ -45,8 +45,9 @@ import {
 
 type SupabaseShopRow = Record<string, unknown>;
 
-const shopSelectColumns =
+const legacyShopSelectColumns =
   "id,name,slug,address,postal_code,city,country,latitude,longitude,neighborhood,opening_hours,phone,website,google_maps_url,wheelchair_accessible,public_transport_info,last_updated,updated_at,status,verified,last_checked_at,place_type,area_slug";
+const shopSelectColumns = `${legacyShopSelectColumns},motorway_only_access`;
 
 // This deduplicates reads during one server render only. Supabase requests remain no-store.
 const fetchAllShopsForRequest = cache(async (): Promise<Shop[]> => {
@@ -833,6 +834,7 @@ function mapSupabaseShop(row: SupabaseShopRow): Shop | null {
     last_checked_at: readDate(row, ["last_checked_at"]),
     place_type: readString(row, ["place_type", "placeType"]) ?? "tobacco_shop",
     area_slug: readString(row, ["area_slug", "areaSlug"]),
+    motorwayOnlyAccess: readBoolean(row, ["motorway_only_access", "motorwayOnlyAccess"]) ?? false,
     city,
     country,
     wheelchairAccessible: readBoolean(row, ["wheelchair_accessible", "accessible"]),
@@ -877,6 +879,12 @@ async function fetchPublishedShopRows(client: NonNullable<typeof supabase>) {
     "Supabase shops fetch with status filter failed because a selected column is missing. Retrying with available columns.",
     publishedQuery.error
   );
+
+  const legacyQuery = await client.from("shops").select(legacyShopSelectColumns).eq("status", "published");
+
+  if (!legacyQuery.error || !isMissingColumnError(legacyQuery.error)) {
+    return legacyQuery;
+  }
 
   return client.from("shops").select("*");
 }

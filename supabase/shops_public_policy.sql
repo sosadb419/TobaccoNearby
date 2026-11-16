@@ -57,6 +57,7 @@ grant select (
   verified,
   last_checked_at,
   place_type,
+  motorway_only_access,
   created_at,
   updated_at
 ) on table public.shops to anon;
